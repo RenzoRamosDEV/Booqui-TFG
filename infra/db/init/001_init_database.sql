@@ -24,6 +24,19 @@ INSERT INTO users (first_name, last_name, date_of_birth, contact_phone, contact_
 ('Beatriz', 'López', '1995-07-23', '622333444', 'beatriz.l@email.com', 'cust_pass_2', 'CUSTOMER'),
 ('Carlos', 'Martínez', '2001-11-02', '633444555', 'carlos.m@email.com', 'cust_pass_3', 'CUSTOMER');
 
+INSERT INTO users (first_name, last_name, date_of_birth, contact_phone, contact_email, password, role) VALUES
+('Diana', 'Sánchez', '1993-01-15', '644555666', 'diana.s@email.com', 'cust_pass_4', 'CUSTOMER'),
+('Elena', 'Pérez', '1985-05-30', '655666777', 'elena.p@email.com', 'cust_pass_5', 'CUSTOMER'),
+('Fernando', 'Gómez', '1997-04-10', '666777888', 'fernando.g@email.com', 'cust_pass_6', 'CUSTOMER'),
+('Gloria', 'Ruiz', '1980-12-05', '677888999', 'gloria.r@email.com', 'cust_pass_7', 'CUSTOMER'),
+('Hugo', 'Torres', '2001-08-21', '688999000', 'hugo.t@email.com', 'cust_pass_8', 'CUSTOMER'),
+('Isabel', 'Vidal', '1987-02-18', '699000111', 'isabel.v@email.com', 'cust_pass_9', 'CUSTOMER'),
+('Jorge', 'Cano', '1991-06-25', '600111222', 'jorge.c@email.com', 'cust_pass_10', 'CUSTOMER'),
+('Karla', 'Blanco', '1994-10-14', '611223344', 'karla.b@email.com', 'cust_pass_11', 'CUSTOMER'),
+('Luis', 'Méndez', '1989-09-08', '622334455', 'luis.m@email.com', 'cust_pass_12', 'CUSTOMER'),
+('Marta', 'Rivas', '1996-12-12', '633445566', 'marta.r@email.com', 'cust_pass_13', 'CUSTOMER'),
+('Noé', 'Vega', '2002-03-30', '644556677', 'noe.v@email.com', 'cust_pass_14', 'CUSTOMER');
+
 CREATE DATABASE event;
 
 USE event;
@@ -83,6 +96,10 @@ INSERT INTO events (title, description, available_tickets, location, start_date,
 ('Feria del Diseño y Craft', 'Mercadillo de ilustradores y diseñadores locales.', 60, 'Matadero, Madrid', '2026-09-12 11:00:00', '2026-09-13 20:00:00', 'Mercado de Diseño', 3.0, 'Arte', 'hola@mercadodediseno.es', '910000033', 'https://www.mataderomadrid.org/sites/default/files/styles/galeria_slide/public/2019-03/Mercado-Diseno-Matadero.jpg'),
 ('Ruta del Tapeo Histórico', 'Historia de Madrid a través de sus tabernas centenarias.', 15, 'Plaza de Cascorro, La Latina', '2026-05-30 13:00:00', '2026-05-30 16:00:00', 'Madrid Histórico Tours', 35.0, 'Gastronomía', 'guias@madridhistorico.com', '910000034', 'https://www.guiasviajar.com/wp-content/uploads/2018/02/madrid-tabernas-centenarias-latina.jpg'),
 ('Concierto de Indie Pop', 'Presentación del nuevo álbum de bandas emergentes.', 20, 'Sala Ochoymedio, Malasaña', '2026-04-17 21:30:00', '2026-04-18 01:00:00', 'Intromúsica', 22.5, 'Música', 'tickets@intromusica.com', '910000035', 'https://www.binaural.es/wp-content/uploads/2022/04/concierto-indie-sala-ochoymedio.jpg');
+
+INSERT INTO events (title, description, available_tickets, location, start_date, end_date, organized, price, category, contact_email, contact_phone, url_image) VALUES
+('Bad Bunny: DeBÍ TiRAR MáS FOToS World Tour', 'El regreso del Bad Bunny a los escenarios con su gira mundial más ambiciosa.', 150, 'Estadio Riyadh Air Metropolitano, Madrid', '2026-05-30 20:00:00', '2026-05-30 23:30:00', 'Live Nation España', 73.30, 'Música', 'info@livenation.es', '911217353', 'https://www.objetivoreggaeton.com/wp-content/uploads/2025/01/bad-bunny-rinde-homenaje-a-puerto-rico-con-su-espectacular-album-debi-tirar-mas-fotos.jpg');
+
 CREATE DATABASE booking;
 
 USE booking;

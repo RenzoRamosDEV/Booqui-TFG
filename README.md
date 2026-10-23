@@ -28,18 +28,18 @@ Explorar eventos, reservar entradas, pagar y generar el ticket en PDF.
 
 <div align="center">
 
-<img src="docs/screenshots/eventos.jpg" alt="Catálogo de eventos con filtros por categoría, buscador y tarjetas con precio y disponibilidad" width="100%">
+<img src="docs/assets/screenshots/eventos.jpg" alt="Catálogo de eventos con filtros por categoría, buscador y tarjetas con precio y disponibilidad" width="100%">
 
 </div>
 
 | Portada | Panel de administración |
 |:---:|:---:|
-| <img src="docs/screenshots/inicio.jpg" alt="Portada con el titular Gestiona tus eventos sin complicaciones sobre una imagen de concierto" width="100%"> | <img src="docs/screenshots/panel-admin.jpg" alt="Panel de administración con las métricas de usuarios, eventos, categorías y precio medio, y la tabla de usuarios registrados" width="100%"> |
+| <img src="docs/assets/screenshots/inicio.jpg" alt="Portada con el titular Gestiona tus eventos sin complicaciones sobre una imagen de concierto" width="100%"> | <img src="docs/assets/screenshots/panel-admin.jpg" alt="Panel de administración con las métricas de usuarios, eventos, categorías y precio medio, y la tabla de usuarios registrados" width="100%"> |
 | Entrada al catálogo y a los eventos destacados. | Usuarios, eventos y ventas, con las métricas del catálogo. |
 
 | Acceso | Contacto |
 |:---:|:---:|
-| <img src="docs/screenshots/login.jpg" alt="Pantalla de acceso partida en dos, con imagen a la izquierda y formulario de email y contraseña a la derecha" width="100%"> | <img src="docs/screenshots/contacto.jpg" alt="Página de contacto de Booqi" width="100%"> |
+| <img src="docs/assets/screenshots/login.jpg" alt="Pantalla de acceso partida en dos, con imagen a la izquierda y formulario de email y contraseña a la derecha" width="100%"> | <img src="docs/assets/screenshots/contacto.jpg" alt="Página de contacto de Booqi" width="100%"> |
 | Registro y login, con cuentas de demo a la vista. | Formulario de contacto. |
 
 ---
@@ -142,14 +142,21 @@ Con una red Docker dedicada para la comunicación entre servicios y volúmenes p
 
 ```
 booqi/
-├── user/               # Microservicio de usuarios
-├── event/              # Microservicio de eventos
-├── booking/            # Microservicio de reservas
-├── payment/            # Microservicio de pagos
-├── front/              # Aplicación frontend
-└── deployment-booqi/   # Configuración de despliegue
-    ├── docker-compose.yml
-    └── 001_init_database.sql
+├── services/
+│   ├── user-service/       # Microservicio de usuarios
+│   ├── event-service/      # Microservicio de eventos
+│   ├── booking-service/    # Microservicio de reservas
+│   └── payment-service/    # Microservicio de pagos
+├── frontend/               # Aplicación frontend
+├── frontend-demo/          # Demo visual del frontend (GitHub Pages)
+├── infra/                  # Configuración de despliegue
+│   ├── docker/
+│   │   └── docker-compose.yml
+│   ├── db/init/
+│   │   └── 001_init_database.sql
+│   └── .env.example
+├── docs/                   # Capturas y notas
+└── Makefile                # Comandos de build, test y despliegue
 ```
 
 ### Patrones y prácticas

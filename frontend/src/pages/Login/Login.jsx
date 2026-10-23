@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
-import { getUserByEmail } from '../../api/userService'
+import { login as loginRequest } from '../../api/userService'
 import { useAuth } from '../../context/AuthContext'
 import './LoginStyle.css'
 
@@ -54,17 +54,13 @@ export default function Login() {
     if (!email || !password) { setError('Por favor completa todos los campos.'); return }
     setLoading(true)
     try {
-      const res = await getUserByEmail(email)
+      const res = await loginRequest({ contactEmail: email, password })
       const user = res.data
-      if (user) {
-        login(user)
-        if (user.role === 'ADMIN') navigate('/admin')
-        else navigate('/')
-      } else {
-        setError('Usuario no encontrado.')
-      }
+      login(user)
+      if (user.role === 'ADMIN') navigate('/admin')
+      else navigate('/')
     } catch (err) {
-      if (err.response?.status === 404) setError('Email o contraseña incorrectos.')
+      if (err.response?.status === 401) setError('Email o contraseña incorrectos.')
       else setError('Error de conexión. ¿Está el servidor arriba?')
     } finally {
       setLoading(false)

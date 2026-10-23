@@ -25,7 +25,7 @@ export default function MyBookings() {
     const fetchBookings = async () => {
       try {
         setLoading(true)
-        const response = await getUserBookings(user.idUser)
+        const response = await getUserBookings(user.id)
         console.log('Respuesta completa:', response)
         
         let bookingsData = []

@@ -359,7 +359,7 @@ export default function Checkout() {
     try {
       const bookings = await Promise.all(cart.map(item =>
         createBooking({
-          userId: user.idUser, userFirstName: user.firstName, userLastName: user.lastName,
+          userId: user.id, userFirstName: user.firstName, userLastName: user.lastName,
           userEmail: user.contactEmail, eventId: item.idEvent || item.id, eventTitle: item.title,
           eventDescription: item.description || '', eventStartDate: item.startDate || new Date().toISOString(),
           eventLocation: item.location || '', ticketQuantity: item.qty || 1,
@@ -369,7 +369,7 @@ export default function Checkout() {
       const payments = await Promise.all(bookings.map((b, i) => {
         const it = cart[i]
         return processPayment({
-          bookingId: b.data.bookingId, userId: user.idUser, eventId: it.idEvent || it.id,
+          bookingId: b.data.bookingId, userId: user.id, eventId: it.idEvent || it.id,
           ticketQuantity: it.qty || 1, totalPrice: (it.price || 0) * (it.qty || 1),
           paymentMethod: method, cardNumber: method !== 'PAYPAL' ? form.cardNumber.replace(/\s/g, '') : null,
         })

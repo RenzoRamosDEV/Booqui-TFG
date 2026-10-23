@@ -4,38 +4,40 @@ CREATE DATABASE user;
 USE user;
 
 CREATE TABLE users (
-    id_user BIGINT AUTO_INCREMENT PRIMARY KEY,
-    contact_email VARCHAR(100) NOT NULL,
-    contact_phone VARCHAR(15),
-    date_of_birth DATE,
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
     first_name VARCHAR(255) NOT NULL,
     last_name VARCHAR(255) NOT NULL,
+    date_of_birth DATE NOT NULL,
+    contact_phone VARCHAR(15),
+    contact_email VARCHAR(100) NOT NULL,
     password VARCHAR(255) NOT NULL,
     role ENUM('ADMIN','CUSTOMER') NOT NULL DEFAULT 'CUSTOMER',
+    created_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    updated_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
 
-    UNIQUE (contact_email)
+    CONSTRAINT uk_users_contact_email UNIQUE (contact_email)
 );
 
 INSERT INTO users (first_name, last_name, date_of_birth, contact_phone, contact_email, password, role) VALUES
-('Mel', 'Admin', '2003-06-15', '631835827', 'mel@booqi.com', 'admin_mel', 'ADMIN'),
-('Renzo', 'Admin', '2004-09-18', '623971177', 'renzo@booqi.com', 'admin_renzo', 'ADMIN'),
-('Andrea', 'Rodriguez', '2004-04-14', '678123321', 'andrea.r@gmail.com', 'cust_pass_4', 'CUSTOMER'),
-('Joshua', 'García', '1992-03-12', '611222333', 'andres.g@email.com', 'cust_pass_1', 'CUSTOMER'),
-('Beatriz', 'López', '1995-07-23', '622333444', 'beatriz.l@email.com', 'cust_pass_2', 'CUSTOMER'),
-('Carlos', 'Martínez', '2001-11-02', '633444555', 'carlos.m@email.com', 'cust_pass_3', 'CUSTOMER');
+('Mel', 'Admin', '2003-06-15', '631835827', 'mel@booqi.com', '$2a$10$KWzCK2bFIR.1R2VChnSWWugSt8YkRLa0DBcnRo1qO9wAT1K3VCUQe', 'ADMIN'),
+('Renzo', 'Admin', '2004-09-18', '623971177', 'renzo@booqi.com', '$2a$10$wFWGoGf2kZUujP8HrWdfTePotPHJJdOGTUQwhU6P0yKxIdaYyZq.m', 'ADMIN'),
+('Andrea', 'Rodriguez', '2004-04-14', '678123321', 'andrea.r@gmail.com', '$2a$10$QUax2w4ZJPwEYmC.zB316uUiKIv3Zw.iIzRGqjRL6mQp8Wl06RRYO', 'CUSTOMER'),
+('Joshua', 'García', '1992-03-12', '611222333', 'andres.g@email.com', '$2a$10$2zun5BkXeEiBTz147fSfOufRkwDz1PZPtGcgzBNlIGyQFjjRQMIem', 'CUSTOMER'),
+('Beatriz', 'López', '1995-07-23', '622333444', 'beatriz.l@email.com', '$2a$10$tbPZhxe0A4zoY/dhNG/Ip.AJXSjBDfPJDGAvzU1N8zw4TBAlSBcJe', 'CUSTOMER'),
+('Carlos', 'Martínez', '2001-11-02', '633444555', 'carlos.m@email.com', '$2a$10$SXjuJzE1t.itMBiLI6qii.u8YzRBSo3.QR.UaCc8RkMtpN6huYDsG', 'CUSTOMER');
 
 INSERT INTO users (first_name, last_name, date_of_birth, contact_phone, contact_email, password, role) VALUES
-('Diana', 'Sánchez', '1993-01-15', '644555666', 'diana.s@email.com', 'cust_pass_4', 'CUSTOMER'),
-('Elena', 'Pérez', '1985-05-30', '655666777', 'elena.p@email.com', 'cust_pass_5', 'CUSTOMER'),
-('Fernando', 'Gómez', '1997-04-10', '666777888', 'fernando.g@email.com', 'cust_pass_6', 'CUSTOMER'),
-('Gloria', 'Ruiz', '1980-12-05', '677888999', 'gloria.r@email.com', 'cust_pass_7', 'CUSTOMER'),
-('Hugo', 'Torres', '2001-08-21', '688999000', 'hugo.t@email.com', 'cust_pass_8', 'CUSTOMER'),
-('Isabel', 'Vidal', '1987-02-18', '699000111', 'isabel.v@email.com', 'cust_pass_9', 'CUSTOMER'),
-('Jorge', 'Cano', '1991-06-25', '600111222', 'jorge.c@email.com', 'cust_pass_10', 'CUSTOMER'),
-('Karla', 'Blanco', '1994-10-14', '611223344', 'karla.b@email.com', 'cust_pass_11', 'CUSTOMER'),
-('Luis', 'Méndez', '1989-09-08', '622334455', 'luis.m@email.com', 'cust_pass_12', 'CUSTOMER'),
-('Marta', 'Rivas', '1996-12-12', '633445566', 'marta.r@email.com', 'cust_pass_13', 'CUSTOMER'),
-('Noé', 'Vega', '2002-03-30', '644556677', 'noe.v@email.com', 'cust_pass_14', 'CUSTOMER');
+('Diana', 'Sánchez', '1993-01-15', '644555666', 'diana.s@email.com', '$2a$10$7Hmwli475a1htPdPVolOhOASsmIKJpr571rdizeZRMqOiSUrenbGy', 'CUSTOMER'),
+('Elena', 'Pérez', '1985-05-30', '655666777', 'elena.p@email.com', '$2a$10$XvEp2T8C11vHJOd7.hpkdury0EuRUEB21E4f3vCO2je51c/vuejY.', 'CUSTOMER'),
+('Fernando', 'Gómez', '1997-04-10', '666777888', 'fernando.g@email.com', '$2a$10$exNGfubaXrFRqQrg.ykJy.R2rRvlyTpJ4B0h58b6jpuDjJM/BQo0u', 'CUSTOMER'),
+('Gloria', 'Ruiz', '1980-12-05', '677888999', 'gloria.r@email.com', '$2a$10$1OVZrFG1o7OBVkoTUuFTte9jZs/.huoo/T7MwgYZYmjWpaCII/aVG', 'CUSTOMER'),
+('Hugo', 'Torres', '2001-08-21', '688999000', 'hugo.t@email.com', '$2a$10$3yQJ9ZWlWJhLIpRWJSCPeeDYUsZEKYNuBszlSzTdi9QN2VGe3g.J.', 'CUSTOMER'),
+('Isabel', 'Vidal', '1987-02-18', '699000111', 'isabel.v@email.com', '$2a$10$3H1pw7QWivh1wEjBhFkmL.iJjSdH5ZE3Nbt4gfKmb1N2W79.ksvQ6', 'CUSTOMER'),
+('Jorge', 'Cano', '1991-06-25', '600111222', 'jorge.c@email.com', '$2a$10$dIfqgaqslUrxfkRXWWxt.uRTSVLdew5dsxtU7dAKUChBLQR0fmAoq', 'CUSTOMER'),
+('Karla', 'Blanco', '1994-10-14', '611223344', 'karla.b@email.com', '$2a$10$hXVk2RlDfj7kaXo0vxWTCOefNSRrCsCxpqUDyjlFFh.jmzypiL5Ti', 'CUSTOMER'),
+('Luis', 'Méndez', '1989-09-08', '622334455', 'luis.m@email.com', '$2a$10$BM8qalfYeosfTuN9mqmiqOfkgL6kyNKeXvZflupQGuaK2uoDQ5SJa', 'CUSTOMER'),
+('Marta', 'Rivas', '1996-12-12', '633445566', 'marta.r@email.com', '$2a$10$ME798ZcSuXuNbFBtl1XaE.tJemFvdE/9Yg9XbDwG9QV94CWesVq8G', 'CUSTOMER'),
+('Noé', 'Vega', '2002-03-30', '644556677', 'noe.v@email.com', '$2a$10$n3JsaYDFVRAgglNWMuuU1ucacf/SE/tBWWHKE1AvkdEwjV4/UrkZu', 'CUSTOMER');
 
 CREATE DATABASE event;
 

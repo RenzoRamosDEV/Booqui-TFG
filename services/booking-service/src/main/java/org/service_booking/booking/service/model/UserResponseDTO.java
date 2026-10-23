@@ -1,5 +1,6 @@
 package org.service_booking.booking.service.model;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -11,6 +12,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public class UserResponseDTO {
 
+    @JsonAlias("id")
     private Long idUser;
 
     private String firstName;

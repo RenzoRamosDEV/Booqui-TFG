@@ -93,11 +93,11 @@ export default function Admin() {
     }
   }, [tab, salesLoaded, loadingSales, loadSalesData])
 
-  const handleDeleteUser = async (email) => {
+  const handleDeleteUser = async (id, email) => {
     if (!window.confirm(`¿Eliminar usuario ${email}?`)) return
     try {
-      await deleteUser(email)
-      setUsers(prev => prev.filter(u => u.contactEmail !== email))
+      await deleteUser(id)
+      setUsers(prev => prev.filter(u => u.id !== id))
     } catch {
       alert('Error al eliminar usuario.')
     }
@@ -439,8 +439,8 @@ export default function Admin() {
                 </thead>
                 <tbody>
                   {users.map(u => (
-                    <tr key={u.idUser}>
-                      <td style={{ color: '#ccc', fontSize: '0.78rem' }}>#{u.idUser}</td>
+                    <tr key={u.id}>
+                      <td style={{ color: '#ccc', fontSize: '0.78rem' }}>#{u.id}</td>
                       <td style={{ fontWeight: 500 }}>{u.firstName} {u.lastName}</td>
                       <td>{u.contactEmail}</td>
                       <td>{u.contactPhone || '—'}</td>
@@ -452,7 +452,7 @@ export default function Admin() {
                       </td>
                       <td>
                         {u.contactEmail !== user?.contactEmail && (
-                          <button className="adm-delete-btn" onClick={() => handleDeleteUser(u.contactEmail)}>
+                          <button className="adm-delete-btn" onClick={() => handleDeleteUser(u.id, u.contactEmail)}>
                             <i className="bi bi-trash3"></i> Eliminar
                           </button>
                         )}

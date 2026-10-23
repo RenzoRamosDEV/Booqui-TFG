@@ -369,7 +369,7 @@ export default function Checkout() {
       const payments = await Promise.all(bookings.map((b, i) => {
         const it = cart[i]
         return processPayment({
-          bookingId: b.data.bookingId, userId: user.id, eventId: it.id,
+          bookingId: b.data.id, userId: user.id, eventId: it.id,
           ticketQuantity: it.qty || 1, totalPrice: (it.price || 0) * (it.qty || 1),
           paymentMethod: method, cardNumber: method !== 'PAYPAL' ? form.cardNumber.replace(/\s/g, '') : null,
         })
@@ -411,7 +411,7 @@ export default function Checkout() {
       
       // Generar UN solo PDF con todas las entradas
       const pdfBytes = await generateTicketPDF({
-        bookingId: bookings[0]?.bookingId || `BK${Date.now()}`,
+        bookingId: bookings[0]?.id || `BK${Date.now()}`,
         paymentId: paymentId || `PAY${Date.now()}`,
         items: expandedTickets,
         user,

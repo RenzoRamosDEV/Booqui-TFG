@@ -8,7 +8,7 @@ export const createBooking = (data) => axios.post(BASE, data)
 
 export const getBookingById = (id) => axios.get(`${BASE}/${id}`)
 
-export const getBookingsByUser = (userId) => axios.get(`${BASE}/user/${userId}`)
+export const getBookingsByUser = (userId) => axios.get(BASE, { params: { userId } })
 
 // Exportación de getUserBookings 
 export const getUserBookings = (userId) => {

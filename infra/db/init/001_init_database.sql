@@ -111,21 +111,22 @@ CREATE DATABASE booking;
 USE booking;
 
 CREATE TABLE bookings (
-    booking_id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    base_price DECIMAL(10,2),
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT NOT NULL,
+    user_first_name VARCHAR(100) NOT NULL,
+    user_last_name VARCHAR(100) NOT NULL,
+    user_email VARCHAR(150) NOT NULL,
+    event_id BIGINT NOT NULL,
+    event_title VARCHAR(200) NOT NULL,
     event_description TEXT,
-    event_id BIGINT,
-    event_location VARCHAR(255),
-    event_start_date DATETIME(6),
-    event_title VARCHAR(200),
-    purchase_date DATETIME(6),
-    status VARCHAR(50),
-    ticket_quantity INT,
-    total_price DECIMAL(10,2),
-    user_email VARCHAR(150),
-    user_first_name VARCHAR(100),
-    user_id BIGINT,
-    user_last_name VARCHAR(100)
+    event_start_date DATETIME(6) NOT NULL,
+    event_location VARCHAR(255) NOT NULL,
+    ticket_quantity INT NOT NULL,
+    base_price DECIMAL(10,2) NOT NULL,
+    total_price DECIMAL(10,2) NOT NULL,
+    status VARCHAR(50) NOT NULL,
+    created_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    updated_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6)
 );
 
 CREATE DATABASE payment;

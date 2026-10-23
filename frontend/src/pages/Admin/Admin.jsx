@@ -135,7 +135,7 @@ export default function Admin() {
   const customers = users.filter(u => u.role === 'CUSTOMER').length
 
   const salesRows = payments.map(p => {
-    const booking = bookings.find(b => b.bookingId === p.bookingId) || {}
+    const booking = bookings.find(b => b.id === p.bookingId) || {}
     return { ...p, booking }
   })
 

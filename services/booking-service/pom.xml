@@ -3,7 +3,6 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <!-- Parent -->
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
@@ -11,34 +10,21 @@
         <relativePath/>
     </parent>
 
-    <!-- Project Metadata -->
-    <groupId>org.service_booking</groupId>
-    <artifactId>booking</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
-    <name>Booking Service</name>
-    <description>Booking Service for managing event reservations</description>
+    <groupId>com.booqi</groupId>
+    <artifactId>booking-service</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
 
-    <!-- Developers -->
-    <developers>
-        <developer>
-            <name>Renzo Iván Ramos de los Ríos</name>
-        </developer>
-        <developer>
-            <name>Melanie Gabriela Cárdenas Hidalgo</name>
-        </developer>
-    </developers>
+    <name>booking-service</name>
+    <description>Booqi booking service</description>
 
-    <!-- Properties -->
     <properties>
         <java.version>17</java.version>
-        <mapstruct.version>1.5.5.Final</mapstruct.version>
+        <mapstruct.version>1.6.3</mapstruct.version>
         <lombok-mapstruct-binding.version>0.2.0</lombok-mapstruct-binding.version>
-        <springdoc.version>2.3.0</springdoc.version>
+        <springdoc.version>3.0.3</springdoc.version>
     </properties>
 
-    <!-- Dependencies -->
     <dependencies>
-        <!-- Spring Boot Starters -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
@@ -51,15 +37,15 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
-
-        <!-- Database -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
         <dependency>
             <groupId>com.mysql</groupId>
             <artifactId>mysql-connector-j</artifactId>
             <scope>runtime</scope>
         </dependency>
-
-        <!-- Utilities -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
@@ -70,15 +56,12 @@
             <artifactId>mapstruct</artifactId>
             <version>${mapstruct.version}</version>
         </dependency>
-
-        <!-- API Documentation -->
         <dependency>
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
             <version>${springdoc.version}</version>
         </dependency>
 
-        <!-- Testing -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
@@ -86,7 +69,12 @@
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-test-autoconfigure</artifactId>
+            <artifactId>spring-boot-starter-webmvc-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa-test</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -96,7 +84,6 @@
         </dependency>
     </dependencies>
 
-    <!-- Build -->
     <build>
         <plugins>
             <plugin>
@@ -106,10 +93,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.11.0</version>
                 <configuration>
-                    <source>${java.version}</source>
-                    <target>${java.version}</target>
                     <annotationProcessorPaths>
                         <path>
                             <groupId>org.projectlombok</groupId>
@@ -137,42 +121,23 @@
                     <dependency>
                         <groupId>org.pitest</groupId>
                         <artifactId>pitest-junit5-plugin</artifactId>
-                        <version>1.2.1</version>
-                        <exclusions>
-                            <exclusion>
-                                <groupId>org.junit.platform</groupId>
-                                <artifactId>junit-platform-launcher</artifactId>
-                            </exclusion>
-                            <exclusion>
-                                <groupId>org.junit.platform</groupId>
-                                <artifactId>junit-platform-engine</artifactId>
-                            </exclusion>
-                            <exclusion>
-                                <groupId>org.junit.platform</groupId>
-                                <artifactId>junit-platform-commons</artifactId>
-                            </exclusion>
-                        </exclusions>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.junit.platform</groupId>
-                        <artifactId>junit-platform-launcher</artifactId>
-                        <version>6.0.3</version>
+                        <version>1.2.2</version>
                     </dependency>
                 </dependencies>
                 <configuration>
                     <targetClasses>
-                        <param>org.service_booking.booking.service.impl.*</param>
-                        <param>org.service_booking.booking.controller.*</param>
-                        <param>org.service_booking.booking.repository.jpa.*</param>
+                        <param>com.booqi.booking.controller.*</param>
+                        <param>com.booqi.booking.service.impl.*</param>
+                        <param>com.booqi.booking.exception.*</param>
+                        <param>com.booqi.booking.config.*</param>
+                        <param>com.booqi.booking.client.*</param>
                     </targetClasses>
                     <targetTests>
-                        <param>org.service_booking.booking.service.impl.*</param>
-                        <param>org.service_booking.booking.controller.*</param>
-                        <param>org.service_booking.booking.repository.jpa.*</param>
+                        <param>com.booqi.booking.*</param>
                     </targetTests>
                     <excludedClasses>
-                        <param>org.service_booking.booking.repository.jpa.BookingRepositoryJPA</param>
-                        <param>org.service_booking.booking.repository.jpa.model.JPABookingMapperImpl</param>
+                        <param>com.booqi.booking.mapper.*Impl</param>
+                        <param>com.booqi.booking.BookingServiceApplication</param>
                     </excludedClasses>
                     <outputFormats>
                         <outputFormat>HTML</outputFormat>
@@ -190,5 +155,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>

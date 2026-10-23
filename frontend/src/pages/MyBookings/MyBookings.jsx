@@ -103,14 +103,14 @@ export default function MyBookings() {
             price: booking.basePrice || 0,
             description: booking.eventDescription || event.eventDescription,
             imageUrl: booking.eventImage || event.eventImage,
-            bookingId: booking.bookingId
+            bookingId: booking.id
           })
         }
       }
       
       const pdfBytes = await generateTicketPDF({
-        bookingId: event.bookings[0]?.bookingId || `EVT${event.eventId}`,
-        paymentId: `PAY${event.bookings[0]?.bookingId || event.eventId}`,
+        bookingId: event.bookings[0]?.id || `EVT${event.eventId}`,
+        paymentId: `PAY${event.bookings[0]?.id || event.eventId}`,
         items: allTickets,
         user: {
           firstName: event.bookings[0]?.userFirstName || user?.firstName || '',
@@ -129,7 +129,7 @@ export default function MyBookings() {
   }
 
   const handleDownloadSingleTicket = async (booking) => {
-    setDownloadingEventId(booking.bookingId)
+    setDownloadingEventId(booking.id)
     try {
       const tickets = []
       for (let i = 0; i < (booking.ticketQuantity || 1); i++) {
@@ -144,8 +144,8 @@ export default function MyBookings() {
       }
       
       const pdfBytes = await generateTicketPDF({
-        bookingId: booking.bookingId,
-        paymentId: booking.paymentId || `PAY${booking.bookingId}`,
+        bookingId: booking.id,
+        paymentId: booking.paymentId || `PAY${booking.id}`,
         items: tickets,
         user: {
           firstName: booking.userFirstName || user?.firstName || '',
@@ -154,7 +154,7 @@ export default function MyBookings() {
         }
       })
       
-      downloadPDF(pdfBytes, `booqi-entrada-${booking.bookingId}.pdf`)
+      downloadPDF(pdfBytes, `booqi-entrada-${booking.id}.pdf`)
     } catch (err) {
       console.error('Error generando ticket:', err)
       alert('No se pudo generar la entrada. Intenta de nuevo.')
@@ -295,14 +295,14 @@ export default function MyBookings() {
                       {isExpanded && (
                         <div className="mybookings-sub-bookings">
                           {event.bookings.map((booking) => (
-                            <div key={booking.bookingId} className="mybookings-sub-booking">
+                            <div key={booking.id} className="mybookings-sub-booking">
                               <div className="mybookings-sub-booking-header">
                                 <span className="mybookings-sub-booking-id">
                                   <i className="bi bi-upc-scan"></i>
-                                  #{String(booking.bookingId).slice(-8)}
+                                  #{String(booking.id).slice(-8)}
                                 </span>
                                 <span className="mybookings-sub-booking-date">
-                                  {new Date(booking.purchaseDate || booking.bookingDate).toLocaleDateString('es-ES')}
+                                  {new Date(booking.createdAt).toLocaleDateString('es-ES')}
                                 </span>
                               </div>
                               <div className="mybookings-sub-booking-details">
@@ -312,9 +312,9 @@ export default function MyBookings() {
                               <button 
                                 className="mybookings-sub-download-btn"
                                 onClick={() => handleDownloadSingleTicket(booking)}
-                                disabled={downloadingEventId === booking.bookingId || booking.status === 'CANCELLED'}
+                                disabled={downloadingEventId === booking.id || booking.status === 'CANCELLED'}
                               >
-                                {downloadingEventId === booking.bookingId ? (
+                                {downloadingEventId === booking.id ? (
                                   <><div className="mybookings-btn-spinner-small"></div> Generando...</>
                                 ) : (
                                   <><i className="bi bi-download"></i> Esta reserva</>
@@ -350,7 +350,7 @@ export default function MyBookings() {
                     {!hasMultipleBookings && (
                       <div className="mybookings-booking-id">
                         <i className="bi bi-upc-scan"></i>
-                        <span>ID: #{String(event.bookings[0]?.bookingId).slice(-8)}</span>
+                        <span>ID: #{String(event.bookings[0]?.id).slice(-8)}</span>
                       </div>
                     )}
                   </div>

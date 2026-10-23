@@ -6,7 +6,7 @@
 
 Explorar eventos, reservar entradas, pagar y generar el ticket en PDF.
 
-[**Ver la demo →**](https://renzoramosdev.github.io/Booqui-Sistema-Gestion-Reservas-Eventos/)
+[**Ver la demo →**](https://renzoramosdev.github.io/Booqui-TFG/)
 
 ![Java](https://img.shields.io/badge/Java-17-ED8B00?logo=openjdk&logoColor=white)
 ![Spring Boot](https://img.shields.io/badge/Spring_Boot-4.0-6DB33F?logo=springboot&logoColor=white)

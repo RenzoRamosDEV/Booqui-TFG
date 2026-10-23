@@ -44,7 +44,7 @@ export default function EventDetail() {
   }, [id, navigate])
 
   // comprobamos si este evento ya está en el carrito para no añadirlo dos veces
-  const isInCart = cart?.some(i => i.idEvent === event?.idEvent)
+  const isInCart = cart?.some(i => i.id === event?.id)
   const isSoldOut = event?.availableTickets === 0
   // aviso de pocas entradas
   const isLowStock = event && event.availableTickets > 0 && event.availableTickets <= 10 && !isSoldOut
@@ -104,7 +104,7 @@ export default function EventDetail() {
           {/* contenedor de la imagen, ocupa toda la altura*/}
           <div className="evd-image-container">
             <img
-              src={event.urlImage || PLACEHOLDER_IMGS[0]}
+              src={event.imageUrl || PLACEHOLDER_IMGS[0]}
               alt={event.title}
               // si la imagen del evento no carga, usamos el placeholder
               onError={e => { e.target.src = PLACEHOLDER_IMGS[0] }}
@@ -140,7 +140,7 @@ export default function EventDetail() {
               <h1 className="evd-title">{event.title}</h1>
               <p className="evd-organizer">
                 <i className="bi bi-people"></i>
-                Organizado por {event.organized}
+                Organizado por {event.organizer}
               </p>
             </div>
 

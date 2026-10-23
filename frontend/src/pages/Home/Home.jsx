@@ -23,39 +23,39 @@ const HASHTAG_IMAGES = [
 // Eventos de ejemplo por si la API no devuelve suficientes
 const SAMPLE_EVENTS = [
   {
-    idEvent: 1,
+    id: 1,
     title: "Festival de Food Trucks",
     location: "Recinto Ferial, Alcorcón",
     startDate: "2026-05-10T10:00:00",
-    urlImage: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=600&q=80"
+    imageUrl: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=600&q=80"
   },
   {
-    idEvent: 2,
+    id: 2,
     title: "Clases de Baile de Salón",
     location: "Centro Cultural, Alcorcón",
     startDate: "2026-04-01T18:00:00",
-    urlImage: "https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?w=600&q=80"
+    imageUrl: "https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?w=600&q=80"
   },
   {
-    idEvent: 3,
+    id: 3,
     title: "Obra de Teatro: La Espera",
     location: "Teatro Gran Via, Madrid",
     startDate: "2026-03-20T20:00:00",
-    urlImage: "https://images.unsplash.com/photo-1503095396549-807759245b35?w=600&q=80"
+    imageUrl: "https://images.unsplash.com/photo-1503095396549-807759245b35?w=600&q=80"
   },
   {
-    idEvent: 4,
+    id: 4,
     title: "Yoga al Aire Libre",
     location: "Parque Solidaridad, Fuenlabrada",
     startDate: "2026-06-15T09:00:00",
-    urlImage: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=600&q=80"
+    imageUrl: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=600&q=80"
   },
   {
-    idEvent: 5,
+    id: 5,
     title: "Concierto de Jazz Clásico",
     location: "Club de Jazz, Embajadores",
     startDate: "2026-03-25T20:30:00",
-    urlImage: "https://images.unsplash.com/photo-1415201364774-f6f0bb35f28f?w=600&q=80"
+    imageUrl: "https://images.unsplash.com/photo-1415201364774-f6f0bb35f28f?w=600&q=80"
   }
 ]
 
@@ -111,12 +111,12 @@ export default function Home() {
               ))
             : events.map((ev, i) => (
                 <div 
-                  key={ev.idEvent || i} 
+                  key={ev.id || i} 
                   className="home-featured-card" 
-                  onClick={() => handleEventClick(ev.idEvent)}
+                  onClick={() => handleEventClick(ev.id)}
                 >
                   <img
-                    src={ev.urlImage || FEATURED_IMAGES[i % FEATURED_IMAGES.length]}
+                    src={ev.imageUrl || FEATURED_IMAGES[i % FEATURED_IMAGES.length]}
                     alt={ev.title}
                     onError={e => { e.target.src = FEATURED_IMAGES[i % FEATURED_IMAGES.length] }}
                   />

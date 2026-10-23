@@ -1,5 +1,6 @@
 package org.service_booking.booking.service.model;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,6 +16,7 @@ import java.time.LocalDateTime;
 @Builder
 public class EventResponseDTO {
 
+    @JsonAlias("id")
     private Long idEvent;
 
     private String title;

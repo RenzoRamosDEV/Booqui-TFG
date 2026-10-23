@@ -103,11 +103,11 @@ export default function Admin() {
     }
   }
 
-  const handleDeleteEvent = async (email) => {
+  const handleDeleteEvent = async (id) => {
     if (!window.confirm(`¿Eliminar este evento?`)) return
     try {
-      await deleteEvent(email)
-      setEvents(prev => prev.filter(e => e.contactEmail !== email))
+      await deleteEvent(id)
+      setEvents(prev => prev.filter(e => e.id !== id))
     } catch {
       alert('Error al eliminar evento.')
     }
@@ -494,12 +494,12 @@ export default function Admin() {
                 </thead>
                 <tbody>
                   {events.map(ev => {
-                    const eventSales = getEventSales(ev.idEvent, ev.title)
+                    const eventSales = getEventSales(ev.id, ev.title)
                     const hasSales = eventSales.length > 0
                     
                     return (
-                      <tr key={ev.idEvent}>
-                        <td style={{ color: '#ccc', fontSize: '0.78rem' }}>#{ev.idEvent}</td>
+                      <tr key={ev.id}>
+                        <td style={{ color: '#ccc', fontSize: '0.78rem' }}>#{ev.id}</td>
                         <td style={{ fontWeight: 500, maxWidth: 200 }}>{ev.title}</td>
                         <td><span className="adm-badge adm-badge-customer">{ev.category}</span></td>
                         <td><i className="bi bi-geo-alt me-1"></i>{ev.location}</td>
@@ -511,19 +511,19 @@ export default function Admin() {
                               <>
                                 <button
                                   className="adm-preview-btn"
-                                  onClick={() => handlePreviewEventReport(ev.idEvent, ev.title, eventSales)}
-                                  disabled={exportingEvent === ev.idEvent}
+                                  onClick={() => handlePreviewEventReport(ev.id, ev.title, eventSales)}
+                                  disabled={exportingEvent === ev.id}
                                   title="Vista previa del informe"
                                 >
                                   <i className="bi bi-eye"></i> Ver
                                 </button>
                                 <button
                                   className="adm-export-btn"
-                                  onClick={() => handleDownloadEventReport(ev.idEvent, ev.title, eventSales)}
-                                  disabled={exportingEvent === ev.idEvent}
+                                  onClick={() => handleDownloadEventReport(ev.id, ev.title, eventSales)}
+                                  disabled={exportingEvent === ev.id}
                                   title="Descargar informe"
                                 >
-                                  {exportingEvent === ev.idEvent
+                                  {exportingEvent === ev.id
                                     ? <><span className="adm-export-spinner"></span></>
                                     : <><i className="bi bi-download"></i> PDF</>
                                   }
@@ -540,7 +540,7 @@ export default function Admin() {
                               Cargando...
                             </span>
                           )}
-                          <button className="adm-delete-btn" onClick={() => handleDeleteEvent(ev.contactEmail)}>
+                          <button className="adm-delete-btn" onClick={() => handleDeleteEvent(ev.id)}>
                             <i className="bi bi-trash3"></i>
                           </button>
                         </td>

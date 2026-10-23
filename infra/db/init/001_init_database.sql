@@ -44,22 +44,26 @@ CREATE DATABASE event;
 USE event;
 
 CREATE TABLE events (
-    id_event BIGINT AUTO_INCREMENT PRIMARY KEY,
-    available_tickets INT,
-    category VARCHAR(50),
-    contact_email VARCHAR(100),
-    contact_phone VARCHAR(15),
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(200) NOT NULL,
     description VARCHAR(2000),
-    end_date DATETIME(6),
-    location VARCHAR(200),
-    organized VARCHAR(100),
-    price DOUBLE,
-    start_date DATETIME(6),
-    title VARCHAR(200),
-    url_image VARCHAR(500)
+    available_tickets INT NOT NULL,
+    location VARCHAR(200) NOT NULL,
+    start_date DATETIME(6) NOT NULL,
+    end_date DATETIME(6) NOT NULL,
+    organizer VARCHAR(100) NOT NULL,
+    price DOUBLE NOT NULL,
+    category VARCHAR(50) NOT NULL,
+    contact_email VARCHAR(100) NOT NULL,
+    contact_phone VARCHAR(15) NOT NULL,
+    image_url VARCHAR(500),
+    created_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    updated_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+
+    CONSTRAINT uk_events_contact_email UNIQUE (contact_email)
 );
 
-INSERT INTO events (title, description, available_tickets, location, start_date, end_date, organized, price, category, contact_email, contact_phone, url_image) VALUES
+INSERT INTO events (title, description, available_tickets, location, start_date, end_date, organizer, price, category, contact_email, contact_phone, image_url) VALUES
 ('Festival de Food Trucks', 'Gastronomía sobre ruedas y música en vivo.', 15, 'Recinto Ferial, Alcorcón', '2026-05-10 12:00:00', '2026-05-10 23:00:00', 'Asociación Foodies Madrid', 45.0, 'Gastronomía', 'contacto@foodtruckfest.com', '910000001', 'https://gentleman.elperiodico.com/wp-content/uploads/2024/05/legislacion-espanola-permite-callejera-Marabilias_804829576_1898582_1020x574.webp'),
 ('Clases de Baile de Salón', 'Pasos básicos de salsa, bachata y tango.', 8, 'Centro Cultural, Alcorcón', '2026-04-01 18:00:00', '2026-04-01 20:00:00', 'Ritmo y Sabor', 35.0, 'Deportes', 'baile@alcorcon.es', '910000002', 'https://www.mushi-emd.com/wp-content/uploads/2019/02/clases-de-bailes-de-salon-madrid-retiro.jpg'),
 ('Obra de Teatro: La Espera', 'Drama contemporáneo sobre relaciones humanas.', 4, 'Teatro Gran Vía, Madrid', '2026-03-20 20:30:00', '2026-03-20 22:30:00', 'Producciones Escénicas S.L.', 40.0, 'Cultura', 'tickets@teatro.com', '910000003', 'https://www.elcorteingles.es/entradas/blog/app/uploads/2022/07/teatro.jpg'),
@@ -75,7 +79,7 @@ INSERT INTO events (title, description, available_tickets, location, start_date,
 ('Curso Cocina Japonesa', 'Sushi, ramen y gyoza desde cero.', 7, 'Kitchen Lab, Chueca', '2026-02-28 10:00:00', '2026-02-28 14:00:00', 'Master Chef', 60.0, 'Gastronomía', 'cursos@kitchenlab.com', '910000013', 'https://picofinoescuelamalaga.com/wp-content/uploads/2025/09/taller-de-sushi.webp'),
 ('Noche de Monólogos', 'Risas con los mejores cómicos.', 9, 'Sala Comedy, La Latina', '2026-03-14 22:30:00', '2026-03-15 00:00:00', 'Risas Madrid', 18.0, 'Cultura', 'info@risasmadrid.com', '910000014', 'https://www.valenciaextra.com/uploads/s1/16/35/23/13/publico-en-un-monologo-de-gran-fira-valencia.jpeg'),
 ('Programación para Niños', 'Introducción a la lógica con Scratch.', 14, 'Biblioteca Retiro, Madrid', '2026-05-02 11:00:00', '2026-05-02 13:00:00', 'Future Coders', 0.0, 'Educación', 'kids@futurecoders.com', '910000015', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSReN_pJGxq3mLVTibwgRyMyhf22zLuAArPQQ&s');
-INSERT INTO events (title, description, available_tickets, location, start_date, end_date, organized, price, category, contact_email, contact_phone, url_image) VALUES
+INSERT INTO events (title, description, available_tickets, location, start_date, end_date, organizer, price, category, contact_email, contact_phone, image_url) VALUES
 ('Taller de Cerámica y Torno', 'Crea tus propias piezas de barro desde cero.', 6, 'Estudio Barro, Carabanchel', '2026-06-06 10:00:00', '2026-06-06 13:30:00', 'Artesanos de Madrid', 45.0, 'Arte', 'taller@estudiobarro.com', '910000016', 'https://estaticos-cdn.prensaiberica.es/clip/f0b182d3-1382-4217-ba5d-ec7cbdf8e891_16-9-aspect-ratio_default_0.jpg'),
 ('Escape Room Urbano', 'Resuelve el misterio por las calles del centro.', 22, 'Plaza de Oriente, Madrid', '2026-04-25 17:00:00', '2026-04-25 19:30:00', 'Fox in a Box', 22.0, 'Cultura', 'info@urbanescape.com', '910000017', 'https://www.escapebcn.com/images/blog/que-es-un-escape-room-exterior.jpg'),
 ('Introducción al Bitcoin y Web3', 'Conceptos clave sobre blockchain y finanzas.', 35, 'Coworking Space, Tetuán', '2026-07-14 19:00:00', '2026-07-14 21:00:00', 'Crypto Madrid', 12.0, 'Tecnología', 'formacion@cryptomadrid.com', '910000018', 'https://www.iebschool.com/blog/wp-content/uploads/2022/03/web3-que-es.jpg'),
@@ -87,7 +91,7 @@ INSERT INTO events (title, description, available_tickets, location, start_date,
 ('Concierto Tributo a Queen', 'Los grandes éxitos de la banda británica en directo.', 8, 'Sala Riviera, Arganzuela', '2026-11-20 21:00:00', '2026-11-20 23:30:00', 'Rock Legends', 32.0, 'Música', 'entradas@rocklegends.com', '910000024', 'https://www.laopiniondemalaga.es/wp-content/uploads/2022/10/tributo-queen-madrid.jpg'),
 ('Taller de Huerto Urbano', 'Monta tu propio espacio verde en el balcón.', 15, 'Vivero Comunitario, Vallecas', '2026-05-17 11:00:00', '2026-05-17 13:00:00', 'EcoVallecas', 5.0, 'Educación', 'huertos@ecovallecas.org', '910000025', 'https://www.planteaenverde.es/blog/wp-content/uploads/2019/04/como-hacer-un-huerto-urbano.jpg');
 
-INSERT INTO events (title, description, available_tickets, location, start_date, end_date, organized, price, category, contact_email, contact_phone, url_image) VALUES
+INSERT INTO events (title, description, available_tickets, location, start_date, end_date, organizer, price, category, contact_email, contact_phone, image_url) VALUES
 ('Monólogos de Ciencia: Big Van', 'Divulgación científica con mucho humor.', 14, 'Teatro Cofidis, Alcobendas', '2026-06-12 20:00:00', '2026-06-12 21:30:00', 'Big Van Ciencia', 18.0, 'Cultura', 'info@bigvanciencia.com', '910000026', 'https://www.agenciasinc.es/var/ezwebin_site/storage/images/noticias/monologos-cientificos-para-reir-y-aprender/6154823-1-esl-MX/Monologos-cientificos-para-reir-y-aprender_large.jpg'),
 ('Taller de Batch Cooking', 'Cocina en 3 horas toda tu semana de forma saludable.', 8, 'Food Lab, San Sebastián de los Reyes', '2026-04-19 10:30:00', '2026-04-19 13:30:00', 'NutriSano', 45.0, 'Gastronomía', 'talleres@nutrisano.com', '910000027', 'https://www.cuerpomente.com/medio/2021/02/10/batch-cooking-menu-semanal_8f430589_900x900.jpg'),
 ('Hackathon Madrid: Green Tech', '48 horas para desarrollar soluciones ecológicas.', 50, 'Campus Google, Arganzuela', '2026-10-16 16:00:00', '2026-10-18 18:00:00', 'Green Tech Hub', 0.0, 'Tecnología', 'hack@greentech.org', '910000028', 'https://www.ituser.es/files/201911/hackathon.jpg'),
@@ -99,7 +103,7 @@ INSERT INTO events (title, description, available_tickets, location, start_date,
 ('Ruta del Tapeo Histórico', 'Historia de Madrid a través de sus tabernas centenarias.', 15, 'Plaza de Cascorro, La Latina', '2026-05-30 13:00:00', '2026-05-30 16:00:00', 'Madrid Histórico Tours', 35.0, 'Gastronomía', 'guias@madridhistorico.com', '910000034', 'https://www.guiasviajar.com/wp-content/uploads/2018/02/madrid-tabernas-centenarias-latina.jpg'),
 ('Concierto de Indie Pop', 'Presentación del nuevo álbum de bandas emergentes.', 20, 'Sala Ochoymedio, Malasaña', '2026-04-17 21:30:00', '2026-04-18 01:00:00', 'Intromúsica', 22.5, 'Música', 'tickets@intromusica.com', '910000035', 'https://www.binaural.es/wp-content/uploads/2022/04/concierto-indie-sala-ochoymedio.jpg');
 
-INSERT INTO events (title, description, available_tickets, location, start_date, end_date, organized, price, category, contact_email, contact_phone, url_image) VALUES
+INSERT INTO events (title, description, available_tickets, location, start_date, end_date, organizer, price, category, contact_email, contact_phone, image_url) VALUES
 ('Bad Bunny: DeBÍ TiRAR MáS FOToS World Tour', 'El regreso del Bad Bunny a los escenarios con su gira mundial más ambiciosa.', 150, 'Estadio Riyadh Air Metropolitano, Madrid', '2026-05-30 20:00:00', '2026-05-30 23:30:00', 'Live Nation España', 73.30, 'Música', 'info@livenation.es', '911217353', 'https://www.objetivoreggaeton.com/wp-content/uploads/2025/01/bad-bunny-rinde-homenaje-a-puerto-rico-con-su-espectacular-album-debi-tirar-mas-fotos.jpg');
 
 CREATE DATABASE booking;

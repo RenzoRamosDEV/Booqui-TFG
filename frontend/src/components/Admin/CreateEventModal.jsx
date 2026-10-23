@@ -17,12 +17,12 @@ export default function CreateEventModal({ isOpen, onClose, onEventCreated }) {
     location: '',           // Ubicación del evento
     startDate: '',          // Fecha y hora de inicio
     endDate: '',            // Fecha y hora de fin
-    organized: '',          // Nombre del organizador
+    organizer: '',          // Nombre del organizador
     price: '',              // Precio por entrada
     category: 'Otros',      // Categoría (por defecto "Otros")
     contactEmail: '',       // Email de contacto
     contactPhone: '',       // Teléfono de contacto
-    urlImage: ''            // URL de la imagen  que funciona copiando la direccion de imagen xd
+    imageUrl: ''            // URL de la imagen  que funciona copiando la direccion de imagen xd
   })
   
   const [loading, setLoading] = useState(false)  // Estado de carga durante el envío
@@ -63,7 +63,7 @@ export default function CreateEventModal({ isOpen, onClose, onEventCreated }) {
     }
     
     // Validación del organizador
-    if (!formData.organized.trim()) newErrors.organized = 'El organizador es obligatorio'
+    if (!formData.organizer.trim()) newErrors.organizer = 'El organizador es obligatorio'
     
     // Validación del precio
     if (!formData.price && formData.price !== 0) newErrors.price = 'El precio es obligatorio'
@@ -127,12 +127,12 @@ export default function CreateEventModal({ isOpen, onClose, onEventCreated }) {
       location: '',
       startDate: '',
       endDate: '',
-      organized: '',
+      organizer: '',
       price: '',
       category: 'Otros',
       contactEmail: '',
       contactPhone: '',
-      urlImage: ''
+      imageUrl: ''
     })
     setErrors({})
   }
@@ -279,19 +279,19 @@ export default function CreateEventModal({ isOpen, onClose, onEventCreated }) {
 
             {/* Organizador y categoría - dos columnas */}
             <div className="form-group">
-              <label htmlFor="organized">
+              <label htmlFor="organizer">
                 Organizador <span className="required">*</span>
               </label>
               <input
                 type="text"
-                id="organized"
-                name="organized"
-                value={formData.organized}
+                id="organizer"
+                name="organizer"
+                value={formData.organizer}
                 onChange={handleChange}
                 placeholder="Ej: Rock Productions S.A."
-                className={errors.organized ? 'error' : ''}
+                className={errors.organizer ? 'error' : ''}
               />
-              {errors.organized && <span className="error-text">{errors.organized}</span>}
+              {errors.organizer && <span className="error-text">{errors.organizer}</span>}
             </div>
 
             <div className="form-group">
@@ -343,12 +343,12 @@ export default function CreateEventModal({ isOpen, onClose, onEventCreated }) {
 
             {/* URL de la imagen - campo opcional */}
             <div className="form-group full-width">
-              <label htmlFor="urlImage">URL de la imagen</label>
+              <label htmlFor="imageUrl">URL de la imagen</label>
               <input
                 type="url"
-                id="urlImage"
-                name="urlImage"
-                value={formData.urlImage}
+                id="imageUrl"
+                name="imageUrl"
+                value={formData.imageUrl}
                 onChange={handleChange}
                 placeholder="https://ejemplo.com/imagen.jpg"
               />

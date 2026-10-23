@@ -60,7 +60,7 @@ export default function Cart() {
                 </thead>
                 <tbody>
                   {cart.map((item, i) => {
-                    const id = item.idEvent || item.id
+                    const id = item.id
                     const qty = item.qty || 1
                     const lineTotal = ((item.price || 0) * qty).toFixed(2)
                     
@@ -70,7 +70,7 @@ export default function Cart() {
                           <div className="cart-item-cell">
                             <img 
                               className="cart-item-img" 
-                              src={item.urlImage || PLACEHOLDER} 
+                              src={item.imageUrl || PLACEHOLDER} 
                               alt={item.title} 
                               onError={e => { e.target.src = PLACEHOLDER }} 
                             />

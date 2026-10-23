@@ -360,7 +360,7 @@ export default function Checkout() {
       const bookings = await Promise.all(cart.map(item =>
         createBooking({
           userId: user.id, userFirstName: user.firstName, userLastName: user.lastName,
-          userEmail: user.contactEmail, eventId: item.idEvent || item.id, eventTitle: item.title,
+          userEmail: user.contactEmail, eventId: item.id, eventTitle: item.title,
           eventDescription: item.description || '', eventStartDate: item.startDate || new Date().toISOString(),
           eventLocation: item.location || '', ticketQuantity: item.qty || 1,
           basePrice: item.price || 0, totalPrice: (item.price || 0) * (item.qty || 1),
@@ -369,7 +369,7 @@ export default function Checkout() {
       const payments = await Promise.all(bookings.map((b, i) => {
         const it = cart[i]
         return processPayment({
-          bookingId: b.data.bookingId, userId: user.id, eventId: it.idEvent || it.id,
+          bookingId: b.data.bookingId, userId: user.id, eventId: it.id,
           ticketQuantity: it.qty || 1, totalPrice: (it.price || 0) * (it.qty || 1),
           paymentMethod: method, cardNumber: method !== 'PAYPAL' ? form.cardNumber.replace(/\s/g, '') : null,
         })
@@ -508,7 +508,7 @@ export default function Checkout() {
                   <div className="chk-panel-title">Confirma tus eventos</div>
                   {cart.map((item, i) => (
                     <div key={i} className="chk-order-item" style={{ marginBottom: 0 }}>
-                      <img src={item.urlImage || PLACEHOLDER} alt={item.title} onError={e => e.target.src = PLACEHOLDER} />
+                      <img src={item.imageUrl || PLACEHOLDER} alt={item.title} onError={e => e.target.src = PLACEHOLDER} />
                       <div className="chk-order-item-info">
                         <div className="chk-order-item-title">{item.title}</div>
                         <div className="chk-order-item-sub">{item.location} · ×{item.qty || 1} entrada{(item.qty || 1) > 1 ? 's' : ''}</div>
@@ -581,7 +581,7 @@ export default function Checkout() {
               <h2>Tu pedido</h2>
               {cart.map((item, i) => (
                 <div key={i} className="chk-order-item">
-                  <img src={item.urlImage || PLACEHOLDER} alt={item.title} onError={e => e.target.src = PLACEHOLDER} />
+                  <img src={item.imageUrl || PLACEHOLDER} alt={item.title} onError={e => e.target.src = PLACEHOLDER} />
                   <div className="chk-order-item-info">
                     <div className="chk-order-item-title">{item.title}</div>
                     <div className="chk-order-item-sub">×{item.qty || 1} entrada{(item.qty || 1) > 1 ? 's' : ''}</div>

@@ -54,7 +54,7 @@ export default function Events() {
       .finally(() => setLoading(false))
   }
 
-  const isInCart = (id) => cart?.some(i => i.idEvent === id || i.id === id)
+  const isInCart = (id) => cart?.some(i => i.id === id)
 
   // si no hay sesión redirige al login antes de añadir
   const handleAdd = (e, event) => {
@@ -126,26 +126,26 @@ export default function Events() {
                 </div>
               )
               : events.map((ev, i) => {
-                  const added = isInCart(ev.idEvent)
+                  const added = isInCart(ev.id)
                   const isNew = i < 3
                   const isSoldOut = ev.availableTickets === 0
                   const isLowStock = ev.availableTickets > 0 && ev.availableTickets <= 10 && !isSoldOut
                   
                   return (
                     <div 
-                      key={ev.idEvent || i} 
+                      key={ev.id || i} 
                       className={`ev-card${isSoldOut ? ' sold-out' : ''}`}
-                      onClick={() => navigate(`/events/${ev.idEvent}`)}
+                      onClick={() => navigate(`/events/${ev.id}`)}
                     >
                       <div className="ev-card-img">
                         <img
-                          src={ev.urlImage || PLACEHOLDER_IMGS[i % PLACEHOLDER_IMGS.length]}
+                          src={ev.imageUrl || PLACEHOLDER_IMGS[i % PLACEHOLDER_IMGS.length]}
                           alt={ev.title}
                           onError={e => { e.target.src = PLACEHOLDER_IMGS[i % PLACEHOLDER_IMGS.length] }}
                         />
                         {isSoldOut && <span className="ev-badge ev-badge-soldout">AGOTADO</span>}
                         {!isSoldOut && isLowStock && <span className="ev-badge ev-badge-low">ÚLTIMAS</span>}
-                        {!isSoldOut && !isLowStock && isNew && !ev.urlImage && <span className="ev-badge ev-badge-new">New</span>}
+                        {!isSoldOut && !isLowStock && isNew && !ev.imageUrl && <span className="ev-badge ev-badge-new">New</span>}
                       </div>
                       
                       <div className="ev-card-body">

@@ -102,7 +102,7 @@ export default function MyBookings() {
             location: booking.eventLocation || event.eventLocation,
             price: booking.basePrice || 0,
             description: booking.eventDescription || event.eventDescription,
-            urlImage: booking.eventImage || event.eventImage,
+            imageUrl: booking.eventImage || event.eventImage,
             bookingId: booking.bookingId
           })
         }
@@ -139,7 +139,7 @@ export default function MyBookings() {
           location: booking.eventLocation,
           price: booking.basePrice,
           description: booking.eventDescription,
-          urlImage: booking.eventImage
+          imageUrl: booking.eventImage
         })
       }
       

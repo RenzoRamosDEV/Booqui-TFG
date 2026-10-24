@@ -1,0 +1,19 @@
+{
+  "$schema": "./node_modules/@stryker-mutator/core/schema/stryker-schema.json",
+  "testRunner": "vitest",
+  "vitest": { "configFile": "vite.config.ts" },
+  "mutate": [
+    "src/lib/**/*.ts",
+    "src/features/**/api/**/*.ts",
+    "src/features/**/hooks/**/*.ts",
+    "!src/**/*.test.ts"
+  ],
+  "coverageAnalysis": "perTest",
+  "reporters": ["clear-text", "progress", "html"],
+  "htmlReporter": { "fileName": "reports/mutation/index.html" },
+  "incremental": true,
+  "incrementalFile": "reports/stryker-incremental.json",
+  "thresholds": { "high": 98, "low": 96, "break": 95 },
+  "tempDirName": ".stryker-tmp",
+  "concurrency": 4
+}

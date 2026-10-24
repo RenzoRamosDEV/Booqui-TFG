@@ -138,6 +138,7 @@ Booqui-TFG/
 | Lucide React | 1.61.0 | Iconografía |
 | Vitest + Testing Library | 5.0.5 + 16.3.3 | Pruebas unitarias y de componentes |
 | Playwright | 1.64.1 | Pruebas end-to-end |
+| Stryker | 10.1.1 | Mutation testing de la lógica |
 
 ### Infraestructura y calidad
 

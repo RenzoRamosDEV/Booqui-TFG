@@ -24,7 +24,13 @@ export default tseslint.config(
     },
   },
   {
-    files: ['*.config.{js,ts}', 'e2e/**/*.ts', 'e2e-landing/**/*.ts', 'scripts/**/*.mjs'],
+    files: [
+      '*.config.{js,ts}',
+      'e2e/**/*.ts',
+      'e2e-landing/**/*.ts',
+      'e2e-real/**/*.ts',
+      'scripts/**/*.mjs',
+    ],
     languageOptions: { globals: globals.node },
   },
   prettier,

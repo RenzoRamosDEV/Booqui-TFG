@@ -21,20 +21,21 @@ local (`make up` desde la raíz del repositorio).
 
 ## Scripts
 
-| Script                        | Qué hace                                                        |
-| ----------------------------- | --------------------------------------------------------------- |
-| `npm run dev`                 | Servidor de desarrollo con HMR                                  |
-| `npm run build`               | Comprueba tipos (`tsc -b`, modo estricto) y genera `dist/`      |
-| `npm run preview`             | Sirve `dist/` en local                                          |
-| `npm run lint`                | ESLint                                                          |
-| `npm run format`              | Aplica Prettier                                                 |
-| `npm run format:check`        | Comprueba el formato con Prettier                               |
-| `npm test`                    | Ejecuta una vez todas las pruebas unitarias (Vitest, sin watch) |
-| `npm run test:mutation`       | Mutation testing de la lógica con Stryker (máx. 3 min)          |
-| `npm run test:e2e`            | Pruebas end-to-end con Playwright (Chromium)                    |
-| `npm run serve:landing`       | Sirve `../landing` en `http://localhost:4190/Booqui-TFG/`       |
-| `npm run test:landing`        | Pruebas del servidor y de la landing (ver [Landing](#landing))  |
-| `npm run landing:screenshots` | Regenera las capturas WebP y los iconos de la landing           |
+| Script                        | Qué hace                                                                                       |
+| ----------------------------- | ---------------------------------------------------------------------------------------------- |
+| `npm run dev`                 | Servidor de desarrollo con HMR                                                                 |
+| `npm run build`               | Comprueba tipos (`tsc -b`, modo estricto) y genera `dist/`                                     |
+| `npm run preview`             | Sirve `dist/` en local                                                                         |
+| `npm run lint`                | ESLint                                                                                         |
+| `npm run format`              | Aplica Prettier                                                                                |
+| `npm run format:check`        | Comprueba el formato con Prettier                                                              |
+| `npm test`                    | Ejecuta una vez todas las pruebas unitarias (Vitest, sin watch)                                |
+| `npm run test:mutation`       | Mutation testing de la lógica con Stryker (máx. 3 min)                                         |
+| `npm run test:e2e`            | Pruebas end-to-end con Playwright (Chromium)                                                   |
+| `npm run test:e2e:real`       | E2E contra el stack de compose (ver [E2E contra el backend real](#e2e-contra-el-backend-real)) |
+| `npm run serve:landing`       | Sirve `../landing` en `http://localhost:4190/Booqui-TFG/`                                      |
+| `npm run test:landing`        | Pruebas del servidor y de la landing (ver [Landing](#landing))                                 |
+| `npm run landing:screenshots` | Regenera las capturas WebP y los iconos de la landing                                          |
 
 Antes de la primera ejecución de las pruebas end-to-end hay que instalar el navegador:
 
@@ -45,6 +46,38 @@ npm run test:e2e
 
 Playwright construye la app y la sirve con `vite preview` en el puerto `4180` (configurable con `E2E_PORT`).
 No reutiliza servidores ya arrancados, para no probar por error otra aplicación que ocupe el puerto.
+
+## E2E contra el backend real
+
+`npm run test:e2e:real` (`playwright.real.config.ts`, carpeta `e2e-real/`) ejecuta en el navegador los flujos de
+login, compra y «Mis reservas» contra los servicios reales, sin interceptar ninguna petición y
+sin arrancar ningún servidor propio. `npm run test:e2e` sigue ejecutando solo la suite simulada y es la que corre en
+CI; esta no.
+
+Requisitos: el stack de compose arrancado desde la raíz del repositorio, con un `infra/.env` local (copia de
+`infra/.env.example`, nunca se sube) que fije `BOOQI_FRONTEND_PORT=8088` (un runtime rootless no puede publicar
+puertos menores que 1024):
+
+```bash
+docker compose -f infra/docker/docker-compose.yml -f infra/docker/docker-compose.override.yml --env-file infra/.env up -d --build
+cd frontend && npm run test:e2e:real
+```
+
+- **Destino**: `E2E_REAL_BASE_URL` (por defecto `http://localhost:8088`); páginas y API van a ese origen, a través del
+  proxy de nginx del contenedor del frontend.
+- **Espera al backend**: antes de la primera prueba se consulta `GET /api/v1/events` cada 5 s hasta recibir un
+  `200`, como mucho `E2E_REAL_READY_TIMEOUT_MS` (por defecto `600000`; los servicios pueden tardar minutos en estar
+  sanos). Si se agota, la ejecución falla sin lanzar pruebas y el mensaje indica la URL y el comando de arranque.
+- **Datos**: cada ejecución crea por la API pública sus propios clientes (`e2e-<run>-<n>@booqi.test`) y eventos
+  futuros (`E2E <run>-<n> Concierto`), así que dos ejecuciones seguidas no chocan (`409`). Las pruebas de
+  administración entran con el admin de la semilla `mel@booqi.com` / `admin_mel` (constante `ADMIN` en
+  `e2e-real/support/backend.ts`). Las pruebas que borran solo actúan sobre entidades creadas para ellas.
+- **Serie**: un único worker, sin reintentos, 90 s por prueba.
+- **Limpieza**: los datos se acumulan en la base de datos de compose; para empezar de cero:
+
+```bash
+docker compose -f infra/docker/docker-compose.yml -f infra/docker/docker-compose.override.yml --env-file infra/.env down -v
+```
 
 ## Estructura de carpetas
 

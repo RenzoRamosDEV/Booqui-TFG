@@ -3,6 +3,23 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script>
+      ;(function () {
+        var stored = null
+        try {
+          stored = localStorage.getItem('booqi-theme')
+        } catch (e) {}
+        var dark =
+          stored === 'dark' ||
+          (stored !== 'light' &&
+            typeof matchMedia === 'function' &&
+            matchMedia('(prefers-color-scheme: dark)').matches)
+        var root = document.documentElement
+        root.classList.toggle('dark', dark)
+        root.style.colorScheme = dark ? 'dark' : 'light'
+      })()
+      document.documentElement.classList.add('js')
+    </script>
     <title>Booqi · Reserva de entradas para eventos con microservicios</title>
     <meta
       name="description"
@@ -14,10 +31,44 @@
     <link rel="apple-touch-icon" href="assets/icon-192.png" />
     <link rel="stylesheet" href="css/tokens.css" />
     <link rel="stylesheet" href="css/landing.css" />
+    <script defer src="js/landing.js"></script>
   </head>
   <body>
-    <main id="contenido">
-      <h1>Booqi</h1>
+    <a class="skip-link" href="#contenido">Saltar al contenido</a>
+    <header class="site-header">
+      <div class="container site-header__inner">
+        <a class="brand" href="#inicio" aria-label="Booqi, ir al inicio">
+          <span class="brand__mark" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="20" height="20" focusable="false">
+              <path
+                d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"
+              />
+              <path d="M13 5v2M13 17v2M13 11v2" />
+            </svg>
+          </span>
+          <span class="brand__name">Booqi</span>
+        </a>
+        <button
+          type="button"
+          class="icon-button theme-toggle"
+          data-theme-toggle
+          aria-pressed="false"
+          aria-label="Cambiar a tema oscuro"
+        >
+          <svg class="theme-toggle__moon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false">
+            <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
+          </svg>
+          <svg class="theme-toggle__sun" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false">
+            <circle cx="12" cy="12" r="4" />
+            <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
+          </svg>
+        </button>
+      </div>
+    </header>
+    <main id="contenido" tabindex="-1">
+      <section id="inicio">
+        <h1>Booqi</h1>
+      </section>
     </main>
   </body>
 </html>

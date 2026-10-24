@@ -61,3 +61,131 @@ h3 {
   background-color: var(--brand-200);
   color: var(--brand-950);
 }
+
+a {
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+.container {
+  width: min(100% - 2rem, 72rem);
+  margin-inline: auto;
+}
+
+.skip-link {
+  position: absolute;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 100;
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-sm);
+  background: var(--primary);
+  color: var(--primary-fg);
+  font-weight: 600;
+  text-decoration: none;
+  transform: translateY(-200%);
+}
+
+.skip-link:focus {
+  transform: none;
+}
+
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  border-bottom: 1px solid var(--glass-border);
+  background: var(--glass);
+  -webkit-backdrop-filter: saturate(1.6) blur(14px);
+  backdrop-filter: saturate(1.6) blur(14px);
+}
+
+.site-header__inner {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  min-height: 4rem;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.625rem;
+  margin-right: auto;
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  text-decoration: none;
+}
+
+.brand__mark {
+  display: grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 10px;
+  background-image: var(--gradient-brand);
+  color: #fff;
+  box-shadow: var(--shadow-md);
+}
+
+.brand__mark svg {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.icon-button {
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--fg-muted);
+  cursor: pointer;
+  transition:
+    background-color 150ms ease,
+    color 150ms ease;
+}
+
+.icon-button:hover {
+  background: var(--bg-elevated);
+  border-color: var(--border);
+  color: var(--fg);
+}
+
+.icon-button svg {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.theme-toggle__sun,
+.dark .theme-toggle__moon {
+  display: none;
+}
+
+.dark .theme-toggle__sun {
+  display: block;
+}
+
+.theme-toggle {
+  display: none;
+}
+
+.js .theme-toggle {
+  display: grid;
+}

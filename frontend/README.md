@@ -32,6 +32,8 @@ local (`make up` desde la raíz del repositorio).
 | `npm test`              | Ejecuta una vez todas las pruebas unitarias (Vitest, sin watch) |
 | `npm run test:mutation` | Mutation testing de la lógica con Stryker (máx. 3 min)          |
 | `npm run test:e2e`      | Pruebas end-to-end con Playwright (Chromium)                    |
+| `npm run serve:landing` | Sirve `../landing` en `http://localhost:4190/Booqui-TFG/`       |
+| `npm run test:landing`  | Pruebas del servidor y de la landing (ver [Landing](#landing))  |
 
 Antes de la primera ejecución de las pruebas end-to-end hay que instalar el navegador:
 
@@ -113,6 +115,39 @@ crudo) expone `theme` y `toggle()`.
 
 Las fuentes (Space Grotesk para titulares, Inter para el texto) se sirven desde el propio origen con
 `@fontsource-variable`; no se hace ninguna petición a Google Fonts.
+
+## Landing
+
+La página de presentación del proyecto vive fuera de la app, en `../landing/`: HTML, CSS y JavaScript sin
+build ni dependencias, que funciona abriendo `landing/index.html` con doble clic (`file://`) y servida bajo
+`/Booqui-TFG/` en GitHub Pages (todas las rutas son relativas).
+
+```
+landing/
+  index.html          # script de tema sin parpadeo en línea y diagrama SVG en línea
+  css/tokens.css      # copia byte a byte de src/styles/tokens.css (un test detecta cualquier deriva)
+  css/landing.css     # @font-face, maquetación, componentes y animaciones
+  js/landing.js       # conmutador de tema, apariciones y contadores (script clásico con defer)
+  assets/fonts/       # Space Grotesk e Inter (woff2 latin) y sus licencias OFL
+  assets/screenshots/ # capturas de la app en WebP (640 y 1280 px)
+  assets/icon-32.png  assets/icon-192.png
+```
+
+Las herramientas para probarla viven aquí, en `frontend/`, para que `landing/` no tenga `package.json`:
+
+```bash
+npm run serve:landing   # http://localhost:4190/Booqui-TFG/ (puerto configurable con LANDING_PORT)
+npm run test:landing    # node:test del servidor + Playwright (e2e-landing/, móvil 412×823 y escritorio 1280×800)
+```
+
+`scripts/landing-server.mjs` imita a GitHub Pages: `/Booqui-TFG` redirige (301) a `/Booqui-TFG/`, un directorio
+sirve su `index.html`, y cualquier otra ruta, un fichero inexistente o un intento de salir de la carpeta (`..`)
+devuelven 404. Las pruebas de Playwright cargan la landing por `file://` y bajo el subpath y comprueban que no hay
+peticiones fallidas ni errores de consola, que las fuentes salen de `assets/fonts/`, el tema, las animaciones y el
+contenido.
+
+El tema usa la misma clave que la app, `localStorage['booqi-theme']` (`light` o `dark`), y el mismo script en
+línea antes del primer pintado, así que la elección se comparte con la app cuando ambas están en el mismo origen.
 
 ## Componentes UI
 
@@ -330,6 +365,16 @@ unitarias y de hooks. En una máquina muy cargada conviene limitar `--mutate` a 
 El informe HTML queda en `reports/mutation/index.html`. Con el modo incremental el informe muestra también los
 resultados guardados de ficheros fuera del `--mutate`; la puntuación de un cambio se lee en sus filas.
 
+### Landing
+
+- `scripts/landing-server.mjs` (servidor de la landing) se muta con su propia configuración, que usa el
+  _command runner_ de Stryker sobre las pruebas `node:test`: `npm run test:mutation:landing-server` (máx. 3 min).
+- `../landing/js/landing.js` queda fuera de Stryker de forma justificada: es un script clásico de navegador, no un
+  módulo de `src/`, y conectar Stryker a Playwright superaría los 3 minutos. Su comportamiento lo cubren las
+  pruebas de `e2e-landing/` por clases de equivalencia (tema guardado `light`, `dark`, ausente, inválido y
+  almacenamiento que lanza; tema del sistema claro/oscuro) y valores límite de los contadores (0, 1, valor final y
+  reentrada en pantalla).
+
 ### Mutantes supervivientes justificados
 
 | Fichero                                         | Mutante                                                    | Por qué sobrevive                                                                                                                                                                                                        |
@@ -337,4 +382,5 @@ resultados guardados de ficheros fuera del `--mutate`; la puntuación de un camb
 | `src/lib/contrast.ts:5`                         | `srgb <= 0.04045` → `srgb < 0.04045`                       | Equivalente: los canales son enteros de 8 bits y ninguno da exactamente 0,04045 (10/255 = 0,0392 y 11/255 = 0,0431), así que ambas comparaciones eligen siempre el mismo tramo.                                          |
 | `src/lib/use-focus-trap.ts:51`                  | `previouslyFocused?.focus()` → `previouslyFocused.focus()` | Equivalente en la práctica: `document.activeElement` solo es `null` sin documento cargado; con la app montada siempre hay un elemento activo (como mínimo `body`). El `?.` se mantiene porque el tipo DOM admite `null`. |
 | `src/features/auth/hooks/session-store.ts:24`   | `catch { return undefined }` → `catch {}`                  | Equivalente: un bloque vacío también devuelve `undefined`, que Zod rechaza igual que antes.                                                                                                                              |
+| `scripts/landing-server.mjs` (`isFile`)         | `catch { return false }` → `catch {}`                      | Equivalente: el bloque vacío devuelve `undefined`, que el servidor trata igual que `false` (404).                                                                                                                        |
 | `src/features/events/hooks/event-filters.ts:51` | `params.get(key) ?? ''` → `?? "Stryker was here!"`         | Equivalente: cualquiera de los dos textos produce una fecha inválida y `isoDay` devuelve `undefined`; el `''` solo existe para no pasar `null` a una función que espera texto.                                           |

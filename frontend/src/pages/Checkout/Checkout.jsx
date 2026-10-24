@@ -376,7 +376,7 @@ export default function Checkout() {
       }))
       const fp = payments[0]?.data
       if (fp?.status === 'APPROVED') {
-        setConfirmedData({ cartSnapshot: [...cart], bookings: bookings.map(b => b.data), paymentId: fp.paymentId })
+        setConfirmedData({ cartSnapshot: [...cart], bookings: bookings.map(b => b.data), paymentId: fp.id })
         setPaymentResult({ ...fp, success: true }); clearCart(); setStep(3)
       } else if (fp?.status === 'REJECTED') {
         setError(fp.errorMessage || 'Tu pago ha sido rechazado.')
@@ -475,9 +475,9 @@ export default function Checkout() {
                 ? (paymentResult?.errorMessage || 'Tu pago no ha podido procesarse.')
                 : 'Tu reserva se ha procesado correctamente. Recibirás la confirmación en tu correo.'}
             </p>
-            {paymentResult?.paymentId && (
+            {paymentResult?.id && (
               <div className="chk-success-id">
-                ID de pago: <span>#{paymentResult.paymentId}</span>{' · '}
+                ID de pago: <span>#{paymentResult.id}</span>{' · '}
                 Estado: <span className={paymentResult.success === false ? 'chk-status-rejected' : 'chk-status-approved'}>{paymentResult.status}</span>
               </div>
             )}

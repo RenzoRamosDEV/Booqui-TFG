@@ -134,17 +134,18 @@ CREATE DATABASE payment;
 USE payment;
 
 CREATE TABLE payments (
-    payment_id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    booking_id BIGINT,
-    creation_date DATETIME(6),
-    error_message VARCHAR(500),
-    event_id BIGINT,
-    payment_date DATETIME(6),
-    payment_method VARCHAR(50),
-    status VARCHAR(20),
-    ticket_quantity INT,
-    total_price DECIMAL(10,2),
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    booking_id BIGINT NOT NULL,
+    user_id BIGINT NOT NULL,
+    event_id BIGINT NOT NULL,
+    ticket_quantity INT NOT NULL,
+    total_price DECIMAL(10,2) NOT NULL,
+    payment_method VARCHAR(50) NOT NULL,
+    status VARCHAR(20) NOT NULL,
     transaction_id VARCHAR(100),
-    user_id BIGINT
+    error_message VARCHAR(500),
+    payment_date DATETIME(6),
+    created_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    updated_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6)
 );
 

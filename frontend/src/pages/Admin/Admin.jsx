@@ -5,6 +5,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { getAllUsers, deleteUser } from '../../api/userService'
 import { getAllEvents, deleteEvent } from '../../api/eventService'
 import { getAllBookings } from '../../api/bookingService'
+import { getAllPayments } from '../../api/paymentService'
 import { useAuth } from '../../context/AuthContext'
 import Navbar from '../../components/Navbar/Navbar'
 import PDFPreviewModal from '../../components/PDFPreviewModal/PDFPreviewModal'
@@ -53,9 +54,7 @@ export default function Admin() {
     try {
       const [bookingsData, paymentsData] = await Promise.all([
         getAllBookings().then(r => r.data || []).catch(() => []),
-        fetch(`${import.meta.env.VITE_PAYMENT_API}`)
-          .then(r => r.json())
-          .catch(() => [])
+        getAllPayments().then(r => r.data || []).catch(() => [])
       ])
       setBookings(bookingsData)
       setPayments(paymentsData)
@@ -174,8 +173,8 @@ export default function Admin() {
     return filtered.map(sale => {
       const booking = sale.booking || {}
       return {
-        paymentId: sale.paymentId,
-        id: sale.paymentId,
+        paymentId: sale.id,
+        id: sale.id,
         status: sale.paymentStatus || sale.status || 'APPROVED',
         paymentStatus: sale.paymentStatus || sale.status || 'APPROVED',
         amount: sale.amount || booking.totalPrice || 0,
@@ -694,8 +693,8 @@ export default function Admin() {
                       const evTitle = b?.eventTitle || '—'
 
                       return (
-                        <tr key={row.paymentId || row.id}>
-                          <td style={{ color: '#ccc', fontSize: '0.78rem' }}>#{row.paymentId || row.id}</td>
+                        <tr key={row.id}>
+                          <td style={{ color: '#ccc', fontSize: '0.78rem' }}>#{row.id}</td>
                           <td style={{ fontWeight: 500 }}>
                             {b?.userFirstName ? `${b.userFirstName} ${b.userLastName || ''}` : b?.userEmail || '—'}
                           </td>

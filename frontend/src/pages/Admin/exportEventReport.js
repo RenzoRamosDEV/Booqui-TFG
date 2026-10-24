@@ -218,7 +218,7 @@ export async function generateEventReportPDF({
     }
     
     processedSales.push({
-      id: sale.paymentId || sale.id || (sale.booking?.id) || 'N/A',
+      id: sale.id || (sale.booking?.id) || 'N/A',
       eventTitle: sale.booking?.eventTitle || sale.eventTitle || '-', // Se extrae el título del evento
       clientName: clientData.name,
       clientEmail: clientData.email,

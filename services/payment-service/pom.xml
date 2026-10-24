@@ -3,7 +3,6 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <!-- Parent -->
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
@@ -11,34 +10,21 @@
         <relativePath/>
     </parent>
 
-    <!-- Project Metadata -->
-    <groupId>org.service_payment</groupId>
-    <artifactId>payment</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
-    <name>Payment Service</name>
-    <description>Payment Service for managing booking payments</description>
+    <groupId>com.booqi</groupId>
+    <artifactId>payment-service</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
 
-    <!-- Developers -->
-    <developers>
-        <developer>
-            <name>Renzo Iván Ramos de los Ríos</name>
-        </developer>
-        <developer>
-            <name>Melanie Gabriela Cárdenas Hidalgo</name>
-        </developer>
-    </developers>
+    <name>payment-service</name>
+    <description>Booqi payment service</description>
 
-    <!-- Properties -->
     <properties>
         <java.version>17</java.version>
-        <mapstruct.version>1.5.5.Final</mapstruct.version>
+        <mapstruct.version>1.6.3</mapstruct.version>
         <lombok-mapstruct-binding.version>0.2.0</lombok-mapstruct-binding.version>
-        <springdoc.version>2.3.0</springdoc.version>
+        <springdoc.version>3.0.3</springdoc.version>
     </properties>
 
-    <!-- Dependencies -->
     <dependencies>
-        <!-- Spring Boot Starters -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
@@ -51,21 +37,15 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
-
-        <!-- Database -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
         <dependency>
             <groupId>com.mysql</groupId>
             <artifactId>mysql-connector-j</artifactId>
             <scope>runtime</scope>
         </dependency>
-
-        <!-- HTTP Client (required for PATCH support in RestTemplate) -->
-        <dependency>
-            <groupId>org.apache.httpcomponents.client5</groupId>
-            <artifactId>httpclient5</artifactId>
-        </dependency>
-
-        <!-- Utilities -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
@@ -76,15 +56,12 @@
             <artifactId>mapstruct</artifactId>
             <version>${mapstruct.version}</version>
         </dependency>
-
-        <!-- API Documentation -->
         <dependency>
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
             <version>${springdoc.version}</version>
         </dependency>
 
-        <!-- Testing -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
@@ -92,7 +69,12 @@
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-test-autoconfigure</artifactId>
+            <artifactId>spring-boot-starter-webmvc-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa-test</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -102,7 +84,6 @@
         </dependency>
     </dependencies>
 
-    <!-- Build -->
     <build>
         <plugins>
             <plugin>
@@ -112,10 +93,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.11.0</version>
                 <configuration>
-                    <source>${java.version}</source>
-                    <target>${java.version}</target>
                     <annotationProcessorPaths>
                         <path>
                             <groupId>org.projectlombok</groupId>
@@ -145,26 +123,21 @@
                         <artifactId>pitest-junit5-plugin</artifactId>
                         <version>1.2.2</version>
                     </dependency>
-                    <dependency>
-                        <groupId>org.junit.platform</groupId>
-                        <artifactId>junit-platform-launcher</artifactId>
-                        <version>6.0.3</version>
-                    </dependency>
                 </dependencies>
                 <configuration>
                     <targetClasses>
-                        <param>org.service_payment.payment.service.impl.*</param>
-                        <param>org.service_payment.payment.controller.*</param>
-                        <param>org.service_payment.payment.repository.jpa.*</param>
+                        <param>com.booqi.payment.controller.*</param>
+                        <param>com.booqi.payment.service.impl.*</param>
+                        <param>com.booqi.payment.exception.*</param>
+                        <param>com.booqi.payment.config.*</param>
+                        <param>com.booqi.payment.client.*</param>
                     </targetClasses>
                     <targetTests>
-                        <param>org.service_payment.payment.service.impl.*</param>
-                        <param>org.service_payment.payment.controller.*</param>
-                        <param>org.service_payment.payment.repository.jpa.*</param>
+                        <param>com.booqi.payment.*</param>
                     </targetTests>
                     <excludedClasses>
-                        <param>org.service_payment.payment.repository.jpa.PaymentRepositoryJPA</param>
-                        <param>org.service_payment.payment.repository.jpa.model.JPAPaymentMapperImpl</param>
+                        <param>com.booqi.payment.mapper.*Impl</param>
+                        <param>com.booqi.payment.PaymentServiceApplication</param>
                     </excludedClasses>
                     <outputFormats>
                         <outputFormat>HTML</outputFormat>
@@ -182,5 +155,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>

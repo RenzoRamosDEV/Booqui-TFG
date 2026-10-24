@@ -28,19 +28,29 @@ Explorar eventos, reservar entradas, pagar y generar el ticket en PDF.
 
 <div align="center">
 
-<img src="docs/assets/screenshots/eventos.jpg" alt="Catálogo de eventos con filtros por categoría, buscador y tarjetas con precio y disponibilidad" width="100%">
+<img src="docs/assets/screenshots/app/portada.webp" alt="Portada en tema oscuro con el titular Tus eventos favoritos, sin colas, buscador, categorías y eventos destacados" width="100%">
 
 </div>
 
-| Portada | Panel de administración |
+| Detalle de evento | Carrito |
 |:---:|:---:|
-| <img src="docs/assets/screenshots/inicio.jpg" alt="Portada con el titular Gestiona tus eventos sin complicaciones sobre una imagen de concierto" width="100%"> | <img src="docs/assets/screenshots/panel-admin.jpg" alt="Panel de administración con las métricas de usuarios, eventos, categorías y precio medio, y la tabla de usuarios registrados" width="100%"> |
-| Entrada al catálogo y a los eventos destacados. | Usuarios, eventos y ventas, con las métricas del catálogo. |
+| <img src="docs/assets/screenshots/app/detalle-evento.webp" alt="Detalle de evento con fechas, lugar con enlace a Google Maps, organizador y panel de compra con selector de entradas" width="100%"> | <img src="docs/assets/screenshots/app/carrito.webp" alt="Carrito con dos eventos, controles de cantidad y resumen con el total exacto" width="100%"> |
+| Información completa y compra con el stock a la vista. | Cantidades por evento y total sin comisiones ocultas. |
+
+| Pago | Confirmación |
+|:---:|:---:|
+| <img src="docs/assets/screenshots/app/pago.webp" alt="Paso de pago del checkout con métodos de pago y formulario de tarjeta" width="100%"> | <img src="docs/assets/screenshots/app/confirmacion.webp" alt="Confirmación de pago completado con una entrada por evento, código QR y descarga" width="100%"> |
+| Checkout en tres pasos con pago simulado. | Entradas con QR y código de reserva, descargables en PDF. |
+
+| Mis reservas | Panel de administración |
+|:---:|:---:|
+| <img src="docs/assets/screenshots/app/mis-reservas.webp" alt="Mis reservas agrupadas por evento, con estado, descarga de entradas, detalle y cancelación" width="100%"> | <img src="docs/assets/screenshots/app/panel-admin.webp" alt="Panel de administración con métricas y la tabla de eventos con acciones de editar y borrar" width="100%"> |
+| Reservas agrupadas por evento, con detalle y cancelación. | Usuarios, eventos y ventas, con informe en PDF. |
 
 | Acceso | Contacto |
 |:---:|:---:|
-| <img src="docs/assets/screenshots/login.jpg" alt="Pantalla de acceso partida en dos, con imagen a la izquierda y formulario de email y contraseña a la derecha" width="100%"> | <img src="docs/assets/screenshots/contacto.jpg" alt="Página de contacto de Booqi" width="100%"> |
-| Registro y login, con cuentas de demo a la vista. | Formulario de contacto. |
+| <img src="docs/assets/screenshots/app/acceso.webp" alt="Pantalla de acceso con panel de marca morado y formulario, más los botones de cuentas demo" width="100%"> | <img src="docs/assets/screenshots/app/contacto.webp" alt="Página de contacto con temas de ayuda y formulario marcado como demo" width="100%"> |
+| Login con cuentas de demo a un clic. | Formulario de contacto (demostración, no envía mensajes). |
 
 ---
 

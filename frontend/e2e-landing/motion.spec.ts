@@ -1,7 +1,7 @@
 import { expect, test, type Locator, type Page } from '@playwright/test'
 import { targets } from './support/landing'
 
-const FINAL_COUNTERS = ['0', '1', '4']
+const FINAL_COUNTERS = ['4', '6', '1', '0']
 
 const opacity = (locator: Locator) =>
   locator.evaluate((element) => Number(getComputedStyle(element).opacity))
@@ -41,7 +41,7 @@ for (const target of targets) {
       test('counters reach their final values and do not restart on re-entry', async ({ page }) => {
         await page.goto(target.url)
         await counters(page).first().scrollIntoViewIfNeeded()
-        await expect(counters(page).last()).not.toHaveText(FINAL_COUNTERS.at(-1)!)
+        await expect(counters(page).first()).not.toHaveText('4')
         await expect(counters(page)).toHaveText(FINAL_COUNTERS)
 
         await scrollToTop(page)
@@ -59,7 +59,7 @@ for (const target of targets) {
       test('counters start from zero when they first appear', async ({ page }) => {
         await page.goto(target.url)
         const seen = await counters(page)
-          .last()
+          .first()
           .evaluate(async (counter) => {
             const values = new Set<string>()
             const record = () => values.add(counter.textContent ?? '')

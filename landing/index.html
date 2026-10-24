@@ -23,10 +23,17 @@
     <title>Booqi · Reserva de entradas para eventos con microservicios</title>
     <meta
       name="description"
-      content="Booqi es una plataforma de reserva de entradas para eventos construida con microservicios Spring Boot, MySQL y un frontend React. Código abierto, listo para ejecutar en local con Docker."
+      content="Booqi es una plataforma de reserva de entradas para eventos construida con microservicios Spring Boot, MySQL y un frontend React. Código abierto, lista para ejecutar en local con Docker."
     />
     <link rel="canonical" href="https://renzoramosdev.github.io/Booqui-TFG/" />
     <meta name="theme-color" content="#7C3AED" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Booqi" />
+    <meta property="og:title" content="Booqi · Reserva de entradas para eventos" />
+    <meta
+      property="og:description"
+      content="Plataforma de eventos con cuatro microservicios Spring Boot, MySQL y React. Código abierto."
+    />
     <link rel="icon" type="image/png" sizes="32x32" href="assets/icon-32.png" />
     <link rel="apple-touch-icon" href="assets/icon-192.png" />
     <link rel="stylesheet" href="css/tokens.css" />
@@ -34,19 +41,95 @@
     <script defer src="js/landing.js"></script>
   </head>
   <body>
+    <svg class="sprite" aria-hidden="true" focusable="false">
+      <symbol id="i-ticket" viewBox="0 0 24 24">
+        <path
+          d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"
+        />
+        <path d="M13 5v2M13 17v2M13 11v2" />
+      </symbol>
+      <symbol id="i-search" viewBox="0 0 24 24">
+        <circle cx="11" cy="11" r="8" />
+        <path d="m21 21-4.3-4.3" />
+      </symbol>
+      <symbol id="i-cart" viewBox="0 0 24 24">
+        <circle cx="8" cy="21" r="1" />
+        <circle cx="19" cy="21" r="1" />
+        <path
+          d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"
+        />
+      </symbol>
+      <symbol id="i-card" viewBox="0 0 24 24">
+        <rect x="2" y="5" width="20" height="14" rx="2" />
+        <path d="M2 10h20" />
+      </symbol>
+      <symbol id="i-qr" viewBox="0 0 24 24">
+        <rect x="3" y="3" width="5" height="5" rx="1" />
+        <rect x="16" y="3" width="5" height="5" rx="1" />
+        <rect x="3" y="16" width="5" height="5" rx="1" />
+        <path
+          d="M21 16h-3a2 2 0 0 0-2 2v3M21 21v.01M12 7v3a2 2 0 0 1-2 2H7M3 12h.01M12 3h.01M12 16v.01M16 12h1M21 12v.01M12 21v-1"
+        />
+      </symbol>
+      <symbol id="i-calendar" viewBox="0 0 24 24">
+        <rect x="3" y="4" width="18" height="18" rx="2" />
+        <path d="M16 2v4M8 2v4M3 10h18m-12 6 2 2 4-4" />
+      </symbol>
+      <symbol id="i-dashboard" viewBox="0 0 24 24">
+        <rect x="3" y="3" width="7" height="9" rx="1" />
+        <rect x="14" y="3" width="7" height="5" rx="1" />
+        <rect x="14" y="12" width="7" height="9" rx="1" />
+        <rect x="3" y="16" width="7" height="5" rx="1" />
+      </symbol>
+      <symbol id="i-server" viewBox="0 0 24 24">
+        <rect x="2" y="2" width="20" height="8" rx="2" />
+        <rect x="2" y="14" width="20" height="8" rx="2" />
+        <path d="M6 6h.01M6 18h.01" />
+      </symbol>
+      <symbol id="i-window" viewBox="0 0 24 24">
+        <rect x="2" y="4" width="20" height="16" rx="2" />
+        <path d="M10 4v4M2 8h20M6 4v4" />
+      </symbol>
+      <symbol id="i-box" viewBox="0 0 24 24">
+        <path
+          d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"
+        />
+        <path d="m3.3 7 8.7 5 8.7-5M12 22V12" />
+      </symbol>
+      <symbol id="i-arrow" viewBox="0 0 24 24">
+        <path d="M5 12h14m-7-7 7 7-7 7" />
+      </symbol>
+      <symbol id="i-github" viewBox="0 0 16 16">
+        <path
+          class="filled"
+          d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"
+        />
+      </symbol>
+    </svg>
+
     <a class="skip-link" href="#contenido">Saltar al contenido</a>
+
     <header class="site-header">
       <div class="container site-header__inner">
         <a class="brand" href="#inicio" aria-label="Booqi, ir al inicio">
           <span class="brand__mark" aria-hidden="true">
-            <svg viewBox="0 0 24 24" width="20" height="20" focusable="false">
-              <path
-                d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"
-              />
-              <path d="M13 5v2M13 17v2M13 11v2" />
-            </svg>
+            <svg class="icon" width="20" height="20"><use href="#i-ticket" /></svg>
           </span>
           <span class="brand__name">Booqi</span>
+        </a>
+        <nav class="site-nav" aria-label="Secciones">
+          <a href="#que-es">Qué es</a>
+          <a href="#capturas">Capturas</a>
+          <a href="#arquitectura">Arquitectura</a>
+          <a href="#stack">Stack</a>
+          <a href="#ejecutar">Ejecutar</a>
+        </nav>
+        <a
+          class="icon-button"
+          href="https://github.com/RenzoRamosDEV/Booqui-TFG"
+          aria-label="Repositorio de Booqi en GitHub"
+        >
+          <svg class="icon" width="20" height="20" aria-hidden="true"><use href="#i-github" /></svg>
         </a>
         <button
           type="button"
@@ -55,26 +138,377 @@
           aria-pressed="false"
           aria-label="Cambiar a tema oscuro"
         >
-          <svg class="theme-toggle__moon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false">
+          <svg class="icon theme-toggle__moon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
             <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
           </svg>
-          <svg class="theme-toggle__sun" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false">
+          <svg class="icon theme-toggle__sun" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
             <circle cx="12" cy="12" r="4" />
-            <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
+            <path
+              d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"
+            />
           </svg>
         </button>
       </div>
     </header>
+
     <main id="contenido" tabindex="-1">
-      <section id="inicio" class="hero">
-        <h1>Booqi</h1>
+      <section id="inicio" class="hero" aria-labelledby="hero-title">
+        <div class="hero__backdrop" aria-hidden="true">
+          <div class="hero__pattern"></div>
+          <div class="hero__blob hero__blob--a"></div>
+          <div class="hero__blob hero__blob--b"></div>
+          <div class="hero__blob hero__blob--c"></div>
+        </div>
+        <div class="container hero__inner">
+          <div class="hero__copy">
+            <p class="pill hero__enter">
+              <span class="pill__dot" aria-hidden="true"></span>
+              Trabajo de fin de grado · código abierto
+            </p>
+            <h1 id="hero-title" class="hero__title hero__enter">Booqi</h1>
+            <p class="hero__claim hero__enter">
+              Descubre eventos y reserva tus entradas
+              <span class="text-gradient">en segundos.</span>
+            </p>
+            <p class="hero__lead hero__enter">
+              Una plataforma de eventos completa —catálogo, carrito, pagos, entradas con QR y panel de
+              administración— construida con cuatro microservicios Spring Boot, MySQL y un frontend
+              React. Se levanta en local con un solo comando de Docker Compose.
+            </p>
+            <div class="hero__actions hero__enter">
+              <a class="button button--primary" href="https://github.com/RenzoRamosDEV/Booqui-TFG">
+                <svg class="icon" width="20" height="20" aria-hidden="true"><use href="#i-github" /></svg>
+                Ver el código en GitHub
+              </a>
+              <a class="button button--secondary" href="#ejecutar">
+                Cómo ejecutarlo
+                <svg class="icon" width="18" height="18" aria-hidden="true"><use href="#i-arrow" /></svg>
+              </a>
+            </div>
+          </div>
+
+          <div class="hero__visual" aria-hidden="true">
+            <div class="ticket">
+              <div class="ticket__band">
+                <span class="ticket__brand">
+                  <svg class="icon" width="18" height="18"><use href="#i-ticket" /></svg>
+                  Booqi
+                </span>
+                <span class="ticket__badge">Confirmada</span>
+              </div>
+              <div class="ticket__body">
+                <div class="ticket__info">
+                  <span class="ticket__label">Evento</span>
+                  <span class="ticket__value ticket__value--title">Jazz en Madrid</span>
+                  <span class="ticket__label">Lugar</span>
+                  <span class="ticket__value">IFEMA, Madrid</span>
+                  <div class="ticket__row">
+                    <span>
+                      <span class="ticket__label">Fecha</span>
+                      <span class="ticket__value">10 nov · 21:00</span>
+                    </span>
+                    <span>
+                      <span class="ticket__label">Entradas</span>
+                      <span class="ticket__value">2</span>
+                    </span>
+                  </div>
+                </div>
+                <div class="ticket__qr">
+                  <svg viewBox="0 0 24 24" width="72" height="72"><use href="#i-qr" /></svg>
+                </div>
+              </div>
+            </div>
+            <div class="float-card float-card--pay">
+              <svg class="icon" width="18" height="18"><use href="#i-card" /></svg>
+              Pago aprobado · 25,00 €
+            </div>
+            <div class="float-card float-card--cart">
+              <svg class="icon" width="18" height="18"><use href="#i-cart" /></svg>
+              2 entradas en el carrito
+            </div>
+          </div>
+        </div>
       </section>
-      <section id="fixture" class="container">
-        <h2 class="reveal">Cifras</h2>
-        <p class="reveal">
-          <span data-counter>0</span> · <span data-counter>1</span> · <span data-counter>4</span>
-        </p>
+
+      <section id="que-es" class="section" aria-labelledby="que-es-title">
+        <div class="container">
+          <div class="stats reveal" role="list">
+            <div class="stat" role="listitem">
+              <span class="stat__value"><span data-counter>4</span></span>
+              <span class="stat__label">microservicios Spring Boot</span>
+            </div>
+            <div class="stat" role="listitem">
+              <span class="stat__value"><span data-counter>6</span></span>
+              <span class="stat__label">contenedores Docker</span>
+            </div>
+            <div class="stat" role="listitem">
+              <span class="stat__value"><span data-counter>1</span></span>
+              <span class="stat__label">comando para levantarlo todo</span>
+            </div>
+            <div class="stat" role="listitem">
+              <span class="stat__value"><span data-counter>0</span></span>
+              <span class="stat__label">peticiones a terceros desde esta página</span>
+            </div>
+          </div>
+
+          <header class="section__header reveal">
+            <p class="eyebrow">El proyecto</p>
+            <h2 id="que-es-title">Qué es Booqi</h2>
+            <p class="section__lead">
+              Booqi es un sistema de gestión y reserva de entradas para eventos. Cubre el recorrido
+              completo de quien compra y de quien organiza, con cada dominio en su propio servicio y
+              su propia base de datos.
+            </p>
+          </header>
+
+          <ul class="features" role="list">
+            <li class="card feature reveal">
+              <span class="feature__icon"><svg class="icon" width="22" height="22" aria-hidden="true"><use href="#i-search" /></svg></span>
+              <h3>Catálogo de eventos</h3>
+              <p>Búsqueda y filtros por categoría, fecha y precio, con paginación en la URL.</p>
+            </li>
+            <li class="card feature reveal" style="--reveal-delay: 60ms">
+              <span class="feature__icon"><svg class="icon" width="22" height="22" aria-hidden="true"><use href="#i-cart" /></svg></span>
+              <h3>Carrito y checkout</h3>
+              <p>Cantidades acotadas al stock, total al céntimo y resultado de pago por línea.</p>
+            </li>
+            <li class="card feature reveal" style="--reveal-delay: 120ms">
+              <span class="feature__icon"><svg class="icon" width="22" height="22" aria-hidden="true"><use href="#i-card" /></svg></span>
+              <h3>Pagos simulados</h3>
+              <p>payment-service aprueba o rechaza, descuenta stock y confirma o cancela la reserva.</p>
+            </li>
+            <li class="card feature reveal">
+              <span class="feature__icon"><svg class="icon" width="22" height="22" aria-hidden="true"><use href="#i-qr" /></svg></span>
+              <h3>Entradas en PDF con QR</h3>
+              <p>Una página por entrada, generada en el navegador y descargable al instante.</p>
+            </li>
+            <li class="card feature reveal" style="--reveal-delay: 60ms">
+              <span class="feature__icon"><svg class="icon" width="22" height="22" aria-hidden="true"><use href="#i-calendar" /></svg></span>
+              <h3>Mis reservas</h3>
+              <p>Historial agrupado por evento, con detalle y cancelación con confirmación.</p>
+            </li>
+            <li class="card feature reveal" style="--reveal-delay: 120ms">
+              <span class="feature__icon"><svg class="icon" width="22" height="22" aria-hidden="true"><use href="#i-dashboard" /></svg></span>
+              <h3>Panel de administración</h3>
+              <p>Usuarios, eventos y ventas, con métricas e informe de ventas en PDF.</p>
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      <section id="capturas" class="section section--tinted" aria-labelledby="capturas-title">
+        <div class="container">
+          <header class="section__header reveal">
+            <p class="eyebrow">La aplicación</p>
+            <h2 id="capturas-title">Capturas de la nueva app</h2>
+            <p class="section__lead">
+              El frontend reescrito con React 19, Tailwind CSS v4 y animaciones con movimiento
+              reducido, en tema claro y oscuro.
+            </p>
+          </header>
+        </div>
+      </section>
+
+      <section id="arquitectura" class="section" aria-labelledby="arquitectura-title">
+        <div class="container split">
+          <header class="section__header split__text reveal">
+            <p class="eyebrow">Cómo está hecho</p>
+            <h2 id="arquitectura-title">Arquitectura de microservicios</h2>
+            <p class="section__lead">
+              nginx sirve el frontend y hace de proxy de <code>/api/v1</code> hacia cuatro servicios
+              Spring Boot. Cada servicio es dueño de su esquema en MySQL (<em>database per
+              service</em>) y expone una API REST con errores RFC 9457.
+            </p>
+            <ul class="checklist">
+              <li>booking-service consulta a user-service y a event-service.</li>
+              <li>payment-service descuenta stock y confirma o cancela la reserva.</li>
+              <li>Documentación OpenAPI y Swagger UI en cada servicio.</li>
+            </ul>
+          </header>
+
+          <figure class="diagram card reveal">
+            <svg
+              class="diagram__svg"
+              role="img"
+              viewBox="0 0 360 516"
+              aria-labelledby="arch-title"
+              aria-describedby="arch-desc"
+            >
+              <title id="arch-title">Diagrama de arquitectura de Booqi</title>
+              <desc id="arch-desc">
+                El Navegador llama a nginx, que sirve el frontend y reenvía /api/v1 a user-service
+                (8080), event-service (8081), booking-service (8082) y payment-service (8083); cada
+                servicio guarda sus datos en su propio esquema de MySQL.
+              </desc>
+              <g class="diagram__links" fill="none">
+                <path class="diagram-link" d="M180 66V120" />
+                <path class="diagram-link" d="M180 184V212H96V240M180 212H264V240" />
+                <path class="diagram-link" d="M180 212V362H172M180 362H188" />
+                <path class="diagram-link diagram-link--db" d="M20 272H8V472H60M20 362H8" />
+                <path class="diagram-link diagram-link--db" d="M340 272H352V472H300M340 362H352" />
+              </g>
+              <g class="diagram-node" style="--i: 0">
+                <rect x="90" y="10" width="180" height="56" rx="14" />
+                <text x="180" y="35" class="diagram-node__name">Navegador</text>
+                <text x="180" y="54" class="diagram-node__meta">React · SPA</text>
+              </g>
+              <g class="diagram-node diagram-node--accent" style="--i: 1">
+                <rect x="60" y="120" width="240" height="64" rx="14" />
+                <text x="180" y="148" class="diagram-node__name">nginx</text>
+                <text x="180" y="168" class="diagram-node__meta">frontend + proxy /api/v1</text>
+              </g>
+              <g class="diagram-node" style="--i: 2">
+                <rect x="20" y="240" width="152" height="64" rx="14" />
+                <text x="96" y="268" class="diagram-node__name">user-service</text>
+                <text x="96" y="288" class="diagram-node__meta">:8080</text>
+              </g>
+              <g class="diagram-node" style="--i: 3">
+                <rect x="188" y="240" width="152" height="64" rx="14" />
+                <text x="264" y="268" class="diagram-node__name">event-service</text>
+                <text x="264" y="288" class="diagram-node__meta">:8081</text>
+              </g>
+              <g class="diagram-node" style="--i: 4">
+                <rect x="20" y="330" width="152" height="64" rx="14" />
+                <text x="96" y="358" class="diagram-node__name">booking-service</text>
+                <text x="96" y="378" class="diagram-node__meta">:8082</text>
+              </g>
+              <g class="diagram-node" style="--i: 5">
+                <rect x="188" y="330" width="152" height="64" rx="14" />
+                <text x="264" y="358" class="diagram-node__name">payment-service</text>
+                <text x="264" y="378" class="diagram-node__meta">:8083</text>
+              </g>
+              <g class="diagram-node diagram-node--db" style="--i: 6">
+                <rect x="60" y="440" width="240" height="64" rx="14" />
+                <text x="180" y="468" class="diagram-node__name">MySQL 8.0</text>
+                <text x="180" y="488" class="diagram-node__meta">un esquema por servicio</text>
+              </g>
+            </svg>
+          </figure>
+        </div>
+      </section>
+
+      <section id="stack" class="section section--tinted" aria-labelledby="stack-title">
+        <div class="container">
+          <header class="section__header reveal">
+            <p class="eyebrow">Tecnologías</p>
+            <h2 id="stack-title">Stack tecnológico</h2>
+            <p class="section__lead">Versiones fijadas en el repositorio y verificadas en CI.</p>
+          </header>
+          <div class="stack-grid">
+            <article class="card stack reveal">
+              <h3 class="stack__title">
+                <span class="feature__icon"><svg class="icon" width="22" height="22" aria-hidden="true"><use href="#i-server" /></svg></span>
+                Backend
+              </h3>
+              <ul class="chips" role="list">
+                <li>Java <span>17</span></li>
+                <li>Spring Boot <span>4.0.3</span></li>
+                <li>Spring Data JPA</li>
+                <li>Spring Validation</li>
+                <li>MapStruct <span>1.6.3</span></li>
+                <li>springdoc-openapi <span>3.0.3</span></li>
+                <li>MySQL <span>8.0</span></li>
+                <li>Maven <span>3.9.12</span></li>
+              </ul>
+            </article>
+            <article class="card stack reveal" style="--reveal-delay: 80ms">
+              <h3 class="stack__title">
+                <span class="feature__icon"><svg class="icon" width="22" height="22" aria-hidden="true"><use href="#i-window" /></svg></span>
+                Frontend
+              </h3>
+              <ul class="chips" role="list">
+                <li>React <span>19.3.1</span></li>
+                <li>TypeScript <span>6.0.3</span></li>
+                <li>Vite <span>8.3.5</span></li>
+                <li>Tailwind CSS <span>4.3.3</span></li>
+                <li>motion <span>14.6.0</span></li>
+                <li>React Router <span>7.18.4</span></li>
+                <li>TanStack Query <span>5.104.5</span></li>
+                <li>Zod <span>4.6.7</span></li>
+                <li>Zustand <span>5.0.16</span></li>
+                <li>Vitest <span>5.0.5</span></li>
+                <li>Playwright <span>1.64.1</span></li>
+              </ul>
+            </article>
+            <article class="card stack reveal" style="--reveal-delay: 160ms">
+              <h3 class="stack__title">
+                <span class="feature__icon"><svg class="icon" width="22" height="22" aria-hidden="true"><use href="#i-box" /></svg></span>
+                Infraestructura y calidad
+              </h3>
+              <ul class="chips" role="list">
+                <li>Docker Compose <span>v2</span></li>
+                <li>nginx <span>alpine</span></li>
+                <li>GitHub Actions</li>
+                <li>Checkstyle <span>12.3.1</span></li>
+                <li>google-java-format <span>1.35.0</span></li>
+                <li>PIT <span>1.17.0</span></li>
+                <li>Stryker <span>10.1.1</span></li>
+                <li>ESLint + Prettier <span>3.9.10</span></li>
+              </ul>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section id="ejecutar" class="section" aria-labelledby="ejecutar-title">
+        <div class="container narrow">
+          <header class="section__header reveal">
+            <p class="eyebrow">En tu máquina</p>
+            <h2 id="ejecutar-title">Ejecútalo en local</h2>
+            <p class="section__lead">
+              Solo necesitas git y Docker (o Podman) con Compose v2. Ejecuta los comandos desde la raíz
+              del repositorio.
+            </p>
+          </header>
+          <ol class="steps">
+            <li class="step reveal">
+              <h3>Clona el repositorio</h3>
+              <pre><code>git clone https://github.com/RenzoRamosDEV/Booqui-TFG.git
+cd Booqui-TFG</code></pre>
+            </li>
+            <li class="step reveal">
+              <h3>Crea la configuración</h3>
+              <p>Copia el fichero de ejemplo y cambia las contraseñas de ejemplo.</p>
+              <pre><code>cp infra/.env.example infra/.env</code></pre>
+            </li>
+            <li class="step reveal">
+              <h3>Levanta el stack</h3>
+              <p>La primera vez construye las imágenes; el stack tarda unos 2–3 minutos en estar sano.</p>
+              <pre><code>docker compose -f infra/docker/docker-compose.yml -f infra/docker/docker-compose.override.yml --env-file infra/.env up -d --build</code></pre>
+            </li>
+            <li class="step reveal">
+              <h3>Abre la app</h3>
+              <p>
+                La app queda en <a href="http://localhost">http://localhost</a>. Si tu Docker o Podman
+                rootless no puede publicar el puerto 80, pon <code>BOOQI_FRONTEND_PORT=8088</code> en
+                <code>infra/.env</code> y abre <code>http://localhost:8088</code>.
+              </p>
+            </li>
+          </ol>
+        </div>
       </section>
     </main>
+
+    <footer class="site-footer">
+      <div class="container site-footer__inner">
+        <div>
+          <h2 class="site-footer__title">
+            <span class="brand__mark" aria-hidden="true">
+              <svg class="icon" width="18" height="18"><use href="#i-ticket" /></svg>
+            </span>
+            Booqi
+          </h2>
+          <p>
+            Trabajo de fin de grado de Renzo Iván Ramos de los Ríos
+            (<a href="https://github.com/RenzoRamosDEV">RenzoRamosDEV</a>) y Melanie Gabriela Cárdenas
+            Hidalgo (<a href="https://github.com/MelGabi">MelGabi</a>). Licencia MIT.
+          </p>
+        </div>
+        <a class="button button--secondary" href="https://github.com/RenzoRamosDEV/Booqui-TFG">
+          <svg class="icon" width="20" height="20" aria-hidden="true"><use href="#i-github" /></svg>
+          RenzoRamosDEV/Booqui-TFG
+        </a>
+      </div>
+    </footer>
   </body>
 </html>

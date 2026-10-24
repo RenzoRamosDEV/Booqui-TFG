@@ -173,6 +173,27 @@ Política de TanStack Query (`createQueryClient()` en `src/lib/query-client.ts`)
 `0` o `≥ 500` se reintentan una sola vez (absorbe un `503` puntual de booking/payment); los `4xx` y los errores que
 no son `ApiError` no se reintentan; las escrituras nunca se reintentan; sin recarga al volver el foco a la ventana.
 
+## Sesión y guards
+
+- **Sin token.** El backend no emite token ni cookie: el login (`POST /api/v1/users/login`) devuelve un
+  `UserResponse` y esa es la sesión. Nunca se envía `Authorization` ni se intenta refrescar nada.
+- **Store.** `useSessionStore` (`src/features/auth/hooks/session-store.ts`, Zustand + `persist`) guarda
+  `{ user }` en `localStorage['booqi-session']` y expone `signIn(user)` y `signOut()`; `signOut` borra la clave.
+- **Validación al cargar.** Al rehidratar, el valor guardado se valida con Zod (`userResponseSchema` en
+  `src/features/auth/api/schemas.ts`). JSON inválido, campos que faltan o un `role` distinto de `ADMIN`/`CUSTOMER`
+  se descartan: no hay sesión y la clave se elimina.
+- **Sesiones antiguas.** La app anterior usaba `localStorage['booqi_user']` con otro formato; no se migra, así que
+  cada navegador vuelve a iniciar sesión una vez.
+- **Reglas de acceso** (`src/features/auth/hooks/access.ts`): `resolveAccess(user, 'auth' | 'admin')` devuelve
+  `allow`, `login` o `forbidden`; `loginRedirectPath` construye `/login?redirect=<ruta y query codificadas>`;
+  `resolvePostLoginPath(user, redirect)` solo acepta rutas que empiezan por una única `/` (rechaza `//host`,
+  `/\host` y URLs absolutas) y si no, manda a `/admin` (ADMIN) o `/` (CUSTOMER).
+- **`<RequireAuth requirement>`** (`src/app/guards.tsx`) envuelve rutas: sin sesión redirige a login; con un rol
+  insuficiente muestra la página de no encontrado sin montar el contenido protegido, así que no se dispara ninguna
+  petición de administración.
+- **Solo en el cliente.** Los roles se comprueban únicamente en el navegador; el backend no tiene autorización y
+  cualquiera puede llamar a la API directamente. Los guards son experiencia de usuario, no seguridad.
+
 ## Mutation testing
 
 `npm run test:mutation` ejecuta Stryker sobre `src/lib/**`, `src/features/**/api/**` y `src/features/**/hooks/**`
@@ -190,7 +211,8 @@ resultados guardados de ficheros fuera del `--mutate`; la puntuación de un camb
 
 ### Mutantes supervivientes justificados
 
-| Fichero                        | Mutante                                                    | Por qué sobrevive                                                                                                                                                                                                        |
-| ------------------------------ | ---------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `src/lib/contrast.ts:5`        | `srgb <= 0.04045` → `srgb < 0.04045`                       | Equivalente: los canales son enteros de 8 bits y ninguno da exactamente 0,04045 (10/255 = 0,0392 y 11/255 = 0,0431), así que ambas comparaciones eligen siempre el mismo tramo.                                          |
-| `src/lib/use-focus-trap.ts:51` | `previouslyFocused?.focus()` → `previouslyFocused.focus()` | Equivalente en la práctica: `document.activeElement` solo es `null` sin documento cargado; con la app montada siempre hay un elemento activo (como mínimo `body`). El `?.` se mantiene porque el tipo DOM admite `null`. |
+| Fichero                                       | Mutante                                                    | Por qué sobrevive                                                                                                                                                                                                        |
+| --------------------------------------------- | ---------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `src/lib/contrast.ts:5`                       | `srgb <= 0.04045` → `srgb < 0.04045`                       | Equivalente: los canales son enteros de 8 bits y ninguno da exactamente 0,04045 (10/255 = 0,0392 y 11/255 = 0,0431), así que ambas comparaciones eligen siempre el mismo tramo.                                          |
+| `src/lib/use-focus-trap.ts:51`                | `previouslyFocused?.focus()` → `previouslyFocused.focus()` | Equivalente en la práctica: `document.activeElement` solo es `null` sin documento cargado; con la app montada siempre hay un elemento activo (como mínimo `body`). El `?.` se mantiene porque el tipo DOM admite `null`. |
+| `src/features/auth/hooks/session-store.ts:24` | `catch { return undefined }` → `catch {}`                  | Equivalente: un bloque vacío también devuelve `undefined`, que Zod rechaza igual que antes.                                                                                                                              |

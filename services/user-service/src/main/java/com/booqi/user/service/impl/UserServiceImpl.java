@@ -13,8 +13,10 @@ import com.booqi.user.exception.ResourceNotFoundException;
 import com.booqi.user.mapper.UserMapper;
 import com.booqi.user.repository.UserRepository;
 import com.booqi.user.service.UserService;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -91,7 +93,10 @@ public class UserServiceImpl implements UserService {
         }
         User user = userMapper.toEntity(request);
         user.setPassword(passwordEncoder.encode(request.password()));
-        user.setRole(StringUtils.hasText(request.role()) ? User.Role.valueOf(request.role()) : User.Role.CUSTOMER);
+        user.setRole(
+                StringUtils.hasText(request.role())
+                        ? User.Role.valueOf(request.role())
+                        : User.Role.CUSTOMER);
         User saved = userRepository.save(user);
         log.info("User {} created", saved.getId());
         return userMapper.toResponse(saved);
@@ -102,7 +107,8 @@ public class UserServiceImpl implements UserService {
     public UserResponse update(Long id, UpdateUserRequest request) {
         User user = getUser(id);
         String newEmail = request.contactEmail();
-        if (newEmail != null && !newEmail.equals(user.getContactEmail())
+        if (newEmail != null
+                && !newEmail.equals(user.getContactEmail())
                 && userRepository.existsByContactEmail(newEmail)) {
             throw duplicateEmail(newEmail);
         }
@@ -138,7 +144,8 @@ public class UserServiceImpl implements UserService {
         if (!StringUtils.hasText(contactEmail)) {
             return List.of();
         }
-        return userRepository.findByContactEmail(contactEmail)
+        return userRepository
+                .findByContactEmail(contactEmail)
                 .map(user -> List.of(userMapper.toResponse(user)))
                 .orElse(List.of());
     }
@@ -157,7 +164,8 @@ public class UserServiceImpl implements UserService {
             return List.of();
         }
         try {
-            return userMapper.toResponseList(userRepository.findByRole(User.Role.valueOf(role.toUpperCase())));
+            return userMapper.toResponseList(
+                    userRepository.findByRole(User.Role.valueOf(role.toUpperCase())));
         } catch (IllegalArgumentException unknownRole) {
             return List.of();
         }
@@ -190,12 +198,19 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponse login(LoginRequest request) {
-        User user = userRepository.findByContactEmail(request.contactEmail())
-                .filter(candidate -> passwordEncoder.matches(request.password(), candidate.getPassword()))
-                .orElseThrow(() -> {
-                    log.warn("Rejected login attempt");
-                    return new InvalidCredentialsException(INVALID_CREDENTIALS_MESSAGE);
-                });
+        User user =
+                userRepository
+                        .findByContactEmail(request.contactEmail())
+                        .filter(
+                                candidate ->
+                                        passwordEncoder.matches(
+                                                request.password(), candidate.getPassword()))
+                        .orElseThrow(
+                                () -> {
+                                    log.warn("Rejected login attempt");
+                                    return new InvalidCredentialsException(
+                                            INVALID_CREDENTIALS_MESSAGE);
+                                });
         log.info("User {} logged in", user.getId());
         return userMapper.toResponse(user);
     }

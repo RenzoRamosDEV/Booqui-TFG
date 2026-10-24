@@ -1,16 +1,17 @@
 package com.booqi.event.mapper;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.booqi.event.dto.request.CreateEventRequest;
 import com.booqi.event.dto.request.UpdateEventRequest;
 import com.booqi.event.dto.response.EventResponse;
 import com.booqi.event.entity.Event;
+
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Field;
 import java.time.LocalDateTime;
 import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 class EventMapperTest {
 
@@ -42,7 +43,8 @@ class EventMapperTest {
     }
 
     private static UpdateEventRequest emptyUpdate() {
-        return new UpdateEventRequest(null, null, null, null, null, null, null, null, null, null, null, null);
+        return new UpdateEventRequest(
+                null, null, null, null, null, null, null, null, null, null, null, null);
     }
 
     @Test
@@ -70,15 +72,40 @@ class EventMapperTest {
     void eventResponse_tieneExactamenteLosCamposDelContrato() {
         assertThat(EventResponse.class.getDeclaredFields())
                 .extracting(Field::getName)
-                .containsExactlyInAnyOrder("id", "title", "description", "availableTickets", "location",
-                        "startDate", "endDate", "organizer", "price", "category", "contactEmail",
-                        "contactPhone", "imageUrl", "createdAt", "updatedAt");
+                .containsExactlyInAnyOrder(
+                        "id",
+                        "title",
+                        "description",
+                        "availableTickets",
+                        "location",
+                        "startDate",
+                        "endDate",
+                        "organizer",
+                        "price",
+                        "category",
+                        "contactEmail",
+                        "contactPhone",
+                        "imageUrl",
+                        "createdAt",
+                        "updatedAt");
     }
 
     @Test
     void toEntity_ignoraIdYAuditoria() {
-        CreateEventRequest request = new CreateEventRequest("Nuevo", "Desc", 10, "Sevilla", START, END,
-                "Org", 5.0, "Teatro", "new@booqi.com", "600000000", "https://img.booqi.com/new.jpg");
+        CreateEventRequest request =
+                new CreateEventRequest(
+                        "Nuevo",
+                        "Desc",
+                        10,
+                        "Sevilla",
+                        START,
+                        END,
+                        "Org",
+                        5.0,
+                        "Teatro",
+                        "new@booqi.com",
+                        "600000000",
+                        "https://img.booqi.com/new.jpg");
 
         Event event = mapper.toEntity(request);
 
@@ -115,8 +142,20 @@ class EventMapperTest {
     @Test
     void updateEntity_aplicaCamposPresentesSinTocarIdNiAuditoria() {
         Event target = entity();
-        UpdateEventRequest request = new UpdateEventRequest(null, null, null, null, null, null,
-                "Nuevo Organizador", null, null, null, null, "https://img.booqi.com/b.jpg");
+        UpdateEventRequest request =
+                new UpdateEventRequest(
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        "Nuevo Organizador",
+                        null,
+                        null,
+                        null,
+                        null,
+                        "https://img.booqi.com/b.jpg");
 
         mapper.updateEntity(request, target);
 

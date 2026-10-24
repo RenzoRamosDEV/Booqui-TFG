@@ -1,7 +1,9 @@
 package com.booqi.event.exception;
 
 import jakarta.servlet.http.HttpServletRequest;
+
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -45,30 +47,43 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ProblemDetail handleUnexpected(Exception ex, HttpServletRequest request) {
-        log.error("Unexpected error handling {} {}", request.getMethod(), request.getRequestURI(), ex);
+        log.error(
+                "Unexpected error handling {} {}",
+                request.getMethod(),
+                request.getRequestURI(),
+                ex);
         return problem(HttpStatus.INTERNAL_SERVER_ERROR, "An unexpected error occurred");
     }
 
     @Override
-    protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex,
-                                                                  HttpHeaders headers,
-                                                                  HttpStatusCode status,
-                                                                  WebRequest request) {
+    protected ResponseEntity<Object> handleMethodArgumentNotValid(
+            MethodArgumentNotValidException ex,
+            HttpHeaders headers,
+            HttpStatusCode status,
+            WebRequest request) {
         ProblemDetail body = ProblemDetail.forStatusAndDetail(status, "Validation failed");
-        List<Map<String, String>> errors = ex.getBindingResult().getFieldErrors().stream()
-                .map(error -> Map.of(
-                        "field", error.getField(),
-                        "message", error.isBindingFailure()
-                                ? "Invalid value for parameter '" + error.getField() + "'"
-                                : String.valueOf(error.getDefaultMessage())))
-                .toList();
+        List<Map<String, String>> errors =
+                ex.getBindingResult().getFieldErrors().stream()
+                        .map(
+                                error ->
+                                        Map.of(
+                                                "field",
+                                                error.getField(),
+                                                "message",
+                                                error.isBindingFailure()
+                                                        ? "Invalid value for parameter '"
+                                                                + error.getField()
+                                                                + "'"
+                                                        : String.valueOf(
+                                                                error.getDefaultMessage())))
+                        .toList();
         body.setProperty("errors", errors);
         return handleExceptionInternal(ex, body, headers, status, request);
     }
 
     @Override
-    protected ResponseEntity<Object> createResponseEntity(Object body, HttpHeaders headers,
-                                                          HttpStatusCode statusCode, WebRequest request) {
+    protected ResponseEntity<Object> createResponseEntity(
+            Object body, HttpHeaders headers, HttpStatusCode statusCode, WebRequest request) {
         if (body instanceof ProblemDetail problemDetail) {
             problemDetail.setType(ABOUT_BLANK);
         }

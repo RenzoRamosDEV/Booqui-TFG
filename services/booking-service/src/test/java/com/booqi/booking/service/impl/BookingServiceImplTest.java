@@ -1,5 +1,13 @@
 package com.booqi.booking.service.impl;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
+
 import com.booqi.booking.client.EventClient;
 import com.booqi.booking.client.UserClient;
 import com.booqi.booking.client.dto.EventResponse;
@@ -14,6 +22,7 @@ import com.booqi.booking.exception.ResourceNotFoundException;
 import com.booqi.booking.mapper.BookingMapper;
 import com.booqi.booking.mapper.BookingMapperImpl;
 import com.booqi.booking.repository.BookingRepository;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -30,50 +39,47 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.when;
-
 @ExtendWith(MockitoExtension.class)
 class BookingServiceImplTest {
 
     private static final LocalDateTime START = LocalDateTime.of(2026, 6, 15, 20, 0);
 
-    @Mock
-    private BookingRepository bookingRepository;
+    @Mock private BookingRepository bookingRepository;
 
-    @Mock
-    private UserClient userClient;
+    @Mock private UserClient userClient;
 
-    @Mock
-    private EventClient eventClient;
+    @Mock private EventClient eventClient;
 
-    @Spy
-    private BookingMapper bookingMapper = new BookingMapperImpl();
+    @Spy private BookingMapper bookingMapper = new BookingMapperImpl();
 
-    @InjectMocks
-    private BookingServiceImpl bookingService;
+    @InjectMocks private BookingServiceImpl bookingService;
 
     private final UserResponse user = new UserResponse(10L, "Juan", "Pérez", "juan@example.com");
-    private final EventResponse event = new EventResponse(20L, "Concierto Rock", "Gran concierto", START, "Lima", 50.0);
+    private final EventResponse event =
+            new EventResponse(20L, "Concierto Rock", "Gran concierto", START, "Lima", 50.0);
 
     private static Booking booking(long id, String status) {
-        return Booking.builder().id(id).userId(10L).eventId(20L).status(status).ticketQuantity(2)
-                .basePrice(new BigDecimal("50.00")).totalPrice(new BigDecimal("100.00")).build();
+        return Booking.builder()
+                .id(id)
+                .userId(10L)
+                .eventId(20L)
+                .status(status)
+                .ticketQuantity(2)
+                .basePrice(new BigDecimal("50.00"))
+                .totalPrice(new BigDecimal("100.00"))
+                .build();
     }
 
     private void givenRemoteDataAndSave(Long userId, Long eventId) {
         when(userClient.findById(userId)).thenReturn(user);
         when(eventClient.findById(eventId)).thenReturn(event);
-        when(bookingRepository.save(any(Booking.class))).thenAnswer(inv -> {
-            Booking b = inv.getArgument(0);
-            b.setId(1L);
-            return b;
-        });
+        when(bookingRepository.save(any(Booking.class)))
+                .thenAnswer(
+                        inv -> {
+                            Booking b = inv.getArgument(0);
+                            b.setId(1L);
+                            return b;
+                        });
     }
 
     private Booking savedBooking() {
@@ -145,10 +151,12 @@ class BookingServiceImplTest {
 
     @Test
     void create_cuandoUsuarioRemotoNoExiste_propagaNotFoundSinGuardarNiConsultarEvento() {
-        ResourceNotFoundException remote = new ResourceNotFoundException("User with id 99 not found");
+        ResourceNotFoundException remote =
+                new ResourceNotFoundException("User with id 99 not found");
         when(userClient.findById(99L)).thenThrow(remote);
 
-        assertThatThrownBy(() -> bookingService.create(new CreateBookingRequest(99L, 20L, 1))).isSameAs(remote);
+        assertThatThrownBy(() -> bookingService.create(new CreateBookingRequest(99L, 20L, 1)))
+                .isSameAs(remote);
         verify(bookingRepository, never()).save(any());
         verifyNoInteractions(eventClient);
     }
@@ -158,18 +166,21 @@ class BookingServiceImplTest {
         RemoteServiceException remote = new RemoteServiceException("User service is unavailable");
         when(userClient.findById(10L)).thenThrow(remote);
 
-        assertThatThrownBy(() -> bookingService.create(new CreateBookingRequest(10L, 20L, 1))).isSameAs(remote);
+        assertThatThrownBy(() -> bookingService.create(new CreateBookingRequest(10L, 20L, 1)))
+                .isSameAs(remote);
         verify(bookingRepository, never()).save(any());
         verifyNoInteractions(eventClient);
     }
 
     @Test
     void create_cuandoEventoRemotoNoExiste_propagaNotFoundSinGuardar() {
-        ResourceNotFoundException remote = new ResourceNotFoundException("Event with id 99 not found");
+        ResourceNotFoundException remote =
+                new ResourceNotFoundException("Event with id 99 not found");
         when(userClient.findById(10L)).thenReturn(user);
         when(eventClient.findById(99L)).thenThrow(remote);
 
-        assertThatThrownBy(() -> bookingService.create(new CreateBookingRequest(10L, 99L, 1))).isSameAs(remote);
+        assertThatThrownBy(() -> bookingService.create(new CreateBookingRequest(10L, 99L, 1)))
+                .isSameAs(remote);
         verify(bookingRepository, never()).save(any());
     }
 
@@ -179,7 +190,8 @@ class BookingServiceImplTest {
         when(userClient.findById(10L)).thenReturn(user);
         when(eventClient.findById(20L)).thenThrow(remote);
 
-        assertThatThrownBy(() -> bookingService.create(new CreateBookingRequest(10L, 20L, 1))).isSameAs(remote);
+        assertThatThrownBy(() -> bookingService.create(new CreateBookingRequest(10L, 20L, 1)))
+                .isSameAs(remote);
         verify(bookingRepository, never()).save(any());
     }
 
@@ -203,9 +215,12 @@ class BookingServiceImplTest {
 
     @Test
     void findAll_retornaTodasMapeadas() {
-        when(bookingRepository.findAll()).thenReturn(List.of(booking(1L, "PENDING"), booking(2L, "CONFIRMED")));
+        when(bookingRepository.findAll())
+                .thenReturn(List.of(booking(1L, "PENDING"), booking(2L, "CONFIRMED")));
 
-        assertThat(bookingService.findAll()).extracting(BookingResponse::id).containsExactly(1L, 2L);
+        assertThat(bookingService.findAll())
+                .extracting(BookingResponse::id)
+                .containsExactly(1L, 2L);
     }
 
     @Test
@@ -230,21 +245,27 @@ class BookingServiceImplTest {
     void findByUserId_retornaReservasDelUsuario() {
         when(bookingRepository.findByUserId(10L)).thenReturn(List.of(booking(1L, "PENDING")));
 
-        assertThat(bookingService.findByUserId(10L)).extracting(BookingResponse::id).containsExactly(1L);
+        assertThat(bookingService.findByUserId(10L))
+                .extracting(BookingResponse::id)
+                .containsExactly(1L);
     }
 
     @Test
     void findByEventId_retornaReservasDelEvento() {
         when(bookingRepository.findByEventId(20L)).thenReturn(List.of(booking(1L, "PENDING")));
 
-        assertThat(bookingService.findByEventId(20L)).extracting(BookingResponse::id).containsExactly(1L);
+        assertThat(bookingService.findByEventId(20L))
+                .extracting(BookingResponse::id)
+                .containsExactly(1L);
     }
 
     @Test
     void findByStatus_retornaReservasConEseEstado() {
         when(bookingRepository.findByStatus("PENDING")).thenReturn(List.of(booking(1L, "PENDING")));
 
-        assertThat(bookingService.findByStatus("PENDING")).extracting(BookingResponse::status).containsExactly("PENDING");
+        assertThat(bookingService.findByStatus("PENDING"))
+                .extracting(BookingResponse::status)
+                .containsExactly("PENDING");
     }
 
     // findAll(BookingFilter)
@@ -268,7 +289,8 @@ class BookingServiceImplTest {
     void findAllFiltro_porUserId() {
         when(bookingRepository.findByUserId(10L)).thenReturn(List.of(booking(1L, "PENDING")));
 
-        assertThat(bookingService.findAll(new BookingFilter(10L, null, null))).extracting(BookingResponse::id)
+        assertThat(bookingService.findAll(new BookingFilter(10L, null, null)))
+                .extracting(BookingResponse::id)
                 .containsExactly(1L);
     }
 
@@ -276,15 +298,18 @@ class BookingServiceImplTest {
     void findAllFiltro_porEventId() {
         when(bookingRepository.findByEventId(20L)).thenReturn(List.of(booking(2L, "PENDING")));
 
-        assertThat(bookingService.findAll(new BookingFilter(null, 20L, null))).extracting(BookingResponse::id)
+        assertThat(bookingService.findAll(new BookingFilter(null, 20L, null)))
+                .extracting(BookingResponse::id)
                 .containsExactly(2L);
     }
 
     @Test
     void findAllFiltro_porStatus() {
-        when(bookingRepository.findByStatus("CANCELLED")).thenReturn(List.of(booking(3L, "CANCELLED")));
+        when(bookingRepository.findByStatus("CANCELLED"))
+                .thenReturn(List.of(booking(3L, "CANCELLED")));
 
-        assertThat(bookingService.findAll(new BookingFilter(null, null, "CANCELLED"))).extracting(BookingResponse::id)
+        assertThat(bookingService.findAll(new BookingFilter(null, null, "CANCELLED")))
+                .extracting(BookingResponse::id)
                 .containsExactly(3L);
     }
 

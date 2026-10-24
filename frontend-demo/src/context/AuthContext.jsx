@@ -9,7 +9,7 @@ export function AuthProvider({ children }) {
       if (stored) {
         const parsed = JSON.parse(stored)
         // Verificar que el usuario sigue existiendo en mock data
-        const exists = MOCK_USERS.find(u => u.idUser === parsed.idUser)
+        const exists = MOCK_USERS.find((u) => u.idUser === parsed.idUser)
         if (exists) return parsed
       }
       return null
@@ -28,9 +28,5 @@ export function AuthProvider({ children }) {
     localStorage.removeItem('booqi_user')
   }
 
-  return (
-    <AuthContext.Provider value={{ user, login, logout }}>
-      {children}
-    </AuthContext.Provider>
-  )
+  return <AuthContext.Provider value={{ user, login, logout }}>{children}</AuthContext.Provider>
 }

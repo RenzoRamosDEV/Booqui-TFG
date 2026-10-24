@@ -7,14 +7,37 @@ import './NavbarStyle.css'
 
 const S = {
   nav: {
-    position: 'fixed', top: 0, left: 0, right: 0, zIndex: 1000,
-    display: 'flex', alignItems: 'center', flexWrap: 'nowrap',
-    height: '68px', padding: '0 3rem',
-    background: '#ffffff', borderBottom: '1px solid rgba(0,0,0,0.06)',
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 1000,
+    display: 'flex',
+    alignItems: 'center',
+    flexWrap: 'nowrap',
+    height: '68px',
+    padding: '0 3rem',
+    background: '#ffffff',
+    borderBottom: '1px solid rgba(0,0,0,0.06)',
     transition: 'box-shadow 0.3s',
   },
-  logo: { display: 'flex', alignItems: 'center', gap: '0.4rem', textDecoration: 'none', flexShrink: 0 },
-  links: { display: 'flex', alignItems: 'center', gap: '2rem', flex: 1, justifyContent: 'center', listStyle: 'none', margin: 0, padding: 0 },
+  logo: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.4rem',
+    textDecoration: 'none',
+    flexShrink: 0,
+  },
+  links: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '2rem',
+    flex: 1,
+    justifyContent: 'center',
+    listStyle: 'none',
+    margin: 0,
+    padding: 0,
+  },
   actions: { display: 'flex', alignItems: 'center', gap: '0.75rem', flexShrink: 0 },
 }
 
@@ -53,16 +76,24 @@ export default function Navbar() {
         {user ? (
           <>
             <span className="nav-hello">Hola, {user.firstName}</span>
-            <Link to="/my-bookings" className="nav-btn nav-btn-ghost">🎫 Mis reservas</Link>
+            <Link to="/my-bookings" className="nav-btn nav-btn-ghost">
+              🎫 Mis reservas
+            </Link>
             <Link to="/cart" className="nav-btn nav-btn-ghost">
               🛒 {cartCount > 0 && <span className="nav-cart-badge">{cartCount}</span>}
             </Link>
-            <button className="nav-btn nav-btn-ghost" onClick={logout}>Salir</button>
+            <button className="nav-btn nav-btn-ghost" onClick={logout}>
+              Salir
+            </button>
           </>
         ) : (
           <>
-            <Link to="/login" className="nav-btn nav-btn-ghost">Iniciar sesión</Link>
-            <Link to="/register" className="nav-btn nav-btn-solid">Registrarse</Link>
+            <Link to="/login" className="nav-btn nav-btn-ghost">
+              Iniciar sesión
+            </Link>
+            <Link to="/register" className="nav-btn nav-btn-solid">
+              Registrarse
+            </Link>
           </>
         )}
       </div>

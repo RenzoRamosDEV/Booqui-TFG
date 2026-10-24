@@ -1,10 +1,10 @@
 package com.booqi.payment.dto.request;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 class RequestToStringTest {
 
@@ -12,11 +12,17 @@ class RequestToStringTest {
 
     @Test
     void createPaymentRequest_enmascaraTarjetaYCvv() {
-        String text = new CreatePaymentRequest(1L, 3L, 2L, 2, new BigDecimal("70.00"), "CREDIT_CARD", CARD, "123")
-                .toString();
+        String text =
+                new CreatePaymentRequest(
+                                1L, 3L, 2L, 2, new BigDecimal("70.00"), "CREDIT_CARD", CARD, "123")
+                        .toString();
 
-        assertThat(text).doesNotContain(CARD).doesNotContain("cvv=123")
-                .contains("cardNumber=***").contains("cvv=***")
-                .contains("bookingId=1").contains("paymentMethod=CREDIT_CARD");
+        assertThat(text)
+                .doesNotContain(CARD)
+                .doesNotContain("cvv=123")
+                .contains("cardNumber=***")
+                .contains("cvv=***")
+                .contains("bookingId=1")
+                .contains("paymentMethod=CREDIT_CARD");
     }
 }

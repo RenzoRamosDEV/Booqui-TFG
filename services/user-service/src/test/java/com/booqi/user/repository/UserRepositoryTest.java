@@ -1,7 +1,10 @@
 package com.booqi.user.repository;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.booqi.user.config.JpaConfig;
 import com.booqi.user.entity.User;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
@@ -13,8 +16,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
@@ -33,15 +34,16 @@ class UserRepositoryTest {
     @BeforeEach
     void setUp() {
         userRepository.deleteAll();
-        usuario = User.builder()
-                .firstName("Juan")
-                .lastName("Pérez")
-                .dateOfBirth(LocalDate.of(1990, 5, 15))
-                .contactPhone("631835827")
-                .contactEmail("juan.perez@email.com")
-                .password("securepass123")
-                .role(User.Role.CUSTOMER)
-                .build();
+        usuario =
+                User.builder()
+                        .firstName("Juan")
+                        .lastName("Pérez")
+                        .dateOfBirth(LocalDate.of(1990, 5, 15))
+                        .contactPhone("631835827")
+                        .contactEmail("juan.perez@email.com")
+                        .password("securepass123")
+                        .role(User.Role.CUSTOMER)
+                        .build();
     }
 
     @Test
@@ -79,14 +81,15 @@ class UserRepositoryTest {
     @Test
     void findAll_retornaTodosLosUsuarios() {
         userRepository.save(usuario);
-        userRepository.save(User.builder()
-                .firstName("María")
-                .lastName("García")
-                .dateOfBirth(LocalDate.of(1995, 3, 20))
-                .contactEmail("maria.garcia@email.com")
-                .password("password123")
-                .role(User.Role.ADMIN)
-                .build());
+        userRepository.save(
+                User.builder()
+                        .firstName("María")
+                        .lastName("García")
+                        .dateOfBirth(LocalDate.of(1995, 3, 20))
+                        .contactEmail("maria.garcia@email.com")
+                        .password("password123")
+                        .role(User.Role.ADMIN)
+                        .build());
 
         assertThat(userRepository.findAll()).hasSize(2);
     }
@@ -212,21 +215,24 @@ class UserRepositoryTest {
     void findByFirstNameAndLastNameIgnoreCase_cuandoCoincide_retornaLista() {
         userRepository.save(usuario);
 
-        assertThat(userRepository.findByFirstNameIgnoreCaseAndLastNameIgnoreCase("Juan", "Pérez")).hasSize(1);
+        assertThat(userRepository.findByFirstNameIgnoreCaseAndLastNameIgnoreCase("Juan", "Pérez"))
+                .hasSize(1);
     }
 
     @Test
     void findByFirstNameAndLastNameIgnoreCase_busquedaCaseInsensitive() {
         userRepository.save(usuario);
 
-        assertThat(userRepository.findByFirstNameIgnoreCaseAndLastNameIgnoreCase("juan", "pérez")).hasSize(1);
+        assertThat(userRepository.findByFirstNameIgnoreCaseAndLastNameIgnoreCase("juan", "pérez"))
+                .hasSize(1);
     }
 
     @Test
     void findByFirstNameAndLastNameIgnoreCase_cuandoSoloNombreCoincide_retornaVacio() {
         userRepository.save(usuario);
 
-        assertThat(userRepository.findByFirstNameIgnoreCaseAndLastNameIgnoreCase("Juan", "Otro")).isEmpty();
+        assertThat(userRepository.findByFirstNameIgnoreCaseAndLastNameIgnoreCase("Juan", "Otro"))
+                .isEmpty();
     }
 
     @Test

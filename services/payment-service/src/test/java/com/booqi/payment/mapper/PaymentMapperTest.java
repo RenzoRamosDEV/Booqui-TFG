@@ -1,15 +1,16 @@
 package com.booqi.payment.mapper;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.booqi.payment.dto.response.PaymentResponse;
 import com.booqi.payment.entity.Payment;
+
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 class PaymentMapperTest {
 
@@ -60,9 +61,20 @@ class PaymentMapperTest {
     void paymentResponse_tieneExactamenteLosCamposDelContrato() {
         assertThat(PaymentResponse.class.getDeclaredFields())
                 .extracting(Field::getName)
-                .containsExactlyInAnyOrder("id", "bookingId", "userId", "eventId", "ticketQuantity", "totalPrice",
-                        "paymentMethod", "status", "transactionId", "errorMessage", "paymentDate",
-                        "createdAt", "updatedAt");
+                .containsExactlyInAnyOrder(
+                        "id",
+                        "bookingId",
+                        "userId",
+                        "eventId",
+                        "ticketQuantity",
+                        "totalPrice",
+                        "paymentMethod",
+                        "status",
+                        "transactionId",
+                        "errorMessage",
+                        "paymentDate",
+                        "createdAt",
+                        "updatedAt");
     }
 
     @Test

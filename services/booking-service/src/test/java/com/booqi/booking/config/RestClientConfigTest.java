@@ -1,10 +1,15 @@
 package com.booqi.booking.config;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
+
 import com.booqi.booking.client.EventClient;
 import com.booqi.booking.client.UserClient;
+import com.booqi.booking.exception.RemoteServiceException;
 import com.booqi.booking.exception.ResourceNotFoundException;
 import com.sun.net.httpserver.HttpServer;
-import com.booqi.booking.exception.RemoteServiceException;
+
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -13,14 +18,11 @@ import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.time.Duration;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
-
 class RestClientConfigTest {
 
     private static UserClient clientFor(int port) {
-        return new UserClient(RestClientConfig.clientBuilder("http://127.0.0.1:" + port, "User").build());
+        return new UserClient(
+                RestClientConfig.clientBuilder("http://127.0.0.1:" + port, "User").build());
     }
 
     @Test
@@ -29,12 +31,15 @@ class RestClientConfigTest {
             UserClient client = clientFor(silent.getLocalPort());
             long start = System.nanoTime();
 
-            assertTimeoutPreemptively(Duration.ofSeconds(8), () ->
-                    assertThatThrownBy(() -> client.findById(7L))
-                            .isInstanceOf(RemoteServiceException.class)
-                            .hasMessage("User service is unavailable"));
+            assertTimeoutPreemptively(
+                    Duration.ofSeconds(8),
+                    () ->
+                            assertThatThrownBy(() -> client.findById(7L))
+                                    .isInstanceOf(RemoteServiceException.class)
+                                    .hasMessage("User service is unavailable"));
 
-            assertThat(Duration.ofNanos(System.nanoTime() - start)).isGreaterThanOrEqualTo(Duration.ofSeconds(5));
+            assertThat(Duration.ofNanos(System.nanoTime() - start))
+                    .isGreaterThanOrEqualTo(Duration.ofSeconds(5));
         }
     }
 
@@ -46,19 +51,24 @@ class RestClientConfigTest {
         }
         UserClient client = clientFor(port);
 
-        assertTimeoutPreemptively(Duration.ofSeconds(3), () ->
-                assertThatThrownBy(() -> client.findById(7L))
-                        .isInstanceOf(RemoteServiceException.class)
-                        .hasMessage("User service is unavailable"));
+        assertTimeoutPreemptively(
+                Duration.ofSeconds(3),
+                () ->
+                        assertThatThrownBy(() -> client.findById(7L))
+                                .isInstanceOf(RemoteServiceException.class)
+                                .hasMessage("User service is unavailable"));
     }
 
     @Test
     void beans_usanLaUrlBaseConfiguradaYEtiquetanElServicio() throws IOException {
-        HttpServer server = HttpServer.create(new InetSocketAddress(InetAddress.getLoopbackAddress(), 0), 0);
-        server.createContext("/", exchange -> {
-            exchange.sendResponseHeaders(404, -1);
-            exchange.close();
-        });
+        HttpServer server =
+                HttpServer.create(new InetSocketAddress(InetAddress.getLoopbackAddress(), 0), 0);
+        server.createContext(
+                "/",
+                exchange -> {
+                    exchange.sendResponseHeaders(404, -1);
+                    exchange.close();
+                });
         server.start();
         try {
             String baseUrl = "http://127.0.0.1:" + server.getAddress().getPort();

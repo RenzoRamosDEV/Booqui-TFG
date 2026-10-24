@@ -5,11 +5,15 @@ import com.booqi.event.dto.request.EventFilter;
 import com.booqi.event.dto.request.UpdateEventRequest;
 import com.booqi.event.dto.response.EventResponse;
 import com.booqi.event.service.EventService;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+
 import jakarta.validation.Valid;
+
 import lombok.RequiredArgsConstructor;
+
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -27,7 +31,10 @@ import org.springframework.web.bind.annotation.RestController;
 import java.net.URI;
 import java.util.List;
 
-@Tag(name = "Events", description = "Creation, lookup, filtering, update, deletion and ticket-stock management of Booqi events")
+@Tag(
+        name = "Events",
+        description =
+                "Creation, lookup, filtering, update, deletion and ticket-stock management of Booqi events")
 @RestController
 @RequestMapping("/api/v1/events")
 @RequiredArgsConstructor
@@ -35,8 +42,12 @@ public class EventController {
 
     private final EventService eventService;
 
-    @Operation(summary = "Create an event", description = "contactEmail must be unique; endDate must not precede startDate")
-    @ApiResponse(responseCode = "201", description = "Event created; Location points to the new resource")
+    @Operation(
+            summary = "Create an event",
+            description = "contactEmail must be unique; endDate must not precede startDate")
+    @ApiResponse(
+            responseCode = "201",
+            description = "Event created; Location points to the new resource")
     @ApiResponse(responseCode = "400", description = "Validation failed or malformed body")
     @ApiResponse(responseCode = "409", description = "contactEmail already in use")
     @ApiResponse(responseCode = "422", description = "endDate before startDate")
@@ -46,11 +57,14 @@ public class EventController {
         return ResponseEntity.created(URI.create("/api/v1/events/" + created.id())).body(created);
     }
 
-    @Operation(summary = "List events", description = "Optional filters; only one at a time, blank values are ignored")
+    @Operation(
+            summary = "List events",
+            description = "Optional filters; only one at a time, blank values are ignored")
     @ApiResponse(responseCode = "200", description = "Matching events (possibly empty)")
     @ApiResponse(responseCode = "400", description = "More than one filter supplied")
     @GetMapping
-    public ResponseEntity<List<EventResponse>> findAll(@ParameterObject @ModelAttribute EventFilter filter) {
+    public ResponseEntity<List<EventResponse>> findAll(
+            @ParameterObject @ModelAttribute EventFilter filter) {
         return ResponseEntity.ok(eventService.findAll(filter));
     }
 
@@ -70,7 +84,8 @@ public class EventController {
     @ApiResponse(responseCode = "409", description = "contactEmail already in use")
     @ApiResponse(responseCode = "422", description = "Dates out of order or negative tickets")
     @PutMapping("/{id}")
-    public ResponseEntity<EventResponse> update(@PathVariable Long id, @Valid @RequestBody UpdateEventRequest request) {
+    public ResponseEntity<EventResponse> update(
+            @PathVariable Long id, @Valid @RequestBody UpdateEventRequest request) {
         return ResponseEntity.ok(eventService.update(id, request));
     }
 
@@ -89,7 +104,8 @@ public class EventController {
     @ApiResponse(responseCode = "404", description = "Event not found")
     @ApiResponse(responseCode = "422", description = "Quantity not positive or insufficient stock")
     @PatchMapping("/{id}/stock")
-    public ResponseEntity<EventResponse> decrementStock(@PathVariable Long id, @RequestParam Integer quantity) {
+    public ResponseEntity<EventResponse> decrementStock(
+            @PathVariable Long id, @RequestParam Integer quantity) {
         return ResponseEntity.ok(eventService.decrementStock(id, quantity));
     }
 }

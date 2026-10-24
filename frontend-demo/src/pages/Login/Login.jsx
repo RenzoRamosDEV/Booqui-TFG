@@ -7,17 +7,33 @@ import './Login.css'
 const SLIDES = [
   {
     url: 'https://images.unsplash.com/photo-1540039155733-5bb30b53aa14?w=1200&q=80',
-    title: <>Vive la música,<br />el arte y la <em>cultura.</em></>,
+    title: (
+      <>
+        Vive la música,
+        <br />
+        el arte y la <em>cultura.</em>
+      </>
+    ),
     sub: 'Los mejores conciertos y festivales están a un clic de distancia.',
   },
   {
     url: 'https://images.unsplash.com/photo-1511578314322-379afb476865?w=1200&q=80',
-    title: <>Conecta, aprende<br />y <em>crece</em> con otros.</>,
+    title: (
+      <>
+        Conecta, aprende
+        <br />y <em>crece</em> con otros.
+      </>
+    ),
     sub: 'Descubre conferencias, workshops y eventos de networking cerca de ti.',
   },
   {
     url: 'https://images.unsplash.com/photo-1599901860904-17e6ed7083a0?w=1200&q=80',
-    title: <>Muévete, aprende<br />y <em>disfruta.</em></>,
+    title: (
+      <>
+        Muévete, aprende
+        <br />y <em>disfruta.</em>
+      </>
+    ),
     sub: 'Talleres de yoga, danza, meditación y mucho más cerca de ti.',
   },
 ]
@@ -36,7 +52,7 @@ export default function Login() {
     const timer = setInterval(() => {
       setTextVisible(false)
       setTimeout(() => {
-        setCurrent(prev => (prev + 1) % SLIDES.length)
+        setCurrent((prev) => (prev + 1) % SLIDES.length)
         setTextVisible(true)
       }, 400)
     }, 4000)
@@ -45,16 +61,22 @@ export default function Login() {
 
   const goTo = (i) => {
     setTextVisible(false)
-    setTimeout(() => { setCurrent(i); setTextVisible(true) }, 300)
+    setTimeout(() => {
+      setCurrent(i)
+      setTextVisible(true)
+    }, 300)
   }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
-    if (!email || !password) { setError('Por favor completa todos los campos.'); return }
+    if (!email || !password) {
+      setError('Por favor completa todos los campos.')
+      return
+    }
     setLoading(true)
     // Simular pequeña demora de red
-    await new Promise(r => setTimeout(r, 400))
+    await new Promise((r) => setTimeout(r, 400))
     try {
       const user = findUserByEmail(email)
       if (user && user.password === password) {
@@ -72,7 +94,6 @@ export default function Login() {
 
   return (
     <div className="login-root">
-
       {/* PANEL IZQUIERDO */}
       <div className="login-left">
         {SLIDES.map((s, i) => (
@@ -95,7 +116,11 @@ export default function Login() {
           </div>
           <div className="login-dots">
             {SLIDES.map((_, i) => (
-              <button key={i} className={`login-dot${i === current ? ' active' : ''}`} onClick={() => goTo(i)} />
+              <button
+                key={i}
+                className={`login-dot${i === current ? ' active' : ''}`}
+                onClick={() => goTo(i)}
+              />
             ))}
           </div>
         </div>
@@ -118,8 +143,11 @@ export default function Login() {
             <div className="login-field">
               <label htmlFor="email">Email</label>
               <input
-                id="email" type="email" placeholder="tu@email.com"
-                value={email} onChange={e => setEmail(e.target.value)}
+                id="email"
+                type="email"
+                placeholder="tu@email.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 autoComplete="email"
               />
             </div>
@@ -127,8 +155,11 @@ export default function Login() {
             <div className="login-field">
               <label htmlFor="password">Contraseña</label>
               <input
-                id="password" type="password" placeholder="••••••••"
-                value={password} onChange={e => setPassword(e.target.value)}
+                id="password"
+                type="password"
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 autoComplete="current-password"
               />
             </div>
@@ -136,14 +167,21 @@ export default function Login() {
             <button className="login-btn" type="submit" disabled={loading}>
               {loading ? (
                 <span className="login-btn-loading">
-                  <span className="login-spinner" />Entrando...
+                  <span className="login-spinner" />
+                  Entrando...
                 </span>
-              ) : 'Iniciar sesión'}
+              ) : (
+                'Iniciar sesión'
+              )}
             </button>
           </form>
 
-          <div style={{ marginTop: '1rem', fontSize: '0.82rem', color: '#888', textAlign: 'center' }}>
-            <p><strong>Demo:</strong></p>
+          <div
+            style={{ marginTop: '1rem', fontSize: '0.82rem', color: '#888', textAlign: 'center' }}
+          >
+            <p>
+              <strong>Demo:</strong>
+            </p>
             <p>Admin: admin@booqi.com / admin123</p>
             <p>User: user@booqi.com / user123</p>
           </div>
@@ -153,7 +191,6 @@ export default function Login() {
           </div>
         </div>
       </div>
-
     </div>
   )
 }

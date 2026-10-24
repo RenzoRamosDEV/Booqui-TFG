@@ -2,8 +2,12 @@
    Idéntico a Events.mobile.css, solo cambian los nombres de clase */
 
 @media (max-width: 768px) {
-  .contact-page { overflow-x: hidden; }
-  .contact-image-wrapper { display: none; }
+  .contact-page {
+    overflow-x: hidden;
+  }
+  .contact-image-wrapper {
+    display: none;
+  }
 
   .contact-hero {
     height: 240px;

@@ -10,7 +10,7 @@ export const getBookingById = (id) => axios.get(`${BASE}/${id}`)
 
 export const getBookingsByUser = (userId) => axios.get(BASE, { params: { userId } })
 
-// Exportación de getUserBookings 
+// Exportación de getUserBookings
 export const getUserBookings = (userId) => {
   return getBookingsByUser(userId)
 }
@@ -24,7 +24,7 @@ const bookingService = {
   getBookingById,
   getBookingsByUser,
   getUserBookings,
-  getAllBookings
+  getAllBookings,
 }
 
 export default bookingService

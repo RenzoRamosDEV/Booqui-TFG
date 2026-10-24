@@ -1,17 +1,18 @@
 package com.booqi.user.mapper;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.booqi.user.dto.request.CreateUserRequest;
 import com.booqi.user.dto.request.UpdateUserRequest;
 import com.booqi.user.dto.response.UserResponse;
 import com.booqi.user.entity.User;
+
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Field;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 class UserMapperTest {
 
@@ -59,7 +60,15 @@ class UserMapperTest {
 
     @Test
     void toEntity_ignoraIdPasswordRolYAuditoria() {
-        CreateUserRequest request = new CreateUserRequest("Nuevo", "Usuario", LocalDate.of(2000, 1, 1), "600000000", "new@booqi.com", "securepass123", "ADMIN");
+        CreateUserRequest request =
+                new CreateUserRequest(
+                        "Nuevo",
+                        "Usuario",
+                        LocalDate.of(2000, 1, 1),
+                        "600000000",
+                        "new@booqi.com",
+                        "securepass123",
+                        "ADMIN");
 
         User user = mapper.toEntity(request);
 
@@ -79,7 +88,8 @@ class UserMapperTest {
     void updateEntity_conCamposNulosNoModificaElDestino() {
         User target = entity();
 
-        mapper.updateEntity(new UpdateUserRequest(null, null, null, null, null, null, null), target);
+        mapper.updateEntity(
+                new UpdateUserRequest(null, null, null, null, null, null, null), target);
 
         assertThat(target.getFirstName()).isEqualTo("Mel");
         assertThat(target.getContactEmail()).isEqualTo("mel@booqi.com");
@@ -91,7 +101,10 @@ class UserMapperTest {
     void updateEntity_aplicaCamposPresentesSinTocarPasswordNiRol() {
         User target = entity();
 
-        mapper.updateEntity(new UpdateUserRequest("Melanie", null, null, null, null, "otrapassword", "CUSTOMER"), target);
+        mapper.updateEntity(
+                new UpdateUserRequest(
+                        "Melanie", null, null, null, null, "otrapassword", "CUSTOMER"),
+                target);
 
         assertThat(target.getFirstName()).isEqualTo("Melanie");
         assertThat(target.getLastName()).isEqualTo("Admin");

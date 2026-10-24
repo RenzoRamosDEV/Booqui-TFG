@@ -6,11 +6,15 @@ import com.booqi.user.dto.request.UpdateUserRequest;
 import com.booqi.user.dto.request.UserFilter;
 import com.booqi.user.dto.response.UserResponse;
 import com.booqi.user.service.UserService;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+
 import jakarta.validation.Valid;
+
 import lombok.RequiredArgsConstructor;
+
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -26,7 +30,9 @@ import org.springframework.web.bind.annotation.RestController;
 import java.net.URI;
 import java.util.List;
 
-@Tag(name = "Users", description = "Registration, lookup, update, deletion and login of Booqi users")
+@Tag(
+        name = "Users",
+        description = "Registration, lookup, update, deletion and login of Booqi users")
 @RestController
 @RequestMapping("/api/v1/users")
 @RequiredArgsConstructor
@@ -35,7 +41,9 @@ public class UserController {
     private final UserService userService;
 
     @Operation(summary = "Create a user", description = "Role defaults to CUSTOMER when absent")
-    @ApiResponse(responseCode = "201", description = "User created; Location points to the new resource")
+    @ApiResponse(
+            responseCode = "201",
+            description = "User created; Location points to the new resource")
     @ApiResponse(responseCode = "400", description = "Validation failed or malformed body")
     @ApiResponse(responseCode = "409", description = "contactEmail already in use")
     @PostMapping
@@ -44,12 +52,15 @@ public class UserController {
         return ResponseEntity.created(URI.create("/api/v1/users/" + created.id())).body(created);
     }
 
-    @Operation(summary = "List users",
-            description = "Optional filters; only one at a time, except firstName and lastName together")
+    @Operation(
+            summary = "List users",
+            description =
+                    "Optional filters; only one at a time, except firstName and lastName together")
     @ApiResponse(responseCode = "200", description = "Matching users (possibly empty)")
     @ApiResponse(responseCode = "400", description = "More than one filter supplied")
     @GetMapping
-    public ResponseEntity<List<UserResponse>> findAll(@ParameterObject @ModelAttribute UserFilter filter) {
+    public ResponseEntity<List<UserResponse>> findAll(
+            @ParameterObject @ModelAttribute UserFilter filter) {
         return ResponseEntity.ok(userService.findAll(filter));
     }
 
@@ -68,7 +79,8 @@ public class UserController {
     @ApiResponse(responseCode = "404", description = "User not found")
     @ApiResponse(responseCode = "409", description = "contactEmail already in use")
     @PutMapping("/{id}")
-    public ResponseEntity<UserResponse> update(@PathVariable Long id, @Valid @RequestBody UpdateUserRequest request) {
+    public ResponseEntity<UserResponse> update(
+            @PathVariable Long id, @Valid @RequestBody UpdateUserRequest request) {
         return ResponseEntity.ok(userService.update(id, request));
     }
 

@@ -24,39 +24,39 @@ const HASHTAG_IMAGES = [
 const SAMPLE_EVENTS = [
   {
     id: 1,
-    title: "Festival de Food Trucks",
-    location: "Recinto Ferial, Alcorcón",
-    startDate: "2026-05-10T10:00:00",
-    imageUrl: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=600&q=80"
+    title: 'Festival de Food Trucks',
+    location: 'Recinto Ferial, Alcorcón',
+    startDate: '2026-05-10T10:00:00',
+    imageUrl: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=600&q=80',
   },
   {
     id: 2,
-    title: "Clases de Baile de Salón",
-    location: "Centro Cultural, Alcorcón",
-    startDate: "2026-04-01T18:00:00",
-    imageUrl: "https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?w=600&q=80"
+    title: 'Clases de Baile de Salón',
+    location: 'Centro Cultural, Alcorcón',
+    startDate: '2026-04-01T18:00:00',
+    imageUrl: 'https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?w=600&q=80',
   },
   {
     id: 3,
-    title: "Obra de Teatro: La Espera",
-    location: "Teatro Gran Via, Madrid",
-    startDate: "2026-03-20T20:00:00",
-    imageUrl: "https://images.unsplash.com/photo-1503095396549-807759245b35?w=600&q=80"
+    title: 'Obra de Teatro: La Espera',
+    location: 'Teatro Gran Via, Madrid',
+    startDate: '2026-03-20T20:00:00',
+    imageUrl: 'https://images.unsplash.com/photo-1503095396549-807759245b35?w=600&q=80',
   },
   {
     id: 4,
-    title: "Yoga al Aire Libre",
-    location: "Parque Solidaridad, Fuenlabrada",
-    startDate: "2026-06-15T09:00:00",
-    imageUrl: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=600&q=80"
+    title: 'Yoga al Aire Libre',
+    location: 'Parque Solidaridad, Fuenlabrada',
+    startDate: '2026-06-15T09:00:00',
+    imageUrl: 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=600&q=80',
   },
   {
     id: 5,
-    title: "Concierto de Jazz Clásico",
-    location: "Club de Jazz, Embajadores",
-    startDate: "2026-03-25T20:30:00",
-    imageUrl: "https://images.unsplash.com/photo-1415201364774-f6f0bb35f28f?w=600&q=80"
-  }
+    title: 'Concierto de Jazz Clásico',
+    location: 'Club de Jazz, Embajadores',
+    startDate: '2026-03-25T20:30:00',
+    imageUrl: 'https://images.unsplash.com/photo-1415201364774-f6f0bb35f28f?w=600&q=80',
+  },
 ]
 
 export default function Home() {
@@ -66,7 +66,7 @@ export default function Home() {
 
   useEffect(() => {
     getAllEvents()
-      .then(r => {
+      .then((r) => {
         const apiEvents = r.data?.slice(0, 5) || []
         // Si la API devuelve menos de 5 eventos, completa con eventos de ejemplo
         if (apiEvents.length < 5) {
@@ -93,7 +93,9 @@ export default function Home() {
         <div className="home-hero-overlay" />
         <div className="home-hero-card">
           <h1>Gestiona tus eventos sin complicaciones.</h1>
-          <Link to="/events" className="home-hero-cta">EMPIEZA AHORA</Link>
+          <Link to="/events" className="home-hero-cta">
+            EMPIEZA AHORA
+          </Link>
         </div>
       </section>
 
@@ -101,34 +103,48 @@ export default function Home() {
         <div className="home-featured-text">
           <h2>Explora los mejores eventos de la semana.</h2>
           <p>"Soluciones a medida para cada tipo de reserva."</p>
-          
-          <Link to="/events" className="home-featured-link">Explorar más</Link>
+
+          <Link to="/events" className="home-featured-link">
+            Explorar más
+          </Link>
         </div>
         <div className="home-featured-slider">
           {loading
-            ? [1, 2, 3, 4, 5].map(i => (
-                <div key={i} style={{ flex: '0 0 260px', height: 220, borderRadius: 6 }} className="home-skeleton" />
+            ? [1, 2, 3, 4, 5].map((i) => (
+                <div
+                  key={i}
+                  style={{ flex: '0 0 260px', height: 220, borderRadius: 6 }}
+                  className="home-skeleton"
+                />
               ))
             : events.map((ev, i) => (
-                <div 
-                  key={ev.id || i} 
-                  className="home-featured-card" 
+                <div
+                  key={ev.id || i}
+                  className="home-featured-card"
                   onClick={() => handleEventClick(ev.id)}
                 >
                   <img
                     src={ev.imageUrl || FEATURED_IMAGES[i % FEATURED_IMAGES.length]}
                     alt={ev.title}
-                    onError={e => { e.target.src = FEATURED_IMAGES[i % FEATURED_IMAGES.length] }}
+                    onError={(e) => {
+                      e.target.src = FEATURED_IMAGES[i % FEATURED_IMAGES.length]
+                    }}
                   />
                   <div className="home-featured-card-info">
                     <div className="home-featured-card-date">
-                      {ev.startDate ? new Date(ev.startDate).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' }) : ''} — {ev.location}
+                      {ev.startDate
+                        ? new Date(ev.startDate).toLocaleDateString('es-ES', {
+                            day: '2-digit',
+                            month: '2-digit',
+                            year: 'numeric',
+                          })
+                        : ''}{' '}
+                      — {ev.location}
                     </div>
                     <div className="home-featured-card-title">{ev.title}</div>
                   </div>
                 </div>
-              ))
-          }
+              ))}
         </div>
       </section>
 
@@ -138,13 +154,19 @@ export default function Home() {
           <p className="subtitle">LO QUE DICEN DE NOSOTROS</p>
           <h2>Nuestros clientes confían en Booqi</h2>
         </div>
-        
+
         <div className="home-testimonials-grid">
           <div className="testimonial-card">
             <div className="testimonial-stars">★★★★★</div>
-            <p>"La mejor plataforma para organizar mis talleres de yoga. La interfaz es intuitiva y el soporte técnico es excelente."</p>
+            <p>
+              "La mejor plataforma para organizar mis talleres de yoga. La interfaz es intuitiva y
+              el soporte técnico es excelente."
+            </p>
             <div className="testimonial-user">
-              <img src="https://images.pexels.com/photos/733872/pexels-photo-733872.jpeg" alt="Ana García" />
+              <img
+                src="https://images.pexels.com/photos/733872/pexels-photo-733872.jpeg"
+                alt="Ana García"
+              />
               <div>
                 <span className="user-name">Ana García</span>
                 <span className="user-role">Instructora de Yoga</span>
@@ -154,7 +176,10 @@ export default function Home() {
 
           <div className="testimonial-card">
             <div className="testimonial-stars">★★★★★</div>
-            <p>"Comprar entradas nunca fue tan rápido. Recibo mis tickets al instante y el proceso de pago es muy seguro."</p>
+            <p>
+              "Comprar entradas nunca fue tan rápido. Recibo mis tickets al instante y el proceso de
+              pago es muy seguro."
+            </p>
             <div className="testimonial-user">
               <img src="https://i.pravatar.cc/150?u=marcos" alt="Marcos Ruiz" />
               <div>
@@ -166,9 +191,15 @@ export default function Home() {
 
           <div className="testimonial-card">
             <div className="testimonial-stars">★★★★★</div>
-            <p>"Gestionar el aforo de mi club se ha vuelto una tarea sencilla gracias a las herramientas de Booqi."</p>
+            <p>
+              "Gestionar el aforo de mi club se ha vuelto una tarea sencilla gracias a las
+              herramientas de Booqi."
+            </p>
             <div className="testimonial-user">
-              <img src="https://images.pexels.com/photos/21370302/pexels-photo-21370302.jpeg" alt="Carlos Rodríguez" />
+              <img
+                src="https://images.pexels.com/photos/21370302/pexels-photo-21370302.jpeg"
+                alt="Carlos Rodríguez"
+              />
               <div>
                 <span className="user-name">Carlos Rodríguez</span>
                 <span className="user-role">Manager de eventos</span>
@@ -184,7 +215,11 @@ export default function Home() {
         <h3>#BooqiEvents</h3>
         <div className="home-hashtag-grid">
           {HASHTAG_IMAGES.map((img, i) => (
-            <div key={i} className={`home-hashtag-img${img.tall ? ' tall' : ''}`} style={i === 0 ? { gridRow: '1 / 3' } : {}}>
+            <div
+              key={i}
+              className={`home-hashtag-img${img.tall ? ' tall' : ''}`}
+              style={i === 0 ? { gridRow: '1 / 3' } : {}}
+            >
               <img src={img.src} alt="" />
             </div>
           ))}
@@ -199,7 +234,9 @@ export default function Home() {
           <Link to="/events">Eventos</Link>
           <Link to="/contact">Contacto</Link>
         </div>
-        <span className="home-footer-copy">2026 booqi. Todos los derechos reservados a Mel y Renzo</span>
+        <span className="home-footer-copy">
+          2026 booqi. Todos los derechos reservados a Mel y Renzo
+        </span>
       </footer>
     </div>
   )

@@ -40,11 +40,11 @@ export default function Admin() {
 
   const [exportingEvent, setExportingEvent] = useState(null)
   const [selectedEventFilter, setSelectedEventFilter] = useState('all')
-  
+
   const [previewModalOpen, setPreviewModalOpen] = useState(false)
   const [previewPdfUrl, setPreviewPdfUrl] = useState(null)
   const [previewTitle, setPreviewTitle] = useState('')
- 
+
   const [createModalOpen, setCreateModalOpen] = useState(false)
 
   // Función para cargar ventas - MEMORIZADA CON USECALLBACK
@@ -53,8 +53,12 @@ export default function Admin() {
     setLoadingSales(true)
     try {
       const [bookingsData, paymentsData] = await Promise.all([
-        getAllBookings().then(r => r.data || []).catch(() => []),
-        getAllPayments().then(r => r.data || []).catch(() => [])
+        getAllBookings()
+          .then((r) => r.data || [])
+          .catch(() => []),
+        getAllPayments()
+          .then((r) => r.data || [])
+          .catch(() => []),
       ])
       setBookings(bookingsData)
       setPayments(paymentsData)
@@ -69,11 +73,11 @@ export default function Admin() {
   // Cargar usuarios y eventos al montar
   useEffect(() => {
     getAllUsers()
-      .then(r => setUsers(r.data || []))
+      .then((r) => setUsers(r.data || []))
       .catch(() => setUsers([]))
       .finally(() => setLoadingUsers(false))
     getAllEvents()
-      .then(r => setEvents(r.data || []))
+      .then((r) => setEvents(r.data || []))
       .catch(() => setEvents([]))
       .finally(() => setLoadingEvents(false))
   }, [])
@@ -96,7 +100,7 @@ export default function Admin() {
     if (!window.confirm(`¿Eliminar usuario ${email}?`)) return
     try {
       await deleteUser(id)
-      setUsers(prev => prev.filter(u => u.id !== id))
+      setUsers((prev) => prev.filter((u) => u.id !== id))
     } catch {
       alert('Error al eliminar usuario.')
     }
@@ -106,13 +110,13 @@ export default function Admin() {
     if (!window.confirm(`¿Eliminar este evento?`)) return
     try {
       await deleteEvent(id)
-      setEvents(prev => prev.filter(e => e.id !== id))
+      setEvents((prev) => prev.filter((e) => e.id !== id))
     } catch {
       alert('Error al eliminar evento.')
     }
   }
 
-  const handleLogout = () => { 
+  const handleLogout = () => {
     logout()
     navigate('/login')
   }
@@ -120,7 +124,7 @@ export default function Admin() {
   const refreshEvents = () => {
     setLoadingEvents(true)
     getAllEvents()
-      .then(r => setEvents(r.data || []))
+      .then((r) => setEvents(r.data || []))
       .catch(() => setEvents([]))
       .finally(() => setLoadingEvents(false))
   }
@@ -130,28 +134,36 @@ export default function Admin() {
     console.log('Evento creado:', newEvent)
   }
 
-  const admins = users.filter(u => u.role === 'ADMIN').length
-  const customers = users.filter(u => u.role === 'CUSTOMER').length
+  const admins = users.filter((u) => u.role === 'ADMIN').length
+  const customers = users.filter((u) => u.role === 'CUSTOMER').length
 
-  const salesRows = payments.map(p => {
-    const booking = bookings.find(b => b.id === p.bookingId) || {}
+  const salesRows = payments.map((p) => {
+    const booking = bookings.find((b) => b.id === p.bookingId) || {}
     return { ...p, booking }
   })
 
   const filteredSales = salesRows
-    .filter(r => salesFilter === FILTER_ALL || r.paymentStatus === salesFilter || r.status === salesFilter)
-    .filter(r => selectedEventFilter === 'all' || r.booking?.eventId === selectedEventFilter || r.booking?.eventTitle === selectedEventFilter)
+    .filter(
+      (r) =>
+        salesFilter === FILTER_ALL || r.paymentStatus === salesFilter || r.status === salesFilter,
+    )
+    .filter(
+      (r) =>
+        selectedEventFilter === 'all' ||
+        r.booking?.eventId === selectedEventFilter ||
+        r.booking?.eventTitle === selectedEventFilter,
+    )
 
   const totalApproved = salesRows
-    .filter(r => r.paymentStatus === 'APPROVED' || r.status === 'APPROVED')
+    .filter((r) => r.paymentStatus === 'APPROVED' || r.status === 'APPROVED')
     .reduce((sum, r) => sum + (r.amount || r.booking?.totalPrice || 0), 0)
 
   const totalRejected = salesRows
-    .filter(r => r.paymentStatus === 'REJECTED' || r.status === 'REJECTED')
+    .filter((r) => r.paymentStatus === 'REJECTED' || r.status === 'REJECTED')
     .reduce((sum, r) => sum + (r.amount || r.booking?.totalPrice || 0), 0)
 
   const totalPending = salesRows
-    .filter(r => r.paymentStatus === 'PENDING' || r.status === 'PENDING')
+    .filter((r) => r.paymentStatus === 'PENDING' || r.status === 'PENDING')
     .reduce((sum, r) => sum + (r.amount || r.booking?.totalPrice || 0), 0)
 
   const eventOptions = Array.from(
@@ -160,17 +172,16 @@ export default function Admin() {
       const title = r.booking?.eventTitle || null
       if (id && title && !map.has(id)) map.set(id, title)
       return map
-    }, new Map())
+    }, new Map()),
   )
 
   const getEventSales = (eventId, eventTitle) => {
     if (!salesLoaded) return []
-    const filtered = salesRows.filter(r => 
-      String(r.booking?.eventId) === String(eventId) || 
-      r.booking?.eventTitle === eventTitle
+    const filtered = salesRows.filter(
+      (r) => String(r.booking?.eventId) === String(eventId) || r.booking?.eventTitle === eventTitle,
     )
-    
-    return filtered.map(sale => {
+
+    return filtered.map((sale) => {
       const booking = sale.booking || {}
       return {
         paymentId: sale.id,
@@ -191,8 +202,8 @@ export default function Admin() {
           ticketQuantity: booking.ticketQuantity || 1,
           totalPrice: sale.amount || booking.totalPrice || 0,
           eventId: booking.eventId || eventId,
-          eventTitle: booking.eventTitle || eventTitle
-        }
+          eventTitle: booking.eventTitle || eventTitle,
+        },
       }
     })
   }
@@ -204,20 +215,20 @@ export default function Admin() {
       if (!eventSales) {
         eventSales = getEventSales(eventId, eventTitle)
       }
-      
+
       if (eventSales.length === 0) {
         alert('No hay ventas registradas para este evento.')
         setExportingEvent(null)
         return
       }
-      
+
       const pdfUrl = await getEventReportPDFUrl({
         eventTitle,
         eventId,
         sales: eventSales,
         generatedBy: `${user?.firstName || ''} ${user?.lastName || ''}`.trim() || 'Administrador',
       })
-      
+
       setPreviewPdfUrl(pdfUrl)
       setPreviewTitle(`Informe: ${eventTitle}`)
       setPreviewModalOpen(true)
@@ -236,13 +247,13 @@ export default function Admin() {
       if (!eventSales) {
         eventSales = getEventSales(eventId, eventTitle)
       }
-      
+
       if (eventSales.length === 0) {
         alert('No hay ventas registradas para este evento.')
         setExportingEvent(null)
         return
       }
-      
+
       await downloadEventReport({
         eventTitle,
         eventId,
@@ -262,7 +273,7 @@ export default function Admin() {
       alert('No hay ventas con los filtros seleccionados.')
       return
     }
-    
+
     setExportingEvent('__all__')
     try {
       await downloadEventReport({
@@ -284,7 +295,7 @@ export default function Admin() {
       alert('No hay ventas con los filtros seleccionados.')
       return
     }
-    
+
     setExportingEvent('__all_preview__')
     try {
       const pdfUrl = await getEventReportPDFUrl({
@@ -293,7 +304,7 @@ export default function Admin() {
         sales: filteredSales,
         generatedBy: `${user?.firstName || ''} ${user?.lastName || ''}`.trim() || 'Administrador',
       })
-      
+
       setPreviewPdfUrl(pdfUrl)
       setPreviewTitle('Informe Global - Todos los eventos')
       setPreviewModalOpen(true)
@@ -331,15 +342,24 @@ export default function Admin() {
       <aside className="adm-sidebar">
         <div className="adm-sidebar-label">Panel</div>
 
-        <button className={`adm-sidebar-item${tab === TAB_USERS ? ' active' : ''}`} onClick={() => setTab(TAB_USERS)}>
+        <button
+          className={`adm-sidebar-item${tab === TAB_USERS ? ' active' : ''}`}
+          onClick={() => setTab(TAB_USERS)}
+        >
           <i className="bi bi-people-fill"></i> Usuarios
         </button>
 
-        <button className={`adm-sidebar-item${tab === TAB_EVENTS ? ' active' : ''}`} onClick={() => setTab(TAB_EVENTS)}>
+        <button
+          className={`adm-sidebar-item${tab === TAB_EVENTS ? ' active' : ''}`}
+          onClick={() => setTab(TAB_EVENTS)}
+        >
           <i className="bi bi-calendar-event-fill"></i> Eventos
         </button>
 
-        <button className={`adm-sidebar-item${tab === TAB_SALES ? ' active' : ''}`} onClick={() => setTab(TAB_SALES)}>
+        <button
+          className={`adm-sidebar-item${tab === TAB_SALES ? ' active' : ''}`}
+          onClick={() => setTab(TAB_SALES)}
+        >
           <i className="bi bi-currency-dollar"></i> Ventas
         </button>
 
@@ -365,43 +385,62 @@ export default function Admin() {
           <h1>Panel de administración</h1>
           <div className="adm-topbar-user">
             <i className="bi bi-person-circle me-2"></i>
-            <span>{user?.firstName} {user?.lastName}</span>
+            <span>
+              {user?.firstName} {user?.lastName}
+            </span>
           </div>
         </div>
 
         <div className="adm-stats">
           <div className="adm-stat">
-            <div className="adm-stat-icon"><i className="bi bi-people text-primary"></i></div>
+            <div className="adm-stat-icon">
+              <i className="bi bi-people text-primary"></i>
+            </div>
             <div className="adm-stat-label">Usuarios totales</div>
             <div className="adm-stat-value">{loadingUsers ? '—' : users.length}</div>
-            <div className="adm-stat-sub">{admins} admin · {customers} clientes</div>
+            <div className="adm-stat-sub">
+              {admins} admin · {customers} clientes
+            </div>
           </div>
           <div className="adm-stat">
-            <div className="adm-stat-icon"><i className="bi bi-ticket-perforated text-success"></i></div>
+            <div className="adm-stat-icon">
+              <i className="bi bi-ticket-perforated text-success"></i>
+            </div>
             <div className="adm-stat-label">Eventos totales</div>
             <div className="adm-stat-value">{loadingEvents ? '—' : events.length}</div>
             <div className="adm-stat-sub">En catálogo activo</div>
           </div>
           <div className="adm-stat">
-            <div className="adm-stat-icon"><i className="bi bi-tags text-warning"></i></div>
+            <div className="adm-stat-icon">
+              <i className="bi bi-tags text-warning"></i>
+            </div>
             <div className="adm-stat-label">Categorías</div>
-            <div className="adm-stat-value">{loadingEvents ? '—' : new Set(events.map(e => e.category)).size}</div>
+            <div className="adm-stat-value">
+              {loadingEvents ? '—' : new Set(events.map((e) => e.category)).size}
+            </div>
             <div className="adm-stat-sub">Tipos de evento</div>
           </div>
           {tab === TAB_SALES ? (
             <div className="adm-stat">
-              <div className="adm-stat-icon"><i className="bi bi-cash-stack text-info"></i></div>
+              <div className="adm-stat-icon">
+                <i className="bi bi-cash-stack text-info"></i>
+              </div>
               <div className="adm-stat-label">Ingresos aprobados</div>
-              <div className="adm-stat-value">{loadingSales ? '—' : `${totalApproved.toFixed(0)}€`}</div>
+              <div className="adm-stat-value">
+                {loadingSales ? '—' : `${totalApproved.toFixed(0)}€`}
+              </div>
               <div className="adm-stat-sub">{salesRows.length} pagos en total</div>
             </div>
           ) : (
             <div className="adm-stat">
-              <div className="adm-stat-icon"><i className="bi bi-graph-up text-info"></i></div>
+              <div className="adm-stat-icon">
+                <i className="bi bi-graph-up text-info"></i>
+              </div>
               <div className="adm-stat-label">Precio medio</div>
               <div className="adm-stat-value">
-                {loadingEvents || events.length === 0 ? '—' :
-                  `${(events.reduce((s, e) => s + (e.price || 0), 0) / events.length).toFixed(0)}€`}
+                {loadingEvents || events.length === 0
+                  ? '—'
+                  : `${(events.reduce((s, e) => s + (e.price || 0), 0) / events.length).toFixed(0)}€`}
               </div>
               <div className="adm-stat-sub">Por evento</div>
             </div>
@@ -409,21 +448,33 @@ export default function Admin() {
         </div>
 
         <div className="adm-tabs">
-          <button className={`adm-tab${tab === TAB_USERS ? ' active' : ''}`} onClick={() => setTab(TAB_USERS)}>
+          <button
+            className={`adm-tab${tab === TAB_USERS ? ' active' : ''}`}
+            onClick={() => setTab(TAB_USERS)}
+          >
             <i className="bi bi-person-lines-fill me-2"></i> Usuarios ({users.length})
           </button>
-          <button className={`adm-tab${tab === TAB_EVENTS ? ' active' : ''}`} onClick={() => setTab(TAB_EVENTS)}>
+          <button
+            className={`adm-tab${tab === TAB_EVENTS ? ' active' : ''}`}
+            onClick={() => setTab(TAB_EVENTS)}
+          >
             <i className="bi bi-calendar3 me-2"></i> Eventos ({events.length})
           </button>
-          <button className={`adm-tab${tab === TAB_SALES ? ' active' : ''}`} onClick={() => setTab(TAB_SALES)}>
-            <i className="bi bi-cart-check-fill me-2"></i> Ventas {salesLoaded ? `(${salesRows.length})` : '(cargando...)'}
+          <button
+            className={`adm-tab${tab === TAB_SALES ? ' active' : ''}`}
+            onClick={() => setTab(TAB_SALES)}
+          >
+            <i className="bi bi-cart-check-fill me-2"></i> Ventas{' '}
+            {salesLoaded ? `(${salesRows.length})` : '(cargando...)'}
           </button>
         </div>
 
         {tab === TAB_USERS && (
           <div className="adm-card">
             <div className="adm-card-header">
-              <h2><i className="bi bi-person-badge me-2"></i>Usuarios registrados</h2>
+              <h2>
+                <i className="bi bi-person-badge me-2"></i>Usuarios registrados
+              </h2>
               <span className="adm-card-count">{users.length} total</span>
             </div>
             {loadingUsers ? (
@@ -434,24 +485,42 @@ export default function Admin() {
             ) : (
               <table className="adm-table">
                 <thead>
-                  <tr><th>ID</th><th>Nombre</th><th>Email</th><th>Teléfono</th><th>Rol</th><th>Acciones</th></tr>
+                  <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Email</th>
+                    <th>Teléfono</th>
+                    <th>Rol</th>
+                    <th>Acciones</th>
+                  </tr>
                 </thead>
                 <tbody>
-                  {users.map(u => (
+                  {users.map((u) => (
                     <tr key={u.id}>
                       <td style={{ color: '#ccc', fontSize: '0.78rem' }}>#{u.id}</td>
-                      <td style={{ fontWeight: 500 }}>{u.firstName} {u.lastName}</td>
+                      <td style={{ fontWeight: 500 }}>
+                        {u.firstName} {u.lastName}
+                      </td>
                       <td>{u.contactEmail}</td>
                       <td>{u.contactPhone || '—'}</td>
                       <td>
-                        <span className={`adm-badge ${u.role === 'ADMIN' ? 'adm-badge-admin' : 'adm-badge-customer'}`}>
-                          <i className={u.role === 'ADMIN' ? 'bi bi-shield-lock me-1' : 'bi bi-person me-1'}></i>
+                        <span
+                          className={`adm-badge ${u.role === 'ADMIN' ? 'adm-badge-admin' : 'adm-badge-customer'}`}
+                        >
+                          <i
+                            className={
+                              u.role === 'ADMIN' ? 'bi bi-shield-lock me-1' : 'bi bi-person me-1'
+                            }
+                          ></i>
                           {u.role}
                         </span>
                       </td>
                       <td>
                         {u.contactEmail !== user?.contactEmail && (
-                          <button className="adm-delete-btn" onClick={() => handleDeleteUser(u.id, u.contactEmail)}>
+                          <button
+                            className="adm-delete-btn"
+                            onClick={() => handleDeleteUser(u.id, u.contactEmail)}
+                          >
                             <i className="bi bi-trash3"></i> Eliminar
                           </button>
                         )}
@@ -467,13 +536,12 @@ export default function Admin() {
         {tab === TAB_EVENTS && (
           <div className="adm-card">
             <div className="adm-card-header">
-              <h2><i className="bi bi-calendar-check me-2"></i>Eventos en catálogo</h2>
+              <h2>
+                <i className="bi bi-calendar-check me-2"></i>Eventos en catálogo
+              </h2>
               <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
                 <span className="adm-card-count">{events.length} total</span>
-                <button 
-                  className="adm-create-event-btn"
-                  onClick={() => setCreateModalOpen(true)}
-                >
+                <button className="adm-create-event-btn" onClick={() => setCreateModalOpen(true)}>
                   <i className="bi bi-plus-circle"></i>
                   Nuevo evento
                 </button>
@@ -487,30 +555,52 @@ export default function Admin() {
               <table className="adm-table">
                 <thead>
                   <tr>
-                    <th>ID</th><th>Título</th><th>Categoría</th><th>Ubicación</th>
-                    <th>Precio</th><th>Tickets</th><th>Acciones</th>
+                    <th>ID</th>
+                    <th>Título</th>
+                    <th>Categoría</th>
+                    <th>Ubicación</th>
+                    <th>Precio</th>
+                    <th>Tickets</th>
+                    <th>Acciones</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {events.map(ev => {
+                  {events.map((ev) => {
                     const eventSales = getEventSales(ev.id, ev.title)
                     const hasSales = eventSales.length > 0
-                    
+
                     return (
                       <tr key={ev.id}>
                         <td style={{ color: '#ccc', fontSize: '0.78rem' }}>#{ev.id}</td>
                         <td style={{ fontWeight: 500, maxWidth: 200 }}>{ev.title}</td>
-                        <td><span className="adm-badge adm-badge-customer">{ev.category}</span></td>
-                        <td><i className="bi bi-geo-alt me-1"></i>{ev.location}</td>
+                        <td>
+                          <span className="adm-badge adm-badge-customer">{ev.category}</span>
+                        </td>
+                        <td>
+                          <i className="bi bi-geo-alt me-1"></i>
+                          {ev.location}
+                        </td>
                         <td>{ev.price === 0 ? 'Gratis' : `${ev.price}€`}</td>
-                        <td><i className="bi bi-ticket-detailed me-1"></i>{ev.availableTickets}</td>
-                        <td style={{ display: 'flex', gap: '0.4rem', alignItems: 'center', flexWrap: 'wrap' }}>
+                        <td>
+                          <i className="bi bi-ticket-detailed me-1"></i>
+                          {ev.availableTickets}
+                        </td>
+                        <td
+                          style={{
+                            display: 'flex',
+                            gap: '0.4rem',
+                            alignItems: 'center',
+                            flexWrap: 'wrap',
+                          }}
+                        >
                           {salesLoaded ? (
                             hasSales ? (
                               <>
                                 <button
                                   className="adm-preview-btn"
-                                  onClick={() => handlePreviewEventReport(ev.id, ev.title, eventSales)}
+                                  onClick={() =>
+                                    handlePreviewEventReport(ev.id, ev.title, eventSales)
+                                  }
                                   disabled={exportingEvent === ev.id}
                                   title="Vista previa del informe"
                                 >
@@ -518,28 +608,47 @@ export default function Admin() {
                                 </button>
                                 <button
                                   className="adm-export-btn"
-                                  onClick={() => handleDownloadEventReport(ev.id, ev.title, eventSales)}
+                                  onClick={() =>
+                                    handleDownloadEventReport(ev.id, ev.title, eventSales)
+                                  }
                                   disabled={exportingEvent === ev.id}
                                   title="Descargar informe"
                                 >
-                                  {exportingEvent === ev.id
-                                    ? <><span className="adm-export-spinner"></span></>
-                                    : <><i className="bi bi-download"></i> PDF</>
-                                  }
+                                  {exportingEvent === ev.id ? (
+                                    <>
+                                      <span className="adm-export-spinner"></span>
+                                    </>
+                                  ) : (
+                                    <>
+                                      <i className="bi bi-download"></i> PDF
+                                    </>
+                                  )}
                                 </button>
                               </>
                             ) : (
-                              <span className="adm-no-sales-badge" style={{ fontSize: '0.7rem', color: '#999' }}>
+                              <span
+                                className="adm-no-sales-badge"
+                                style={{ fontSize: '0.7rem', color: '#999' }}
+                              >
                                 <i className="bi bi-info-circle me-1"></i> Sin ventas
                               </span>
                             )
                           ) : (
-                            <span className="adm-loading-badge" style={{ fontSize: '0.7rem', color: '#7c3aed' }}>
-                              <span className="adm-export-spinner" style={{ marginRight: '4px' }}></span>
+                            <span
+                              className="adm-loading-badge"
+                              style={{ fontSize: '0.7rem', color: '#7c3aed' }}
+                            >
+                              <span
+                                className="adm-export-spinner"
+                                style={{ marginRight: '4px' }}
+                              ></span>
                               Cargando...
                             </span>
                           )}
-                          <button className="adm-delete-btn" onClick={() => handleDeleteEvent(ev.id)}>
+                          <button
+                            className="adm-delete-btn"
+                            onClick={() => handleDeleteEvent(ev.id)}
+                          >
                             <i className="bi bi-trash3"></i>
                           </button>
                         </td>
@@ -555,7 +664,9 @@ export default function Admin() {
         {tab === TAB_SALES && (
           <div className="adm-card">
             <div className="adm-card-header">
-              <h2><i className="bi bi-receipt-cutoff me-2"></i>Ventas y facturas</h2>
+              <h2>
+                <i className="bi bi-receipt-cutoff me-2"></i>Ventas y facturas
+              </h2>
 
               <div className="adm-sales-header-controls">
                 <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center' }}>
@@ -564,7 +675,7 @@ export default function Admin() {
                     { key: FILTER_APPROVED, label: 'Aprobados', icon: 'bi-check-circle' },
                     { key: FILTER_REJECTED, label: 'Rechazados', icon: 'bi-x-circle' },
                     { key: FILTER_PENDING, label: 'Pendientes', icon: 'bi-clock-history' },
-                  ].map(f => (
+                  ].map((f) => (
                     <button
                       key={f.key}
                       onClick={() => setSalesFilter(f.key)}
@@ -580,12 +691,14 @@ export default function Admin() {
                   <select
                     className="adm-event-select"
                     value={selectedEventFilter}
-                    onChange={e => setSelectedEventFilter(e.target.value)}
+                    onChange={(e) => setSelectedEventFilter(e.target.value)}
                     title="Filtrar por evento"
                   >
                     <option value="all">Todos los eventos</option>
                     {eventOptions.map(([id, title]) => (
-                      <option key={id} value={id}>{title}</option>
+                      <option key={id} value={id}>
+                        {title}
+                      </option>
                     ))}
                   </select>
                 )}
@@ -613,10 +726,17 @@ export default function Admin() {
                         disabled={!!exportingEvent || filteredSales.length === 0}
                         title="Descargar informe del evento seleccionado"
                       >
-                        {exportingEvent && exportingEvent !== '__all__' && exportingEvent !== '__all_preview__'
-                          ? <><span className="adm-export-spinner"></span></>
-                          : <><i className="bi bi-download me-1"></i> PDF</>
-                        }
+                        {exportingEvent &&
+                        exportingEvent !== '__all__' &&
+                        exportingEvent !== '__all_preview__' ? (
+                          <>
+                            <span className="adm-export-spinner"></span>
+                          </>
+                        ) : (
+                          <>
+                            <i className="bi bi-download me-1"></i> PDF
+                          </>
+                        )}
                       </button>
                     </>
                   )}
@@ -636,10 +756,15 @@ export default function Admin() {
                     disabled={!!exportingEvent || filteredSales.length === 0}
                     title="Descargar informe global"
                   >
-                    {exportingEvent === '__all__'
-                      ? <><span className="adm-export-spinner"></span></>
-                      : <><i className="bi bi-download me-1"></i> Descargar todo</>
-                    }
+                    {exportingEvent === '__all__' ? (
+                      <>
+                        <span className="adm-export-spinner"></span>
+                      </>
+                    ) : (
+                      <>
+                        <i className="bi bi-download me-1"></i> Descargar todo
+                      </>
+                    )}
                   </button>
                 </div>
               </div>
@@ -655,7 +780,10 @@ export default function Admin() {
               </div>
             ) : filteredSales.length === 0 ? (
               <div style={{ padding: '3rem', textAlign: 'center', color: '#bbb' }}>
-                <i className="bi bi-inbox" style={{ fontSize: '2rem', display: 'block', marginBottom: '0.75rem' }}></i>
+                <i
+                  className="bi bi-inbox"
+                  style={{ fontSize: '2rem', display: 'block', marginBottom: '0.75rem' }}
+                ></i>
                 No hay ventas con ese filtro
               </div>
             ) : (
@@ -675,19 +803,25 @@ export default function Admin() {
                     </tr>
                   </thead>
                   <tbody>
-                    {filteredSales.map(row => {
+                    {filteredSales.map((row) => {
                       const b = row.booking
                       const amount = row.amount || b?.totalPrice || 0
                       const payStatus = row.paymentStatus || row.status || '—'
 
-                      const payColor = payStatus === 'APPROVED' ? 'adm-badge-approved'
-                        : payStatus === 'REJECTED' ? 'adm-badge-rejected'
-                        : 'adm-badge-pending'
+                      const payColor =
+                        payStatus === 'APPROVED'
+                          ? 'adm-badge-approved'
+                          : payStatus === 'REJECTED'
+                            ? 'adm-badge-rejected'
+                            : 'adm-badge-pending'
 
                       const bookingStatus = b?.status || '—'
-                      const bookingColor = bookingStatus === 'CONFIRMED' ? 'adm-badge-approved'
-                        : bookingStatus === 'CANCELLED' ? 'adm-badge-rejected'
-                        : 'adm-badge-pending'
+                      const bookingColor =
+                        bookingStatus === 'CONFIRMED'
+                          ? 'adm-badge-approved'
+                          : bookingStatus === 'CANCELLED'
+                            ? 'adm-badge-rejected'
+                            : 'adm-badge-pending'
 
                       const evId = b?.eventId || b?.eventTitle
                       const evTitle = b?.eventTitle || '—'
@@ -696,16 +830,33 @@ export default function Admin() {
                         <tr key={row.id}>
                           <td style={{ color: '#ccc', fontSize: '0.78rem' }}>#{row.id}</td>
                           <td style={{ fontWeight: 500 }}>
-                            {b?.userFirstName ? `${b.userFirstName} ${b.userLastName || ''}` : b?.userEmail || '—'}
+                            {b?.userFirstName
+                              ? `${b.userFirstName} ${b.userLastName || ''}`
+                              : b?.userEmail || '—'}
                           </td>
-                          <td style={{ maxWidth: 180, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          <td
+                            style={{
+                              maxWidth: 180,
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                              whiteSpace: 'nowrap',
+                            }}
+                          >
                             {evTitle}
                           </td>
                           <td style={{ textAlign: 'center' }}>{b?.ticketQuantity || '—'}</td>
-                          <td style={{ fontWeight: 600 }}>{amount ? `${Number(amount).toFixed(2)}€` : '—'}</td>
-                          <td><i className="bi bi-credit-card me-1"></i> {row.paymentMethod || '—'}</td>
-                          <td><span className={`adm-badge ${payColor}`}>{payStatus}</span></td>
-                          <td><span className={`adm-badge ${bookingColor}`}>{bookingStatus}</span></td>
+                          <td style={{ fontWeight: 600 }}>
+                            {amount ? `${Number(amount).toFixed(2)}€` : '—'}
+                          </td>
+                          <td>
+                            <i className="bi bi-credit-card me-1"></i> {row.paymentMethod || '—'}
+                          </td>
+                          <td>
+                            <span className={`adm-badge ${payColor}`}>{payStatus}</span>
+                          </td>
+                          <td>
+                            <span className={`adm-badge ${bookingColor}`}>{bookingStatus}</span>
+                          </td>
                           <td>
                             {evId ? (
                               <div style={{ display: 'flex', gap: '0.3rem' }}>
@@ -723,13 +874,16 @@ export default function Admin() {
                                   disabled={exportingEvent === evId}
                                   title="Descargar factura"
                                 >
-                                  {exportingEvent === evId
-                                    ? <span className="adm-export-spinner"></span>
-                                    : <i className="bi bi-download"></i>
-                                  }
+                                  {exportingEvent === evId ? (
+                                    <span className="adm-export-spinner"></span>
+                                  ) : (
+                                    <i className="bi bi-download"></i>
+                                  )}
                                 </button>
                               </div>
-                            ) : '—'}
+                            ) : (
+                              '—'
+                            )}
                           </td>
                         </tr>
                       )
@@ -739,15 +893,21 @@ export default function Admin() {
 
                 <div className="adm-sales-summary">
                   <div className="adm-sales-sum-item adm-sum-approved">
-                    <span><i className="bi bi-check-lg"></i> Aprobados</span>
+                    <span>
+                      <i className="bi bi-check-lg"></i> Aprobados
+                    </span>
                     <strong>{totalApproved.toFixed(2)}€</strong>
                   </div>
                   <div className="adm-sales-sum-item adm-sum-pending">
-                    <span><i className="bi bi-hourglass-split"></i> Pendientes</span>
+                    <span>
+                      <i className="bi bi-hourglass-split"></i> Pendientes
+                    </span>
                     <strong>{totalPending.toFixed(2)}€</strong>
                   </div>
                   <div className="adm-sales-sum-item adm-sum-rejected">
-                    <span><i className="bi bi-x-lg"></i> Rechazados</span>
+                    <span>
+                      <i className="bi bi-x-lg"></i> Rechazados
+                    </span>
                     <strong>{totalRejected.toFixed(2)}€</strong>
                   </div>
                 </div>

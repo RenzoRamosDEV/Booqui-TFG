@@ -1,15 +1,16 @@
 package com.booqi.booking.mapper;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.booqi.booking.dto.response.BookingResponse;
 import com.booqi.booking.entity.Booking;
+
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 class BookingMapperTest {
 
@@ -66,9 +67,23 @@ class BookingMapperTest {
     void bookingResponse_tieneExactamenteLosCamposDelContrato() {
         assertThat(BookingResponse.class.getDeclaredFields())
                 .extracting(Field::getName)
-                .containsExactlyInAnyOrder("id", "userId", "userFirstName", "userLastName", "userEmail",
-                        "eventId", "eventTitle", "eventDescription", "eventStartDate", "eventLocation",
-                        "ticketQuantity", "basePrice", "totalPrice", "status", "createdAt", "updatedAt");
+                .containsExactlyInAnyOrder(
+                        "id",
+                        "userId",
+                        "userFirstName",
+                        "userLastName",
+                        "userEmail",
+                        "eventId",
+                        "eventTitle",
+                        "eventDescription",
+                        "eventStartDate",
+                        "eventLocation",
+                        "ticketQuantity",
+                        "basePrice",
+                        "totalPrice",
+                        "status",
+                        "createdAt",
+                        "updatedAt");
     }
 
     @Test

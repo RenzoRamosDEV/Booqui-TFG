@@ -1,5 +1,24 @@
 package com.booqi.user.controller;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.not;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import com.booqi.user.dto.request.CreateUserRequest;
 import com.booqi.user.dto.request.LoginRequest;
 import com.booqi.user.dto.request.UpdateUserRequest;
@@ -11,6 +30,7 @@ import com.booqi.user.exception.InvalidCredentialsException;
 import com.booqi.user.exception.InvalidFilterException;
 import com.booqi.user.exception.ResourceNotFoundException;
 import com.booqi.user.service.UserService;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -28,25 +48,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Stream;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.containsString;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 @WebMvcTest(UserController.class)
 @ActiveProfiles("test")
 class UserControllerTest {
@@ -54,7 +55,8 @@ class UserControllerTest {
     private static final String USERS = "/api/v1/users";
     private static final MediaType PROBLEM = MediaType.APPLICATION_PROBLEM_JSON;
 
-    private static final String VALID_CREATE = """
+    private static final String VALID_CREATE =
+            """
             {
               "firstName": "Juan",
               "lastName": "Pérez",
@@ -65,42 +67,64 @@ class UserControllerTest {
             }
             """;
 
-    private static final String VALID_LOGIN = """
+    private static final String VALID_LOGIN =
+            """
             {"contactEmail": "mel@booqi.com", "password": "admin_mel"}
             """;
 
     private final MockMvc mockMvc;
 
-    @MockitoBean
-    private UserService userService;
+    @MockitoBean private UserService userService;
 
     UserControllerTest(MockMvc mockMvc) {
         this.mockMvc = mockMvc;
     }
 
     private static UserResponse user(long id, String email, String role) {
-        return new UserResponse(id, "Juan", "Pérez", LocalDate.of(1990, 5, 15), "631835827", email, role,
-                LocalDateTime.of(2026, 1, 1, 0, 0), LocalDateTime.of(2026, 1, 1, 0, 0));
+        return new UserResponse(
+                id,
+                "Juan",
+                "Pérez",
+                LocalDate.of(1990, 5, 15),
+                "631835827",
+                email,
+                role,
+                LocalDateTime.of(2026, 1, 1, 0, 0),
+                LocalDateTime.of(2026, 1, 1, 0, 0));
     }
 
     private static String quote(String value) {
         return value == null ? "null" : "\"" + value + "\"";
     }
 
-    private static String createBody(String firstName, String lastName, String dateOfBirth, String contactPhone,
-                                     String contactEmail, String password, String role) {
+    private static String createBody(
+            String firstName,
+            String lastName,
+            String dateOfBirth,
+            String contactPhone,
+            String contactEmail,
+            String password,
+            String role) {
         return """
                 {"firstName": %s, "lastName": %s, "dateOfBirth": %s, "contactPhone": %s,
                  "contactEmail": %s, "password": %s, "role": %s}
-                """.formatted(quote(firstName), quote(lastName), quote(dateOfBirth), quote(contactPhone),
-                quote(contactEmail), quote(password), quote(role));
+                """
+                .formatted(
+                        quote(firstName),
+                        quote(lastName),
+                        quote(dateOfBirth),
+                        quote(contactPhone),
+                        quote(contactEmail),
+                        quote(password),
+                        quote(role));
     }
 
     // POST /api/v1/users
 
     @Test
     void create_retorna201ConLocationYSinPassword() throws Exception {
-        when(userService.create(any(CreateUserRequest.class))).thenReturn(user(5, "new@booqi.com", "CUSTOMER"));
+        when(userService.create(any(CreateUserRequest.class)))
+                .thenReturn(user(5, "new@booqi.com", "CUSTOMER"));
 
         mockMvc.perform(post(USERS).contentType(MediaType.APPLICATION_JSON).content(VALID_CREATE))
                 .andExpect(status().isCreated())
@@ -115,8 +139,18 @@ class UserControllerTest {
 
     @Test
     void create_conEmailInvalido_retorna400ConErrores() throws Exception {
-        mockMvc.perform(post(USERS).contentType(MediaType.APPLICATION_JSON)
-                        .content(createBody("Juan", "Pérez", "1990-05-15", null, "not-an-email", "securepass123", null)))
+        mockMvc.perform(
+                        post(USERS)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(
+                                        createBody(
+                                                "Juan",
+                                                "Pérez",
+                                                "1990-05-15",
+                                                null,
+                                                "not-an-email",
+                                                "securepass123",
+                                                null)))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentType(PROBLEM))
                 .andExpect(jsonPath("$.type").value("about:blank"))
@@ -131,15 +165,28 @@ class UserControllerTest {
 
     @Test
     void create_sinPassword_retorna400ConErrorDePassword() throws Exception {
-        mockMvc.perform(post(USERS).contentType(MediaType.APPLICATION_JSON)
-                        .content(createBody("Juan", "Pérez", "1990-05-15", null, "new@booqi.com", null, null)))
+        mockMvc.perform(
+                        post(USERS)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(
+                                        createBody(
+                                                "Juan",
+                                                "Pérez",
+                                                "1990-05-15",
+                                                null,
+                                                "new@booqi.com",
+                                                null,
+                                                null)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.errors[*].field", hasItem("password")));
     }
 
     @Test
     void create_conJsonMalformado_retorna400Problem() throws Exception {
-        mockMvc.perform(post(USERS).contentType(MediaType.APPLICATION_JSON).content("{\"firstName\": "))
+        mockMvc.perform(
+                        post(USERS)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content("{\"firstName\": "))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentType(PROBLEM))
                 .andExpect(jsonPath("$.status").value(400))
@@ -148,17 +195,23 @@ class UserControllerTest {
 
     @Test
     void create_conEmailDuplicado_retorna409() throws Exception {
-        when(userService.create(any())).thenThrow(
-                new ConflictException("User with contactEmail new@booqi.com already exists"));
+        when(userService.create(any()))
+                .thenThrow(
+                        new ConflictException(
+                                "User with contactEmail new@booqi.com already exists"));
 
         mockMvc.perform(post(USERS).contentType(MediaType.APPLICATION_JSON).content(VALID_CREATE))
                 .andExpect(status().isConflict())
                 .andExpect(content().contentType(PROBLEM))
-                .andExpect(content().json("""
+                .andExpect(
+                        content()
+                                .json(
+                                        """
                         {"type": "about:blank", "title": "Conflict", "status": 409,
                          "detail": "User with contactEmail new@booqi.com already exists",
                          "instance": "/api/v1/users"}
-                        """, JsonCompareMode.STRICT));
+                        """,
+                                        JsonCompareMode.STRICT));
     }
 
     static Stream<Arguments> createBoundaries() {
@@ -166,39 +219,255 @@ class UserControllerTest {
         String today = LocalDate.now().toString();
         String future = LocalDate.now().plusYears(1).toString();
         return Stream.of(
-                Arguments.of("firstName 1", createBody("A", "Pérez", "1990-05-15", null, "a@b.com", "securepass123", null), 400),
-                Arguments.of("firstName 2", createBody("Jo", "Pérez", "1990-05-15", null, "a@b.com", "securepass123", null), 201),
-                Arguments.of("firstName 50", createBody("A".repeat(50), "Pérez", "1990-05-15", null, "a@b.com", "securepass123", null), 201),
-                Arguments.of("firstName 51", createBody("A".repeat(51), "Pérez", "1990-05-15", null, "a@b.com", "securepass123", null), 400),
-                Arguments.of("firstName blank", createBody("", "Pérez", "1990-05-15", null, "a@b.com", "securepass123", null), 400),
-                Arguments.of("lastName 1", createBody("Juan", "X", "1990-05-15", null, "a@b.com", "securepass123", null), 400),
-                Arguments.of("lastName 2", createBody("Juan", "Li", "1990-05-15", null, "a@b.com", "securepass123", null), 201),
-                Arguments.of("lastName 50", createBody("Juan", "B".repeat(50), "1990-05-15", null, "a@b.com", "securepass123", null), 201),
-                Arguments.of("lastName 51", createBody("Juan", "B".repeat(51), "1990-05-15", null, "a@b.com", "securepass123", null), 400),
-                Arguments.of("password 7", createBody("Juan", "Pérez", "1990-05-15", null, "a@b.com", "1234567", null), 400),
-                Arguments.of("password 8", createBody("Juan", "Pérez", "1990-05-15", null, "a@b.com", "12345678", null), 201),
-                Arguments.of("phone 8", createBody("Juan", "Pérez", "1990-05-15", "12345678", "a@b.com", "securepass123", null), 400),
-                Arguments.of("phone 9", createBody("Juan", "Pérez", "1990-05-15", "123456789", "a@b.com", "securepass123", null), 201),
-                Arguments.of("phone 15", createBody("Juan", "Pérez", "1990-05-15", "123456789012345", "a@b.com", "securepass123", null), 201),
-                Arguments.of("phone 16", createBody("Juan", "Pérez", "1990-05-15", "1234567890123456", "a@b.com", "securepass123", null), 400),
-                Arguments.of("phone +7", createBody("Juan", "Pérez", "1990-05-15", "+1234567", "a@b.com", "securepass123", null), 400),
-                Arguments.of("phone +9", createBody("Juan", "Pérez", "1990-05-15", "+123456789", "a@b.com", "securepass123", null), 201),
-                Arguments.of("phone letters", createBody("Juan", "Pérez", "1990-05-15", "63183ABCD", "a@b.com", "securepass123", null), 400),
-                Arguments.of("dob today", createBody("Juan", "Pérez", today, null, "a@b.com", "securepass123", null), 400),
-                Arguments.of("dob yesterday", createBody("Juan", "Pérez", past, null, "a@b.com", "securepass123", null), 201),
-                Arguments.of("dob future", createBody("Juan", "Pérez", future, null, "a@b.com", "securepass123", null), 400),
-                Arguments.of("dob missing", createBody("Juan", "Pérez", null, null, "a@b.com", "securepass123", null), 400),
-                Arguments.of("role ADMIN", createBody("Juan", "Pérez", "1990-05-15", null, "a@b.com", "securepass123", "ADMIN"), 201),
-                Arguments.of("role CUSTOMER", createBody("Juan", "Pérez", "1990-05-15", null, "a@b.com", "securepass123", "CUSTOMER"), 201),
-                Arguments.of("role invalid", createBody("Juan", "Pérez", "1990-05-15", null, "a@b.com", "securepass123", "SUPERADMIN"), 400),
-                Arguments.of("role lowercase", createBody("Juan", "Pérez", "1990-05-15", null, "a@b.com", "securepass123", "admin"), 400),
-                Arguments.of("email no at", createBody("Juan", "Pérez", "1990-05-15", null, "juanemail.com", "securepass123", null), 400),
-                Arguments.of("email no domain", createBody("Juan", "Pérez", "1990-05-15", null, "juan@", "securepass123", null), 400));
+                Arguments.of(
+                        "firstName 1",
+                        createBody(
+                                "A", "Pérez", "1990-05-15", null, "a@b.com", "securepass123", null),
+                        400),
+                Arguments.of(
+                        "firstName 2",
+                        createBody(
+                                "Jo",
+                                "Pérez",
+                                "1990-05-15",
+                                null,
+                                "a@b.com",
+                                "securepass123",
+                                null),
+                        201),
+                Arguments.of(
+                        "firstName 50",
+                        createBody(
+                                "A".repeat(50),
+                                "Pérez",
+                                "1990-05-15",
+                                null,
+                                "a@b.com",
+                                "securepass123",
+                                null),
+                        201),
+                Arguments.of(
+                        "firstName 51",
+                        createBody(
+                                "A".repeat(51),
+                                "Pérez",
+                                "1990-05-15",
+                                null,
+                                "a@b.com",
+                                "securepass123",
+                                null),
+                        400),
+                Arguments.of(
+                        "firstName blank",
+                        createBody(
+                                "", "Pérez", "1990-05-15", null, "a@b.com", "securepass123", null),
+                        400),
+                Arguments.of(
+                        "lastName 1",
+                        createBody(
+                                "Juan", "X", "1990-05-15", null, "a@b.com", "securepass123", null),
+                        400),
+                Arguments.of(
+                        "lastName 2",
+                        createBody(
+                                "Juan", "Li", "1990-05-15", null, "a@b.com", "securepass123", null),
+                        201),
+                Arguments.of(
+                        "lastName 50",
+                        createBody(
+                                "Juan",
+                                "B".repeat(50),
+                                "1990-05-15",
+                                null,
+                                "a@b.com",
+                                "securepass123",
+                                null),
+                        201),
+                Arguments.of(
+                        "lastName 51",
+                        createBody(
+                                "Juan",
+                                "B".repeat(51),
+                                "1990-05-15",
+                                null,
+                                "a@b.com",
+                                "securepass123",
+                                null),
+                        400),
+                Arguments.of(
+                        "password 7",
+                        createBody("Juan", "Pérez", "1990-05-15", null, "a@b.com", "1234567", null),
+                        400),
+                Arguments.of(
+                        "password 8",
+                        createBody(
+                                "Juan", "Pérez", "1990-05-15", null, "a@b.com", "12345678", null),
+                        201),
+                Arguments.of(
+                        "phone 8",
+                        createBody(
+                                "Juan",
+                                "Pérez",
+                                "1990-05-15",
+                                "12345678",
+                                "a@b.com",
+                                "securepass123",
+                                null),
+                        400),
+                Arguments.of(
+                        "phone 9",
+                        createBody(
+                                "Juan",
+                                "Pérez",
+                                "1990-05-15",
+                                "123456789",
+                                "a@b.com",
+                                "securepass123",
+                                null),
+                        201),
+                Arguments.of(
+                        "phone 15",
+                        createBody(
+                                "Juan",
+                                "Pérez",
+                                "1990-05-15",
+                                "123456789012345",
+                                "a@b.com",
+                                "securepass123",
+                                null),
+                        201),
+                Arguments.of(
+                        "phone 16",
+                        createBody(
+                                "Juan",
+                                "Pérez",
+                                "1990-05-15",
+                                "1234567890123456",
+                                "a@b.com",
+                                "securepass123",
+                                null),
+                        400),
+                Arguments.of(
+                        "phone +7",
+                        createBody(
+                                "Juan",
+                                "Pérez",
+                                "1990-05-15",
+                                "+1234567",
+                                "a@b.com",
+                                "securepass123",
+                                null),
+                        400),
+                Arguments.of(
+                        "phone +9",
+                        createBody(
+                                "Juan",
+                                "Pérez",
+                                "1990-05-15",
+                                "+123456789",
+                                "a@b.com",
+                                "securepass123",
+                                null),
+                        201),
+                Arguments.of(
+                        "phone letters",
+                        createBody(
+                                "Juan",
+                                "Pérez",
+                                "1990-05-15",
+                                "63183ABCD",
+                                "a@b.com",
+                                "securepass123",
+                                null),
+                        400),
+                Arguments.of(
+                        "dob today",
+                        createBody("Juan", "Pérez", today, null, "a@b.com", "securepass123", null),
+                        400),
+                Arguments.of(
+                        "dob yesterday",
+                        createBody("Juan", "Pérez", past, null, "a@b.com", "securepass123", null),
+                        201),
+                Arguments.of(
+                        "dob future",
+                        createBody("Juan", "Pérez", future, null, "a@b.com", "securepass123", null),
+                        400),
+                Arguments.of(
+                        "dob missing",
+                        createBody("Juan", "Pérez", null, null, "a@b.com", "securepass123", null),
+                        400),
+                Arguments.of(
+                        "role ADMIN",
+                        createBody(
+                                "Juan",
+                                "Pérez",
+                                "1990-05-15",
+                                null,
+                                "a@b.com",
+                                "securepass123",
+                                "ADMIN"),
+                        201),
+                Arguments.of(
+                        "role CUSTOMER",
+                        createBody(
+                                "Juan",
+                                "Pérez",
+                                "1990-05-15",
+                                null,
+                                "a@b.com",
+                                "securepass123",
+                                "CUSTOMER"),
+                        201),
+                Arguments.of(
+                        "role invalid",
+                        createBody(
+                                "Juan",
+                                "Pérez",
+                                "1990-05-15",
+                                null,
+                                "a@b.com",
+                                "securepass123",
+                                "SUPERADMIN"),
+                        400),
+                Arguments.of(
+                        "role lowercase",
+                        createBody(
+                                "Juan",
+                                "Pérez",
+                                "1990-05-15",
+                                null,
+                                "a@b.com",
+                                "securepass123",
+                                "admin"),
+                        400),
+                Arguments.of(
+                        "email no at",
+                        createBody(
+                                "Juan",
+                                "Pérez",
+                                "1990-05-15",
+                                null,
+                                "juanemail.com",
+                                "securepass123",
+                                null),
+                        400),
+                Arguments.of(
+                        "email no domain",
+                        createBody(
+                                "Juan",
+                                "Pérez",
+                                "1990-05-15",
+                                null,
+                                "juan@",
+                                "securepass123",
+                                null),
+                        400));
     }
 
     @ParameterizedTest(name = "{0} -> {2}")
     @MethodSource("createBoundaries")
-    void create_validacionDeLimites(String caseName, String body, int expectedStatus) throws Exception {
+    void create_validacionDeLimites(String caseName, String body, int expectedStatus)
+            throws Exception {
         when(userService.create(any())).thenReturn(user(5, "a@b.com", "CUSTOMER"));
 
         mockMvc.perform(post(USERS).contentType(MediaType.APPLICATION_JSON).content(body))
@@ -209,7 +478,8 @@ class UserControllerTest {
 
     @Test
     void list_sinParametros_pasaFiltroVacioAlServicio() throws Exception {
-        when(userService.findAll(any(UserFilter.class))).thenReturn(List.of(user(1, "mel@booqi.com", "ADMIN")));
+        when(userService.findAll(any(UserFilter.class)))
+                .thenReturn(List.of(user(1, "mel@booqi.com", "ADMIN")));
 
         mockMvc.perform(get(USERS))
                 .andExpect(status().isOk())
@@ -225,12 +495,13 @@ class UserControllerTest {
     void list_conParametros_losVinculaEnUserFilter() throws Exception {
         when(userService.findAll(any(UserFilter.class))).thenReturn(List.of());
 
-        mockMvc.perform(get(USERS)
-                        .param("contactEmail", "mel@booqi.com")
-                        .param("contactPhone", "631835827")
-                        .param("role", "admin")
-                        .param("firstName", "Mel")
-                        .param("lastName", "Admin"))
+        mockMvc.perform(
+                        get(USERS)
+                                .param("contactEmail", "mel@booqi.com")
+                                .param("contactPhone", "631835827")
+                                .param("role", "admin")
+                                .param("firstName", "Mel")
+                                .param("lastName", "Admin"))
                 .andExpect(status().isOk())
                 .andExpect(content().json("[]"));
 
@@ -242,22 +513,29 @@ class UserControllerTest {
 
     @Test
     void list_conFiltroInvalido_retorna400Problem() throws Exception {
-        when(userService.findAll(any(UserFilter.class))).thenThrow(new InvalidFilterException(
-                "Only one filter may be used at a time (firstName and lastName may be combined)"));
+        when(userService.findAll(any(UserFilter.class)))
+                .thenThrow(
+                        new InvalidFilterException(
+                                "Only one filter may be used at a time (firstName and lastName may be combined)"));
 
         mockMvc.perform(get(USERS).param("role", "ADMIN").param("contactEmail", "mel@booqi.com"))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentType(PROBLEM))
-                .andExpect(content().json("""
+                .andExpect(
+                        content()
+                                .json(
+                                        """
                         {"type": "about:blank", "title": "Bad Request", "status": 400,
                          "detail": "Only one filter may be used at a time (firstName and lastName may be combined)",
                          "instance": "/api/v1/users"}
-                        """, JsonCompareMode.STRICT));
+                        """,
+                                        JsonCompareMode.STRICT));
     }
 
     @Test
     void list_errorInesperado_retorna500Generico() throws Exception {
-        when(userService.findAll(any(UserFilter.class))).thenThrow(new RuntimeException("boom secret"));
+        when(userService.findAll(any(UserFilter.class)))
+                .thenThrow(new RuntimeException("boom secret"));
 
         mockMvc.perform(get(USERS))
                 .andExpect(status().isInternalServerError())
@@ -285,15 +563,20 @@ class UserControllerTest {
 
     @Test
     void findById_inexistente_retorna404ProblemExacto() throws Exception {
-        when(userService.findById(99L)).thenThrow(new ResourceNotFoundException("User with id 99 not found"));
+        when(userService.findById(99L))
+                .thenThrow(new ResourceNotFoundException("User with id 99 not found"));
 
         mockMvc.perform(get(USERS + "/99"))
                 .andExpect(status().isNotFound())
                 .andExpect(content().contentType(PROBLEM))
-                .andExpect(content().json("""
+                .andExpect(
+                        content()
+                                .json(
+                                        """
                         {"type": "about:blank", "title": "Not Found", "status": 404,
                          "detail": "User with id 99 not found", "instance": "/api/v1/users/99"}
-                        """, JsonCompareMode.STRICT));
+                        """,
+                                        JsonCompareMode.STRICT));
     }
 
     @Test
@@ -349,9 +632,14 @@ class UserControllerTest {
 
     @Test
     void update_retorna200() throws Exception {
-        when(userService.update(eq(3L), any(UpdateUserRequest.class))).thenReturn(user(3, "andy@booqi.com", "CUSTOMER"));
+        when(userService.update(eq(3L), any(UpdateUserRequest.class)))
+                .thenReturn(user(3, "andy@booqi.com", "CUSTOMER"));
 
-        mockMvc.perform(put(USERS + "/3").contentType(MediaType.APPLICATION_JSON).content("""
+        mockMvc.perform(
+                        put(USERS + "/3")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(
+                                        """
                         {"firstName": "Andy"}
                         """))
                 .andExpect(status().isOk())
@@ -360,14 +648,20 @@ class UserControllerTest {
 
         ArgumentCaptor<UpdateUserRequest> captor = ArgumentCaptor.forClass(UpdateUserRequest.class);
         verify(userService).update(eq(3L), captor.capture());
-        assertThat(captor.getValue()).isEqualTo(new UpdateUserRequest("Andy", null, null, null, null, null, null));
+        assertThat(captor.getValue())
+                .isEqualTo(new UpdateUserRequest("Andy", null, null, null, null, null, null));
     }
 
     @Test
     void update_inexistente_retorna404() throws Exception {
-        when(userService.update(eq(99L), any())).thenThrow(new ResourceNotFoundException("User with id 99 not found"));
+        when(userService.update(eq(99L), any()))
+                .thenThrow(new ResourceNotFoundException("User with id 99 not found"));
 
-        mockMvc.perform(put(USERS + "/99").contentType(MediaType.APPLICATION_JSON).content("""
+        mockMvc.perform(
+                        put(USERS + "/99")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(
+                                        """
                         {"firstName": "Andy"}
                         """))
                 .andExpect(status().isNotFound())
@@ -377,10 +671,16 @@ class UserControllerTest {
 
     @Test
     void update_emailDuplicado_retorna409() throws Exception {
-        when(userService.update(eq(2L), any())).thenThrow(
-                new ConflictException("User with contactEmail mel@booqi.com already exists"));
+        when(userService.update(eq(2L), any()))
+                .thenThrow(
+                        new ConflictException(
+                                "User with contactEmail mel@booqi.com already exists"));
 
-        mockMvc.perform(put(USERS + "/2").contentType(MediaType.APPLICATION_JSON).content("""
+        mockMvc.perform(
+                        put(USERS + "/2")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(
+                                        """
                         {"contactEmail": "mel@booqi.com"}
                         """))
                 .andExpect(status().isConflict())
@@ -426,7 +726,8 @@ class UserControllerTest {
     @Test
     void delete_inexistente_retorna404() throws Exception {
         org.mockito.Mockito.doThrow(new ResourceNotFoundException("User with id 99 not found"))
-                .when(userService).delete(99L);
+                .when(userService)
+                .delete(99L);
 
         mockMvc.perform(delete(USERS + "/99"))
                 .andExpect(status().isNotFound())
@@ -440,7 +741,10 @@ class UserControllerTest {
         when(userService.login(new LoginRequest("mel@booqi.com", "admin_mel")))
                 .thenReturn(user(1, "mel@booqi.com", "ADMIN"));
 
-        mockMvc.perform(post(USERS + "/login").contentType(MediaType.APPLICATION_JSON).content(VALID_LOGIN))
+        mockMvc.perform(
+                        post(USERS + "/login")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(VALID_LOGIN))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.contactEmail").value("mel@booqi.com"))
@@ -451,20 +755,32 @@ class UserControllerTest {
 
     @Test
     void login_credencialesInvalidas_retorna401() throws Exception {
-        when(userService.login(any())).thenThrow(new InvalidCredentialsException("Invalid email or password"));
+        when(userService.login(any()))
+                .thenThrow(new InvalidCredentialsException("Invalid email or password"));
 
-        mockMvc.perform(post(USERS + "/login").contentType(MediaType.APPLICATION_JSON).content(VALID_LOGIN))
+        mockMvc.perform(
+                        post(USERS + "/login")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(VALID_LOGIN))
                 .andExpect(status().isUnauthorized())
                 .andExpect(content().contentType(PROBLEM))
-                .andExpect(content().json("""
+                .andExpect(
+                        content()
+                                .json(
+                                        """
                         {"type": "about:blank", "title": "Unauthorized", "status": 401,
                          "detail": "Invalid email or password", "instance": "/api/v1/users/login"}
-                        """, JsonCompareMode.STRICT));
+                        """,
+                                        JsonCompareMode.STRICT));
     }
 
     @Test
     void login_sinPassword_retorna400ConErrorDePassword() throws Exception {
-        mockMvc.perform(post(USERS + "/login").contentType(MediaType.APPLICATION_JSON).content("""
+        mockMvc.perform(
+                        post(USERS + "/login")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(
+                                        """
                         {"contactEmail": "mel@booqi.com"}
                         """))
                 .andExpect(status().isBadRequest())
@@ -475,7 +791,11 @@ class UserControllerTest {
 
     @Test
     void login_conEmailMalformado_retorna400() throws Exception {
-        mockMvc.perform(post(USERS + "/login").contentType(MediaType.APPLICATION_JSON).content("""
+        mockMvc.perform(
+                        post(USERS + "/login")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(
+                                        """
                         {"contactEmail": "no-es-email", "password": "admin_mel"}
                         """))
                 .andExpect(status().isBadRequest())

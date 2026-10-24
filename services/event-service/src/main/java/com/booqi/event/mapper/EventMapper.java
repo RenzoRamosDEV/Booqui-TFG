@@ -4,6 +4,7 @@ import com.booqi.event.dto.request.CreateEventRequest;
 import com.booqi.event.dto.request.UpdateEventRequest;
 import com.booqi.event.dto.response.EventResponse;
 import com.booqi.event.entity.Event;
+
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
@@ -11,7 +12,9 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
 
 import java.util.List;
 
-@Mapper(componentModel = "spring", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+@Mapper(
+        componentModel = "spring",
+        nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface EventMapper {
 
     @Mapping(target = "id", ignore = true)

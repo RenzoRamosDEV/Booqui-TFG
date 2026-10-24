@@ -2,6 +2,7 @@ package com.booqi.booking.client;
 
 import com.booqi.booking.client.dto.EventResponse;
 import com.booqi.booking.exception.RemoteServiceException;
+
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.ResourceAccessException;
@@ -18,7 +19,11 @@ public class EventClient {
 
     public EventResponse findById(Long id) {
         try {
-            return restClient.get().uri("/api/v1/events/{id}", id).retrieve().body(EventResponse.class);
+            return restClient
+                    .get()
+                    .uri("/api/v1/events/{id}", id)
+                    .retrieve()
+                    .body(EventResponse.class);
         } catch (ResourceAccessException e) {
             throw new RemoteServiceException("Event service is unavailable", e);
         }

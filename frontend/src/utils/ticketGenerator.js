@@ -2,7 +2,9 @@
 import { PDFDocument, rgb, StandardFonts } from 'pdf-lib'
 import logoUrl from '../assets/logo_entrada.png'
 
-function c(r, g, b) { return rgb(r / 255, g / 255, b / 255) }
+function c(r, g, b) {
+  return rgb(r / 255, g / 255, b / 255)
+}
 
 // Elimina caracteres que WinAnsi no puede codificar (ej: marcadores Unicode de Intl)
 function safe(str) {
@@ -50,16 +52,22 @@ function drawQR(page, x, y, size, seed) {
   }
 
   const corner = (r0, c0) => {
-    for (let dr = 0; dr <= 6; dr++) for (let dc = 0; dc <= 6; dc++) {
-      const outer = dr === 0 || dr === 6 || dc === 0 || dc === 6
-      const inner = dr >= 2 && dr <= 4 && dc >= 2 && dc <= 4
-      if (outer || inner) putCell(r0 + dr, c0 + dc)
-    }
+    for (let dr = 0; dr <= 6; dr++)
+      for (let dc = 0; dc <= 6; dc++) {
+        const outer = dr === 0 || dr === 6 || dc === 0 || dc === 6
+        const inner = dr >= 2 && dr <= 4 && dc >= 2 && dc <= 4
+        if (outer || inner) putCell(r0 + dr, c0 + dc)
+      }
   }
-  corner(0, 0); corner(0, 14); corner(14, 0)
+  corner(0, 0)
+  corner(0, 14)
+  corner(14, 0)
 
   for (let i = 8; i <= 12; i++) {
-    if (i % 2 === 0) { putCell(6, i); putCell(i, 6) }
+    if (i % 2 === 0) {
+      putCell(6, i)
+      putCell(i, 6)
+    }
   }
 
   let s = seed >>> 0
@@ -91,7 +99,9 @@ export async function generateTicketPDF({ bookingId, paymentId, items, user }) {
   const PURPLE_TEXT = c(124, 58, 237)
   const WHITE = rgb(1, 1, 1)
 
-  const W = 720, H = 270, R = 16
+  const W = 720,
+    H = 270,
+    R = 16
   const SPLIT = 520
   const STUB_W = W - SPLIT
 
@@ -128,16 +138,43 @@ export async function generateTicketPDF({ bookingId, paymentId, items, user }) {
       console.log('Error cargando logo:', err)
     }
     if (!logoOk) {
-      page.drawRectangle({ x: STRIPE_W + 14, y: LOGO_Y + 8, width: 16, height: 11, color: PURPLE, opacity: 0.15 })
-      page.drawRectangle({ x: STRIPE_W + 14, y: LOGO_Y + 11, width: 16, height: 4, color: PURPLE, opacity: 0.2 })
-      page.drawText('booqi', { x: STRIPE_W + 34, y: LOGO_Y + 10, size: 16, font: bold, color: PURPLE })
+      page.drawRectangle({
+        x: STRIPE_W + 14,
+        y: LOGO_Y + 8,
+        width: 16,
+        height: 11,
+        color: PURPLE,
+        opacity: 0.15,
+      })
+      page.drawRectangle({
+        x: STRIPE_W + 14,
+        y: LOGO_Y + 11,
+        width: 16,
+        height: 4,
+        color: PURPLE,
+        opacity: 0.2,
+      })
+      page.drawText('booqi', {
+        x: STRIPE_W + 34,
+        y: LOGO_Y + 10,
+        size: 16,
+        font: bold,
+        color: PURPLE,
+      })
     }
 
     const HDR_SEP = H - 52
-    page.drawRectangle({ x: STRIPE_W + 14, y: HDR_SEP, width: IMG_START - STRIPE_W - 28, height: 0.8, color: LIGHT_GREY })
+    page.drawRectangle({
+      x: STRIPE_W + 14,
+      y: HDR_SEP,
+      width: IMG_START - STRIPE_W - 28,
+      height: 0.8,
+      color: LIGHT_GREY,
+    })
 
     const titleRaw = safe(item.title || 'Evento')
-    const tSize = titleRaw.length > 40 ? 11 : titleRaw.length > 28 ? 13.5 : titleRaw.length > 18 ? 16 : 19
+    const tSize =
+      titleRaw.length > 40 ? 11 : titleRaw.length > 28 ? 13.5 : titleRaw.length > 18 ? 16 : 19
     const TITLE_Y = HDR_SEP - 22
     page.drawText(titleRaw.toUpperCase(), {
       x: STRIPE_W + 14,
@@ -149,8 +186,19 @@ export async function generateTicketPDF({ bookingId, paymentId, items, user }) {
     })
 
     const rawDate = item.startDate ? new Date(item.startDate) : new Date()
-    const dateStr = safe(rawDate.toLocaleDateString('es-ES', { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' }).replace(/^\w/, ch => ch.toUpperCase()))
-    const timeStr = safe(rawDate.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }))
+    const dateStr = safe(
+      rawDate
+        .toLocaleDateString('es-ES', {
+          weekday: 'short',
+          day: '2-digit',
+          month: 'short',
+          year: 'numeric',
+        })
+        .replace(/^\w/, (ch) => ch.toUpperCase()),
+    )
+    const timeStr = safe(
+      rawDate.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }),
+    )
 
     const META_Y = TITLE_Y - 16
     page.drawText(`${dateStr}  -  ${timeStr}`, {
@@ -173,7 +221,13 @@ export async function generateTicketPDF({ bookingId, paymentId, items, user }) {
     }
 
     const MID_SEP = item.location ? META_Y - 28 : META_Y - 18
-    page.drawRectangle({ x: STRIPE_W + 14, y: MID_SEP, width: IMG_START - STRIPE_W - 28, height: 0.8, color: LIGHT_GREY })
+    page.drawRectangle({
+      x: STRIPE_W + 14,
+      y: MID_SEP,
+      width: IMG_START - STRIPE_W - 28,
+      height: 0.8,
+      color: LIGHT_GREY,
+    })
 
     const unitStr = (item.price || 0).toFixed(2)
     const totStr = (item.price || 0).toFixed(2)
@@ -184,14 +238,17 @@ export async function generateTicketPDF({ bookingId, paymentId, items, user }) {
     const DATA_Y = MID_SEP - 14
 
     page.drawText('TITULAR', { x: COL1_X, y: DATA_Y, size: 5.5, font: bold, color: MID_GREY })
-    page.drawText(safe(`${user.firstName || ''} ${user.lastName || ''}`.trim().toUpperCase()) || 'COMPRADOR', {
-      x: COL1_X,
-      y: DATA_Y - 13,
-      size: 9.5,
-      font: bold,
-      color: NEAR_BLACK,
-      maxWidth: 100,
-    })
+    page.drawText(
+      safe(`${user.firstName || ''} ${user.lastName || ''}`.trim().toUpperCase()) || 'COMPRADOR',
+      {
+        x: COL1_X,
+        y: DATA_Y - 13,
+        size: 9.5,
+        font: bold,
+        color: NEAR_BLACK,
+        maxWidth: 100,
+      },
+    )
     page.drawText(safe(user.contactEmail || ''), {
       x: COL1_X,
       y: DATA_Y - 25,
@@ -217,25 +274,51 @@ export async function generateTicketPDF({ bookingId, paymentId, items, user }) {
       color: MID_GREY,
     })
 
-    const TOT_BOX_W = 100, TOT_BOX_H = 52
+    const TOT_BOX_W = 100,
+      TOT_BOX_H = 52
     roundRect(page, COL3_X - 4, DATA_Y - TOT_BOX_H + 6, TOT_BOX_W, TOT_BOX_H, 6, PURPLE_LIGHT)
     page.drawText('TOTAL', { x: COL3_X, y: DATA_Y - 4, size: 5.5, font: bold, color: PURPLE_TEXT })
-    page.drawText(`${totStr} EUR`, { x: COL3_X, y: DATA_Y - 19, size: 12, font: bold, color: PURPLE })
+    page.drawText(`${totStr} EUR`, {
+      x: COL3_X,
+      y: DATA_Y - 19,
+      size: 12,
+      font: bold,
+      color: PURPLE,
+    })
 
     const seatLetter = String.fromCharCode(65 + ((bookingId + ticketIndex) % 26))
     const seatNumber = `${seatLetter}${((bookingId + ticketIndex) % 50) + 1}`
     page.drawText('ASIENTO', { x: COL3_X, y: DATA_Y - 34, size: 5, font: bold, color: PURPLE_TEXT })
-    page.drawText(seatNumber, { x: COL3_X + 45, y: DATA_Y - 34, size: 9, font: bold, color: PURPLE })
+    page.drawText(seatNumber, {
+      x: COL3_X + 45,
+      y: DATA_Y - 34,
+      size: 9,
+      font: bold,
+      color: PURPLE,
+    })
 
     const BOT_SEP = DATA_Y - TOT_BOX_H - 2
-    page.drawRectangle({ x: STRIPE_W + 14, y: BOT_SEP, width: IMG_START - STRIPE_W - 28, height: 0.8, color: LIGHT_GREY })
+    page.drawRectangle({
+      x: STRIPE_W + 14,
+      y: BOT_SEP,
+      width: IMG_START - STRIPE_W - 28,
+      height: 0.8,
+      color: LIGHT_GREY,
+    })
 
-    const PILL_Y = 14, PILL_H = BOT_SEP - 24
+    const PILL_Y = 14,
+      PILL_H = BOT_SEP - 24
     const drawInfoPill = (px, label, value) => {
       const pw = 110
       page.drawRectangle({ x: px, y: PILL_Y, width: pw, height: PILL_H, color: c(245, 245, 244) })
       page.drawRectangle({ x: px, y: PILL_Y + PILL_H - 3, width: pw, height: 3, color: PURPLE })
-      page.drawText(label, { x: px + 8, y: PILL_Y + PILL_H - 12, size: 5.5, font: bold, color: MID_GREY })
+      page.drawText(label, {
+        x: px + 8,
+        y: PILL_Y + PILL_H - 12,
+        size: 5.5,
+        font: bold,
+        color: MID_GREY,
+      })
       page.drawText(value, { x: px + 8, y: PILL_Y + 4, size: 9, font: bold, color: NEAR_BLACK })
     }
     drawInfoPill(STRIPE_W + 14, 'N. DE RESERVA', `#${String(bookingId).padStart(8, '0')}`)
@@ -285,7 +368,14 @@ export async function generateTicketPDF({ bookingId, paymentId, items, user }) {
       font: bold,
       color: WHITE,
     })
-    page.drawRectangle({ x: SCX - 22, y: STUB_LOGO_Y - 6, width: 44, height: 1.5, color: PURPLE, opacity: 0.7 })
+    page.drawRectangle({
+      x: SCX - 22,
+      y: STUB_LOGO_Y - 6,
+      width: 44,
+      height: 1.5,
+      color: PURPLE,
+      opacity: 0.7,
+    })
 
     page.drawCircle({ x: SCX, y: H * 0.43, size: 72, color: PURPLE_MID, opacity: 0.18 })
     page.drawCircle({ x: SCX, y: H * 0.43, size: 52, color: PURPLE_MID, opacity: 0.14 })
@@ -294,22 +384,53 @@ export async function generateTicketPDF({ bookingId, paymentId, items, user }) {
     const QR_X = SPLIT + (STUB_W - QR_SIZE) / 2
     const QR_TOP = H - 50
 
-    page.drawRectangle({ x: QR_X - 8, y: QR_TOP - QR_SIZE - 8, width: QR_SIZE + 16, height: QR_SIZE + 16, color: PURPLE_MID, opacity: 0.3 })
-    page.drawRectangle({ x: QR_X - 5, y: QR_TOP - QR_SIZE - 5, width: QR_SIZE + 10, height: QR_SIZE + 10, color: WHITE })
-    drawQR(page, QR_X, QR_TOP, QR_SIZE, (bookingId * 31 + paymentId + ticketIndex))
+    page.drawRectangle({
+      x: QR_X - 8,
+      y: QR_TOP - QR_SIZE - 8,
+      width: QR_SIZE + 16,
+      height: QR_SIZE + 16,
+      color: PURPLE_MID,
+      opacity: 0.3,
+    })
+    page.drawRectangle({
+      x: QR_X - 5,
+      y: QR_TOP - QR_SIZE - 5,
+      width: QR_SIZE + 10,
+      height: QR_SIZE + 10,
+      color: WHITE,
+    })
+    drawQR(page, QR_X, QR_TOP, QR_SIZE, bookingId * 31 + paymentId + ticketIndex)
 
     const refVal = `#${String(bookingId).padStart(8, '0')}`
     const rvW = bold.widthOfTextAtSize(refVal, 8)
     const refLbl = 'N. DE RESERVA'
     const rlW = reg.widthOfTextAtSize(refLbl, 6)
 
-    page.drawText(refLbl, { x: SCX - rlW / 2, y: QR_TOP - QR_SIZE - 20, size: 6, font: reg, color: c(150, 120, 200) })
-    page.drawText(refVal, { x: SCX - rvW / 2, y: QR_TOP - QR_SIZE - 32, size: 8, font: bold, color: WHITE })
+    page.drawText(refLbl, {
+      x: SCX - rlW / 2,
+      y: QR_TOP - QR_SIZE - 20,
+      size: 6,
+      font: reg,
+      color: c(150, 120, 200),
+    })
+    page.drawText(refVal, {
+      x: SCX - rvW / 2,
+      y: QR_TOP - QR_SIZE - 32,
+      size: 8,
+      font: bold,
+      color: WHITE,
+    })
 
     page.drawRectangle({ x: SPLIT, y: 0, width: STUB_W, height: 22, color: PURPLE, opacity: 0.25 })
     const footTxt = 'CONSERVE ESTA ENTRADA'
     const ftW = reg.widthOfTextAtSize(footTxt, 5.5)
-    page.drawText(footTxt, { x: SCX - ftW / 2, y: 7.5, size: 5.5, font: reg, color: c(180, 150, 230) })
+    page.drawText(footTxt, {
+      x: SCX - ftW / 2,
+      y: 7.5,
+      size: 5.5,
+      font: reg,
+      color: c(180, 150, 230),
+    })
   }
 
   return await pdfDoc.save()

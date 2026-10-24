@@ -1,6 +1,7 @@
 package com.booqi.payment.client;
 
 import com.booqi.payment.exception.RemoteServiceException;
+
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.ResourceAccessException;
@@ -25,7 +26,11 @@ public class BookingClient {
 
     private void changeStatus(Long id, String action) {
         try {
-            restClient.patch().uri("/api/v1/bookings/{id}/{action}", id, action).retrieve().toBodilessEntity();
+            restClient
+                    .patch()
+                    .uri("/api/v1/bookings/{id}/{action}", id, action)
+                    .retrieve()
+                    .toBodilessEntity();
         } catch (ResourceAccessException e) {
             throw new RemoteServiceException("Booking service is unavailable", e);
         }

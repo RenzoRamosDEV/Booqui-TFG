@@ -3,10 +3,10 @@ import { AuthContext } from './useAuth'
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(() => {
-    try { 
-      return JSON.parse(localStorage.getItem('booqi_user')) || null 
-    } catch { 
-      return null 
+    try {
+      return JSON.parse(localStorage.getItem('booqi_user')) || null
+    } catch {
+      return null
     }
   })
 
@@ -20,9 +20,5 @@ export function AuthProvider({ children }) {
     localStorage.removeItem('booqi_user')
   }
 
-  return (
-    <AuthContext.Provider value={{ user, login, logout }}>
-      {children}
-    </AuthContext.Provider>
-  )
+  return <AuthContext.Provider value={{ user, login, logout }}>{children}</AuthContext.Provider>
 }

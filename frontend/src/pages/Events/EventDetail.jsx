@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { getEventById } from '../../api/eventService'
@@ -18,12 +17,10 @@ export default function EventDetail() {
   const { id } = useParams()
   const navigate = useNavigate()
 
-
   const [event, setEvent] = useState(null)
   const [loading, setLoading] = useState(true)
   // cantidad de entradas que quiere comprar el usuario, mínimo 1
   const [quantity, setQuantity] = useState(1)
-
 
   const { cart, addToCart } = useCart()
   // el usuario logueado, lo usamos para redirigir al login si no está autenticado
@@ -33,24 +30,24 @@ export default function EventDetail() {
     const loadEvent = () => {
       setLoading(true)
       getEventById(id)
-        .then(r => setEvent(r.data))
-        
+        .then((r) => setEvent(r.data))
+
         .catch(() => navigate('/events'))
         .finally(() => setLoading(false))
     }
-    
+
     loadEvent()
-  // se vuelve a ejecutar si cambia el id (navegación entre eventos) o el navigate
+    // se vuelve a ejecutar si cambia el id (navegación entre eventos) o el navigate
   }, [id, navigate])
 
   // comprobamos si este evento ya está en el carrito para no añadirlo dos veces
-  const isInCart = cart?.some(i => i.id === event?.id)
+  const isInCart = cart?.some((i) => i.id === event?.id)
   const isSoldOut = event?.availableTickets === 0
   // aviso de pocas entradas
-  const isLowStock = event && event.availableTickets > 0 && event.availableTickets <= 10 && !isSoldOut
+  const isLowStock =
+    event && event.availableTickets > 0 && event.availableTickets <= 10 && !isSoldOut
 
   const handleAddToCart = () => {
- 
     if (!user) {
       navigate('/login')
       return
@@ -92,7 +89,7 @@ export default function EventDetail() {
 
             <span>{event.category}</span>
           </div>
-          
+
           <button onClick={() => navigate('/events')} className="evd-back-btn">
             <i className="bi bi-arrow-left"></i>
             Volver a eventos
@@ -100,17 +97,17 @@ export default function EventDetail() {
         </div>
 
         <div className="evd-card">
-          
           {/* contenedor de la imagen, ocupa toda la altura*/}
           <div className="evd-image-container">
             <img
               src={event.imageUrl || PLACEHOLDER_IMGS[0]}
               alt={event.title}
               // si la imagen del evento no carga, usamos el placeholder
-              onError={e => { e.target.src = PLACEHOLDER_IMGS[0] }}
+              onError={(e) => {
+                e.target.src = PLACEHOLDER_IMGS[0]
+              }}
               className="evd-image"
             />
-            
 
             {isSoldOut && (
               <div className="evd-overlay-badge sold-out">
@@ -118,7 +115,7 @@ export default function EventDetail() {
                 <span>AGOTADO</span>
               </div>
             )}
-            
+
             {/* badge de pocas entradas, tiene animación */}
             {isLowStock && (
               <div className="evd-overlay-badge low-stock">
@@ -130,7 +127,6 @@ export default function EventDetail() {
 
           {/* columna derecha con toda la información del evento */}
           <div className="evd-content">
-            
             {/* categoría, título y organizador */}
             <div className="evd-header">
               <div className="evd-category-tag">
@@ -144,7 +140,6 @@ export default function EventDetail() {
               </p>
             </div>
 
-
             <div className="evd-info-grid">
               <div className="evd-info-box">
                 <div className="evd-info-icon">
@@ -157,13 +152,13 @@ export default function EventDetail() {
                       weekday: 'long',
                       day: 'numeric',
                       month: 'long',
-                      year: 'numeric'
+                      year: 'numeric',
                     })}
                   </span>
                   <span className="evd-info-time">
                     {new Date(event.startDate).toLocaleTimeString('es-ES', {
                       hour: '2-digit',
-                      minute: '2-digit'
+                      minute: '2-digit',
                     })}
                   </span>
                 </div>
@@ -178,7 +173,6 @@ export default function EventDetail() {
                   <span className="evd-info-value">{event.location}</span>
                 </div>
               </div>
-
 
               <div className="evd-info-box">
                 <div className="evd-info-icon">
@@ -235,7 +229,6 @@ export default function EventDetail() {
               </div>
             </div>
 
-         
             <div className="evd-purchase-card">
               <div className="evd-purchase-header">
                 {/* precio por entrada a la izquierda */}
@@ -251,17 +244,16 @@ export default function EventDetail() {
                   <div className="evd-quantity-selector">
                     <label>Cantidad</label>
                     <div className="evd-quantity-controls">
-                    
-                      <button 
+                      <button
                         onClick={() => setQuantity(Math.max(1, quantity - 1))}
                         disabled={quantity <= 1}
                         className="evd-qty-btn"
                       >
                         <i className="bi bi-dash"></i>
                       </button>
-                    
-                      <input 
-                        type="number" 
+
+                      <input
+                        type="number"
                         value={quantity}
                         onChange={(e) => {
                           const val = parseInt(e.target.value) || 1
@@ -271,8 +263,8 @@ export default function EventDetail() {
                         max={event.availableTickets}
                         className="evd-qty-input"
                       />
-                      
-                      <button 
+
+                      <button
                         onClick={() => setQuantity(Math.min(event.availableTickets, quantity + 1))}
                         disabled={quantity >= event.availableTickets}
                         className="evd-qty-btn"
@@ -318,7 +310,6 @@ export default function EventDetail() {
                 )}
               </button>
             </div>
-
           </div>
         </div>
       </div>

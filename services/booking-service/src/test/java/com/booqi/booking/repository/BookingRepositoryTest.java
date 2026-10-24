@@ -1,7 +1,10 @@
 package com.booqi.booking.repository;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.booqi.booking.config.JpaConfig;
 import com.booqi.booking.entity.Booking;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
@@ -13,8 +16,6 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
@@ -146,7 +147,9 @@ class BookingRepositoryTest {
     void findByEventId_cuandoEventoTieneReservas_retornaLista() {
         bookingRepository.save(buildBooking(10L, "PENDING"));
 
-        assertThat(bookingRepository.findByEventId(20L)).extracting(Booking::getEventId).containsExactly(20L);
+        assertThat(bookingRepository.findByEventId(20L))
+                .extracting(Booking::getEventId)
+                .containsExactly(20L);
     }
 
     @Test
@@ -159,7 +162,9 @@ class BookingRepositoryTest {
         bookingRepository.save(buildBooking(10L, "PENDING"));
         bookingRepository.save(buildBooking(11L, "CANCELLED"));
 
-        assertThat(bookingRepository.findByStatus("PENDING")).extracting(Booking::getStatus).containsExactly("PENDING");
+        assertThat(bookingRepository.findByStatus("PENDING"))
+                .extracting(Booking::getStatus)
+                .containsExactly("PENDING");
     }
 
     @Test

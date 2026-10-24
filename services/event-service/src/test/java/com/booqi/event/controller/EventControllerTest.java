@@ -1,30 +1,5 @@
 package com.booqi.event.controller;
 
-import com.booqi.event.dto.request.CreateEventRequest;
-import com.booqi.event.dto.request.EventFilter;
-import com.booqi.event.dto.request.UpdateEventRequest;
-import com.booqi.event.dto.response.EventResponse;
-import com.booqi.event.exception.BusinessException;
-import com.booqi.event.exception.ConflictException;
-import com.booqi.event.exception.InvalidFilterException;
-import com.booqi.event.exception.ResourceNotFoundException;
-import com.booqi.event.service.EventService;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
-import org.mockito.ArgumentCaptor;
-import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
-import org.springframework.http.MediaType;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.json.JsonCompareMode;
-import org.springframework.test.web.servlet.MockMvc;
-
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.stream.Stream;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasItem;
@@ -45,6 +20,32 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.booqi.event.dto.request.CreateEventRequest;
+import com.booqi.event.dto.request.EventFilter;
+import com.booqi.event.dto.request.UpdateEventRequest;
+import com.booqi.event.dto.response.EventResponse;
+import com.booqi.event.exception.BusinessException;
+import com.booqi.event.exception.ConflictException;
+import com.booqi.event.exception.InvalidFilterException;
+import com.booqi.event.exception.ResourceNotFoundException;
+import com.booqi.event.service.EventService;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.ArgumentCaptor;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.json.JsonCompareMode;
+import org.springframework.test.web.servlet.MockMvc;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Stream;
+
 @WebMvcTest(EventController.class)
 @ActiveProfiles("test")
 class EventControllerTest {
@@ -54,7 +55,8 @@ class EventControllerTest {
     private static final String START = "2030-06-15T20:00:00";
     private static final String END = "2030-06-15T23:00:00";
 
-    private static final String VALID_CREATE = """
+    private static final String VALID_CREATE =
+            """
             {
               "title": "Festival de Jazz",
               "availableTickets": 100,
@@ -71,18 +73,29 @@ class EventControllerTest {
 
     private final MockMvc mockMvc;
 
-    @MockitoBean
-    private EventService eventService;
+    @MockitoBean private EventService eventService;
 
     EventControllerTest(MockMvc mockMvc) {
         this.mockMvc = mockMvc;
     }
 
     private static EventResponse event(long id, int availableTickets) {
-        return new EventResponse(id, "Festival de Food Trucks", "Comida callejera", availableTickets, "Madrid",
-                LocalDateTime.parse(START), LocalDateTime.parse(END), "Asociación Foodies Madrid", 45.0,
-                "Gastronomía", "contacto@foodtruckfest.com", "910000001", "https://img.booqi.com/food.jpg",
-                LocalDateTime.of(2026, 1, 1, 0, 0), LocalDateTime.of(2026, 1, 1, 0, 0));
+        return new EventResponse(
+                id,
+                "Festival de Food Trucks",
+                "Comida callejera",
+                availableTickets,
+                "Madrid",
+                LocalDateTime.parse(START),
+                LocalDateTime.parse(END),
+                "Asociación Foodies Madrid",
+                45.0,
+                "Gastronomía",
+                "contacto@foodtruckfest.com",
+                "910000001",
+                "https://img.booqi.com/food.jpg",
+                LocalDateTime.of(2026, 1, 1, 0, 0),
+                LocalDateTime.of(2026, 1, 1, 0, 0));
     }
 
     private static String quote(String value) {
@@ -91,11 +104,13 @@ class EventControllerTest {
 
     private static String createBody(String field, Object value) {
         String json = value instanceof String text ? quote(text) : String.valueOf(value);
-        return VALID_CREATE.replaceFirst("\"" + field + "\": [^,\\n]*", "\"" + field + "\": " + json.replace("$", "\\$"));
+        return VALID_CREATE.replaceFirst(
+                "\"" + field + "\": [^,\\n]*", "\"" + field + "\": " + json.replace("$", "\\$"));
     }
 
     private static String createBodyWith(String extraField, String value) {
-        return VALID_CREATE.replace("\"title\"", "\"" + extraField + "\": " + quote(value) + ",\n  \"title\"");
+        return VALID_CREATE.replace(
+                "\"title\"", "\"" + extraField + "\": " + quote(value) + ",\n  \"title\"");
     }
 
     // POST /api/v1/events
@@ -120,8 +135,12 @@ class EventControllerTest {
 
     @Test
     void create_sinOrganizer_retorna400ConErrores() throws Exception {
-        mockMvc.perform(post(EVENTS).contentType(MediaType.APPLICATION_JSON)
-                        .content(VALID_CREATE.replace("\"organizer\": \"Jazz Madrid\",", "")))
+        mockMvc.perform(
+                        post(EVENTS)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(
+                                        VALID_CREATE.replace(
+                                                "\"organizer\": \"Jazz Madrid\",", "")))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentType(PROBLEM))
                 .andExpect(jsonPath("$.type").value("about:blank"))
@@ -136,15 +155,26 @@ class EventControllerTest {
 
     @Test
     void create_conInicioPasado_retorna400ConErrorDeStartDate() throws Exception {
-        mockMvc.perform(post(EVENTS).contentType(MediaType.APPLICATION_JSON)
-                        .content(createBody("startDate", LocalDateTime.now().minusDays(1).withNano(0).toString())))
+        mockMvc.perform(
+                        post(EVENTS)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(
+                                        createBody(
+                                                "startDate",
+                                                LocalDateTime.now()
+                                                        .minusDays(1)
+                                                        .withNano(0)
+                                                        .toString())))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.errors[*].field", hasItem("startDate")));
     }
 
     @Test
     void create_conJsonMalformado_retorna400Problem() throws Exception {
-        mockMvc.perform(post(EVENTS).contentType(MediaType.APPLICATION_JSON).content("{\"title\": "))
+        mockMvc.perform(
+                        post(EVENTS)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content("{\"title\": "))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentType(PROBLEM))
                 .andExpect(jsonPath("$.status").value(400))
@@ -153,31 +183,44 @@ class EventControllerTest {
 
     @Test
     void create_conEmailDuplicado_retorna409() throws Exception {
-        when(eventService.create(any())).thenThrow(
-                new ConflictException("Event with contactEmail new@event.com already exists"));
+        when(eventService.create(any()))
+                .thenThrow(
+                        new ConflictException(
+                                "Event with contactEmail new@event.com already exists"));
 
         mockMvc.perform(post(EVENTS).contentType(MediaType.APPLICATION_JSON).content(VALID_CREATE))
                 .andExpect(status().isConflict())
                 .andExpect(content().contentType(PROBLEM))
-                .andExpect(content().json("""
+                .andExpect(
+                        content()
+                                .json(
+                                        """
                         {"type": "about:blank", "title": "Conflict", "status": 409,
                          "detail": "Event with contactEmail new@event.com already exists",
                          "instance": "/api/v1/events"}
-                        """, JsonCompareMode.STRICT));
+                        """,
+                                        JsonCompareMode.STRICT));
     }
 
     @Test
     void create_conFinAntesQueInicio_retorna422() throws Exception {
-        when(eventService.create(any())).thenThrow(new BusinessException("End date cannot be before start date"));
+        when(eventService.create(any()))
+                .thenThrow(new BusinessException("End date cannot be before start date"));
 
-        mockMvc.perform(post(EVENTS).contentType(MediaType.APPLICATION_JSON)
-                        .content(createBody("endDate", "2030-06-15T19:00:00")))
+        mockMvc.perform(
+                        post(EVENTS)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(createBody("endDate", "2030-06-15T19:00:00")))
                 .andExpect(status().isUnprocessableContent())
                 .andExpect(content().contentType(PROBLEM))
-                .andExpect(content().json("""
+                .andExpect(
+                        content()
+                                .json(
+                                        """
                         {"type": "about:blank", "title": "Unprocessable Content", "status": 422,
                          "detail": "End date cannot be before start date", "instance": "/api/v1/events"}
-                        """, JsonCompareMode.STRICT));
+                        """,
+                                        JsonCompareMode.STRICT));
     }
 
     static Stream<Arguments> createBoundaries() {
@@ -187,8 +230,10 @@ class EventControllerTest {
                 Arguments.of("title 3", createBody("title", "ABC"), 201),
                 Arguments.of("title 200", createBody("title", "A".repeat(200)), 201),
                 Arguments.of("title 201", createBody("title", "A".repeat(201)), 400),
-                Arguments.of("description 2000", createBodyWith("description", "A".repeat(2000)), 201),
-                Arguments.of("description 2001", createBodyWith("description", "A".repeat(2001)), 400),
+                Arguments.of(
+                        "description 2000", createBodyWith("description", "A".repeat(2000)), 201),
+                Arguments.of(
+                        "description 2001", createBodyWith("description", "A".repeat(2001)), 400),
                 Arguments.of("tickets -1", createBody("availableTickets", -1), 400),
                 Arguments.of("tickets 0", createBody("availableTickets", 0), 201),
                 Arguments.of("tickets null", createBody("availableTickets", null), 400),
@@ -216,14 +261,18 @@ class EventControllerTest {
                 Arguments.of("phone 16", createBody("contactPhone", "1234567890123456"), 400),
                 Arguments.of("phone letters", createBody("contactPhone", "91012345A"), 400),
                 Arguments.of("phone +9", createBody("contactPhone", "+123456789"), 201),
-                Arguments.of("imageUrl valid", createBodyWith("imageUrl", "https://img.booqi.com/a.jpg"), 201),
+                Arguments.of(
+                        "imageUrl valid",
+                        createBodyWith("imageUrl", "https://img.booqi.com/a.jpg"),
+                        201),
                 Arguments.of("imageUrl empty", createBodyWith("imageUrl", ""), 201),
                 Arguments.of("imageUrl invalid", createBodyWith("imageUrl", "not a url"), 400));
     }
 
     @ParameterizedTest(name = "{0} -> {2}")
     @MethodSource("createBoundaries")
-    void create_validacionDeLimites(String caseName, String body, int expectedStatus) throws Exception {
+    void create_validacionDeLimites(String caseName, String body, int expectedStatus)
+            throws Exception {
         when(eventService.create(any())).thenReturn(event(5, 100));
 
         mockMvc.perform(post(EVENTS).contentType(MediaType.APPLICATION_JSON).content(body))
@@ -250,19 +299,26 @@ class EventControllerTest {
     void list_conParametros_losVinculaEnEventFilter() throws Exception {
         when(eventService.findAll(any(EventFilter.class))).thenReturn(List.of());
 
-        mockMvc.perform(get(EVENTS)
-                        .param("contactEmail", "contacto@foodtruckfest.com")
-                        .param("title", "jazz")
-                        .param("category", "Música")
-                        .param("location", "Madrid")
-                        .param("organizer", "foodies"))
+        mockMvc.perform(
+                        get(EVENTS)
+                                .param("contactEmail", "contacto@foodtruckfest.com")
+                                .param("title", "jazz")
+                                .param("category", "Música")
+                                .param("location", "Madrid")
+                                .param("organizer", "foodies"))
                 .andExpect(status().isOk())
                 .andExpect(content().json("[]"));
 
         ArgumentCaptor<EventFilter> captor = ArgumentCaptor.forClass(EventFilter.class);
         verify(eventService).findAll(captor.capture());
         assertThat(captor.getValue())
-                .isEqualTo(new EventFilter("contacto@foodtruckfest.com", "jazz", "Música", "Madrid", "foodies"));
+                .isEqualTo(
+                        new EventFilter(
+                                "contacto@foodtruckfest.com",
+                                "jazz",
+                                "Música",
+                                "Madrid",
+                                "foodies"));
     }
 
     @Test
@@ -273,15 +329,20 @@ class EventControllerTest {
         mockMvc.perform(get(EVENTS).param("title", "jazz").param("category", "Música"))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentType(PROBLEM))
-                .andExpect(content().json("""
+                .andExpect(
+                        content()
+                                .json(
+                                        """
                         {"type": "about:blank", "title": "Bad Request", "status": 400,
                          "detail": "Only one filter may be used at a time", "instance": "/api/v1/events"}
-                        """, JsonCompareMode.STRICT));
+                        """,
+                                        JsonCompareMode.STRICT));
     }
 
     @Test
     void list_errorInesperado_retorna500Generico() throws Exception {
-        when(eventService.findAll(any(EventFilter.class))).thenThrow(new RuntimeException("boom secret"));
+        when(eventService.findAll(any(EventFilter.class)))
+                .thenThrow(new RuntimeException("boom secret"));
 
         mockMvc.perform(get(EVENTS))
                 .andExpect(status().isInternalServerError())
@@ -310,15 +371,20 @@ class EventControllerTest {
 
     @Test
     void findById_inexistente_retorna404ProblemExacto() throws Exception {
-        when(eventService.findById(99L)).thenThrow(new ResourceNotFoundException("Event with id 99 not found"));
+        when(eventService.findById(99L))
+                .thenThrow(new ResourceNotFoundException("Event with id 99 not found"));
 
         mockMvc.perform(get(EVENTS + "/99"))
                 .andExpect(status().isNotFound())
                 .andExpect(content().contentType(PROBLEM))
-                .andExpect(content().json("""
+                .andExpect(
+                        content()
+                                .json(
+                                        """
                         {"type": "about:blank", "title": "Not Found", "status": 404,
                          "detail": "Event with id 99 not found", "instance": "/api/v1/events/99"}
-                        """, JsonCompareMode.STRICT));
+                        """,
+                                        JsonCompareMode.STRICT));
     }
 
     @Test
@@ -346,7 +412,8 @@ class EventControllerTest {
     @Test
     void rutasLegadas_retornan404() throws Exception {
         mockMvc.perform(get("/api/events")).andExpect(status().isNotFound());
-        mockMvc.perform(get("/api/events/search/title").param("title", "jazz")).andExpect(status().isNotFound());
+        mockMvc.perform(get("/api/events/search/title").param("title", "jazz"))
+                .andExpect(status().isNotFound());
         mockMvc.perform(get(EVENTS + "/exists/email/contacto@foodtruckfest.com"))
                 .andExpect(status().isNotFound())
                 .andExpect(content().contentType(PROBLEM));
@@ -358,23 +425,46 @@ class EventControllerTest {
     void update_retorna200YPasaElCuerpoParcial() throws Exception {
         when(eventService.update(eq(1L), any(UpdateEventRequest.class))).thenReturn(event(1, 15));
 
-        mockMvc.perform(put(EVENTS + "/1").contentType(MediaType.APPLICATION_JSON).content("""
+        mockMvc.perform(
+                        put(EVENTS + "/1")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(
+                                        """
                         {"organizer": "Nuevo Organizador"}
                         """))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1));
 
-        ArgumentCaptor<UpdateEventRequest> captor = ArgumentCaptor.forClass(UpdateEventRequest.class);
+        ArgumentCaptor<UpdateEventRequest> captor =
+                ArgumentCaptor.forClass(UpdateEventRequest.class);
         verify(eventService).update(eq(1L), captor.capture());
-        assertThat(captor.getValue()).isEqualTo(new UpdateEventRequest(null, null, null, null, null, null,
-                "Nuevo Organizador", null, null, null, null, null));
+        assertThat(captor.getValue())
+                .isEqualTo(
+                        new UpdateEventRequest(
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                "Nuevo Organizador",
+                                null,
+                                null,
+                                null,
+                                null,
+                                null));
     }
 
     @Test
     void update_inexistente_retorna404() throws Exception {
-        when(eventService.update(eq(99L), any())).thenThrow(new ResourceNotFoundException("Event with id 99 not found"));
+        when(eventService.update(eq(99L), any()))
+                .thenThrow(new ResourceNotFoundException("Event with id 99 not found"));
 
-        mockMvc.perform(put(EVENTS + "/99").contentType(MediaType.APPLICATION_JSON).content("""
+        mockMvc.perform(
+                        put(EVENTS + "/99")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(
+                                        """
                         {"title": "Nuevo título"}
                         """))
                 .andExpect(status().isNotFound())
@@ -384,10 +474,16 @@ class EventControllerTest {
 
     @Test
     void update_emailDuplicado_retorna409() throws Exception {
-        when(eventService.update(eq(2L), any())).thenThrow(
-                new ConflictException("Event with contactEmail contacto@foodtruckfest.com already exists"));
+        when(eventService.update(eq(2L), any()))
+                .thenThrow(
+                        new ConflictException(
+                                "Event with contactEmail contacto@foodtruckfest.com already exists"));
 
-        mockMvc.perform(put(EVENTS + "/2").contentType(MediaType.APPLICATION_JSON).content("""
+        mockMvc.perform(
+                        put(EVENTS + "/2")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(
+                                        """
                         {"contactEmail": "contacto@foodtruckfest.com"}
                         """))
                 .andExpect(status().isConflict())
@@ -397,9 +493,14 @@ class EventControllerTest {
 
     @Test
     void update_conFinAntesQueInicio_retorna422() throws Exception {
-        when(eventService.update(eq(1L), any())).thenThrow(new BusinessException("End date cannot be before start date"));
+        when(eventService.update(eq(1L), any()))
+                .thenThrow(new BusinessException("End date cannot be before start date"));
 
-        mockMvc.perform(put(EVENTS + "/1").contentType(MediaType.APPLICATION_JSON).content("""
+        mockMvc.perform(
+                        put(EVENTS + "/1")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(
+                                        """
                         {"startDate": "2030-06-15T20:00:00", "endDate": "2030-06-15T19:00:00"}
                         """))
                 .andExpect(status().isUnprocessableContent())
@@ -432,7 +533,11 @@ class EventControllerTest {
 
     @Test
     void update_conPrecioNegativo_retorna400ConErrorDePrice() throws Exception {
-        mockMvc.perform(put(EVENTS + "/1").contentType(MediaType.APPLICATION_JSON).content("""
+        mockMvc.perform(
+                        put(EVENTS + "/1")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(
+                                        """
                         {"price": -1}
                         """))
                 .andExpect(status().isBadRequest())
@@ -453,7 +558,9 @@ class EventControllerTest {
 
     @Test
     void delete_inexistente_retorna404() throws Exception {
-        doThrow(new ResourceNotFoundException("Event with id 99 not found")).when(eventService).delete(99L);
+        doThrow(new ResourceNotFoundException("Event with id 99 not found"))
+                .when(eventService)
+                .delete(99L);
 
         mockMvc.perform(delete(EVENTS + "/99"))
                 .andExpect(status().isNotFound())
@@ -475,7 +582,8 @@ class EventControllerTest {
 
     @Test
     void decrementStock_inexistente_retorna404() throws Exception {
-        when(eventService.decrementStock(99L, 1)).thenThrow(new ResourceNotFoundException("Event with id 99 not found"));
+        when(eventService.decrementStock(99L, 1))
+                .thenThrow(new ResourceNotFoundException("Event with id 99 not found"));
 
         mockMvc.perform(patch(EVENTS + "/99/stock").param("quantity", "1"))
                 .andExpect(status().isNotFound())
@@ -485,22 +593,29 @@ class EventControllerTest {
 
     @Test
     void decrementStock_stockInsuficiente_retorna422() throws Exception {
-        when(eventService.decrementStock(3L, 5)).thenThrow(
-                new BusinessException("Insufficient stock for event 3: available 4, requested 5"));
+        when(eventService.decrementStock(3L, 5))
+                .thenThrow(
+                        new BusinessException(
+                                "Insufficient stock for event 3: available 4, requested 5"));
 
         mockMvc.perform(patch(EVENTS + "/3/stock").param("quantity", "5"))
                 .andExpect(status().isUnprocessableContent())
                 .andExpect(content().contentType(PROBLEM))
-                .andExpect(content().json("""
+                .andExpect(
+                        content()
+                                .json(
+                                        """
                         {"type": "about:blank", "title": "Unprocessable Content", "status": 422,
                          "detail": "Insufficient stock for event 3: available 4, requested 5",
                          "instance": "/api/v1/events/3/stock"}
-                        """, JsonCompareMode.STRICT));
+                        """,
+                                        JsonCompareMode.STRICT));
     }
 
     @Test
     void decrementStock_cantidadCero_retorna422() throws Exception {
-        when(eventService.decrementStock(1L, 0)).thenThrow(new BusinessException("Quantity must be greater than zero"));
+        when(eventService.decrementStock(1L, 0))
+                .thenThrow(new BusinessException("Quantity must be greater than zero"));
 
         mockMvc.perform(patch(EVENTS + "/1/stock").param("quantity", "0"))
                 .andExpect(status().isUnprocessableContent())

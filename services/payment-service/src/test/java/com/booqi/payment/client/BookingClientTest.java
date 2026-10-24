@@ -1,9 +1,19 @@
 package com.booqi.payment.client;
 
+import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.springframework.http.HttpMethod.PATCH;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
+import static org.springframework.test.web.client.response.MockRestResponseCreators.withException;
+import static org.springframework.test.web.client.response.MockRestResponseCreators.withStatus;
+import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
+
 import com.booqi.payment.config.RestClientConfig;
 import com.booqi.payment.exception.BusinessException;
 import com.booqi.payment.exception.RemoteServiceException;
 import com.booqi.payment.exception.ResourceNotFoundException;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -15,15 +25,6 @@ import org.springframework.web.client.RestClient;
 
 import java.net.SocketTimeoutException;
 
-import static org.assertj.core.api.Assertions.assertThatCode;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.springframework.http.HttpMethod.PATCH;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
-import static org.springframework.test.web.client.response.MockRestResponseCreators.withException;
-import static org.springframework.test.web.client.response.MockRestResponseCreators.withStatus;
-import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
-
 class BookingClientTest {
 
     private static final String BOOKING_7 = "http://booking-service:8082/api/v1/bookings/7";
@@ -33,7 +34,8 @@ class BookingClientTest {
 
     @BeforeEach
     void setUp() {
-        RestClient.Builder builder = RestClientConfig.clientBuilder("http://booking-service:8082", "Booking");
+        RestClient.Builder builder =
+                RestClientConfig.clientBuilder("http://booking-service:8082", "Booking");
         server = MockRestServiceServer.bindTo(builder).build();
         client = new BookingClient(builder.build());
     }
@@ -42,12 +44,14 @@ class BookingClientTest {
         return """
                 {"id":7,"userId":3,"eventId":2,"ticketQuantity":2,"basePrice":35.00,"totalPrice":70.00,
                  "status":"%s","createdAt":"2026-01-01T10:00:00","updatedAt":"2026-01-01T10:00:00"}
-                """.formatted(status);
+                """
+                .formatted(status);
     }
 
     @Test
     void confirm_200ConCuerpo_llamaAlPatchV1() {
-        server.expect(requestTo(BOOKING_7 + "/confirm")).andExpect(method(PATCH))
+        server.expect(requestTo(BOOKING_7 + "/confirm"))
+                .andExpect(method(PATCH))
                 .andRespond(withSuccess(bookingBody("CONFIRMED"), MediaType.APPLICATION_JSON));
 
         assertThatCode(() -> client.confirm(7L)).doesNotThrowAnyException();
@@ -56,7 +60,8 @@ class BookingClientTest {
 
     @Test
     void cancel_200ConCuerpo_llamaAlPatchV1() {
-        server.expect(requestTo(BOOKING_7 + "/cancel")).andExpect(method(PATCH))
+        server.expect(requestTo(BOOKING_7 + "/cancel"))
+                .andExpect(method(PATCH))
                 .andRespond(withSuccess(bookingBody("CANCELLED"), MediaType.APPLICATION_JSON));
 
         assertThatCode(() -> client.cancel(7L)).doesNotThrowAnyException();
@@ -65,9 +70,13 @@ class BookingClientTest {
 
     @Test
     void confirm_404ConProblemDetail_lanzaResourceNotFoundConElDetalleRemoto() {
-        server.expect(requestTo(BOOKING_7 + "/confirm")).andExpect(method(PATCH))
-                .andRespond(withStatus(HttpStatus.NOT_FOUND).contentType(MediaType.APPLICATION_PROBLEM_JSON)
-                        .body("{\"status\":404,\"detail\":\"Booking with id 7 not found\"}"));
+        server.expect(requestTo(BOOKING_7 + "/confirm"))
+                .andExpect(method(PATCH))
+                .andRespond(
+                        withStatus(HttpStatus.NOT_FOUND)
+                                .contentType(MediaType.APPLICATION_PROBLEM_JSON)
+                                .body(
+                                        "{\"status\":404,\"detail\":\"Booking with id 7 not found\"}"));
 
         assertThatThrownBy(() -> client.confirm(7L))
                 .isInstanceOf(ResourceNotFoundException.class)
@@ -75,7 +84,9 @@ class BookingClientTest {
     }
 
     @ParameterizedTest
-    @EnumSource(value = HttpStatus.class, names = {"BAD_REQUEST", "CONFLICT", "UNPROCESSABLE_CONTENT"})
+    @EnumSource(
+            value = HttpStatus.class,
+            names = {"BAD_REQUEST", "CONFLICT", "UNPROCESSABLE_CONTENT"})
     void cancel_4xx_lanzaBusinessConMensajeGenerico(HttpStatus status) {
         server.expect(requestTo(BOOKING_7 + "/cancel")).andRespond(withStatus(status));
 
@@ -85,7 +96,9 @@ class BookingClientTest {
     }
 
     @ParameterizedTest
-    @EnumSource(value = HttpStatus.class, names = {"INTERNAL_SERVER_ERROR", "SERVICE_UNAVAILABLE"})
+    @EnumSource(
+            value = HttpStatus.class,
+            names = {"INTERNAL_SERVER_ERROR", "SERVICE_UNAVAILABLE"})
     void confirm_5xx_lanzaRemoteServiceException(HttpStatus status) {
         server.expect(requestTo(BOOKING_7 + "/confirm")).andRespond(withStatus(status));
 

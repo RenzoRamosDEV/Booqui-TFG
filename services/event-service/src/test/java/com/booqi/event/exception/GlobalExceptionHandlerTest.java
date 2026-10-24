@@ -1,17 +1,5 @@
 package com.booqi.event.exception;
 
-import org.junit.jupiter.api.Test;
-import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
-
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.not;
@@ -20,13 +8,26 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import org.junit.jupiter.api.Test;
+import org.springframework.http.MediaType;
+import org.springframework.stereotype.Controller;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
 class GlobalExceptionHandlerTest {
 
     private static final MediaType PROBLEM = MediaType.APPLICATION_PROBLEM_JSON;
 
-    private final MockMvc mockMvc = MockMvcBuilders.standaloneSetup(new ProbeController())
-            .setControllerAdvice(new GlobalExceptionHandler())
-            .build();
+    private final MockMvc mockMvc =
+            MockMvcBuilders.standaloneSetup(new ProbeController())
+                    .setControllerAdvice(new GlobalExceptionHandler())
+                    .build();
 
     @Test
     void bindingFailure_reportaParametroSinTiposJava() throws Exception {
@@ -36,7 +37,9 @@ class GlobalExceptionHandlerTest {
                 .andExpect(jsonPath("$.type").value("about:blank"))
                 .andExpect(jsonPath("$.errors", hasSize(1)))
                 .andExpect(jsonPath("$.errors[0].field").value("number"))
-                .andExpect(jsonPath("$.errors[0].message").value("Invalid value for parameter 'number'"))
+                .andExpect(
+                        jsonPath("$.errors[0].message")
+                                .value("Invalid value for parameter 'number'"))
                 .andExpect(content().string(not(containsString("java."))));
     }
 
@@ -66,8 +69,7 @@ class GlobalExceptionHandlerTest {
                 .andExpect(jsonPath("$.status").value(405));
     }
 
-    record ProbeFilter(Long number) {
-    }
+    record ProbeFilter(Long number) {}
 
     @Controller
     @RequestMapping("/probe")

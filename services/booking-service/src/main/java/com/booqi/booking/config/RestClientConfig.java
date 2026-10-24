@@ -1,6 +1,7 @@
 package com.booqi.booking.config;
 
 import com.booqi.booking.client.RemoteErrorHandler;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

@@ -1,5 +1,13 @@
 package com.booqi.event.service.impl;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
+
 import com.booqi.event.dto.request.CreateEventRequest;
 import com.booqi.event.dto.request.EventFilter;
 import com.booqi.event.dto.request.UpdateEventRequest;
@@ -12,6 +20,7 @@ import com.booqi.event.exception.ResourceNotFoundException;
 import com.booqi.event.mapper.EventMapper;
 import com.booqi.event.mapper.EventMapperImpl;
 import com.booqi.event.repository.EventRepository;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -31,67 +40,72 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.when;
-
 @ExtendWith(MockitoExtension.class)
 class EventServiceImplTest {
 
     private static final LocalDateTime START = LocalDateTime.of(2030, 6, 15, 20, 0);
     private static final LocalDateTime END = LocalDateTime.of(2030, 6, 15, 23, 0);
 
-    @Mock
-    private EventRepository eventRepository;
+    @Mock private EventRepository eventRepository;
 
-    @Spy
-    private EventMapper eventMapper = new EventMapperImpl();
+    @Spy private EventMapper eventMapper = new EventMapperImpl();
 
-    @InjectMocks
-    private EventServiceImpl eventService;
+    @InjectMocks private EventServiceImpl eventService;
 
     private Event festival;
 
     @BeforeEach
     void setUp() {
-        festival = Event.builder()
-                .id(1L)
-                .title("Festival de Food Trucks")
-                .availableTickets(15)
-                .location("Madrid")
-                .startDate(START)
-                .endDate(END)
-                .organizer("Asociación Foodies Madrid")
-                .price(45.0)
-                .category("Gastronomía")
-                .contactEmail("contacto@foodtruckfest.com")
-                .contactPhone("910000001")
-                .build();
+        festival =
+                Event.builder()
+                        .id(1L)
+                        .title("Festival de Food Trucks")
+                        .availableTickets(15)
+                        .location("Madrid")
+                        .startDate(START)
+                        .endDate(END)
+                        .organizer("Asociación Foodies Madrid")
+                        .price(45.0)
+                        .category("Gastronomía")
+                        .contactEmail("contacto@foodtruckfest.com")
+                        .contactPhone("910000001")
+                        .build();
     }
 
-    private static CreateEventRequest createRequest(LocalDateTime startDate, LocalDateTime endDate) {
-        return new CreateEventRequest("Festival de Jazz", null, 100, "Madrid", startDate, endDate,
-                "Jazz Madrid", 20.0, "Música", "new@event.com", "910123456", null);
+    private static CreateEventRequest createRequest(
+            LocalDateTime startDate, LocalDateTime endDate) {
+        return new CreateEventRequest(
+                "Festival de Jazz",
+                null,
+                100,
+                "Madrid",
+                startDate,
+                endDate,
+                "Jazz Madrid",
+                20.0,
+                "Música",
+                "new@event.com",
+                "910123456",
+                null);
     }
 
     private static UpdateEventRequest updateDates(LocalDateTime startDate, LocalDateTime endDate) {
-        return new UpdateEventRequest(null, null, null, null, startDate, endDate, null, null, null, null, null, null);
+        return new UpdateEventRequest(
+                null, null, null, null, startDate, endDate, null, null, null, null, null, null);
     }
 
     private static UpdateEventRequest updateEmail(String contactEmail) {
-        return new UpdateEventRequest(null, null, null, null, null, null, null, null, null, contactEmail, null, null);
+        return new UpdateEventRequest(
+                null, null, null, null, null, null, null, null, null, contactEmail, null, null);
     }
 
     private static UpdateEventRequest updateTickets(Integer availableTickets) {
-        return new UpdateEventRequest(null, null, availableTickets, null, null, null, null, null, null, null, null, null);
+        return new UpdateEventRequest(
+                null, null, availableTickets, null, null, null, null, null, null, null, null, null);
     }
 
-    private static EventFilter filter(String contactEmail, String title, String category, String location,
-                                      String organizer) {
+    private static EventFilter filter(
+            String contactEmail, String title, String category, String location, String organizer) {
         return new EventFilter(contactEmail, title, category, location, organizer);
     }
 
@@ -105,11 +119,13 @@ class EventServiceImplTest {
     @Test
     void create_cuandoDatosValidos_guardaYRetornaEvento() {
         when(eventRepository.existsByContactEmail("new@event.com")).thenReturn(false);
-        when(eventRepository.save(any(Event.class))).thenAnswer(inv -> {
-            Event e = inv.getArgument(0);
-            e.setId(5L);
-            return e;
-        });
+        when(eventRepository.save(any(Event.class)))
+                .thenAnswer(
+                        inv -> {
+                            Event e = inv.getArgument(0);
+                            e.setId(5L);
+                            return e;
+                        });
 
         EventResponse resultado = eventService.create(createRequest(START, END));
 
@@ -186,10 +202,12 @@ class EventServiceImplTest {
 
     @Test
     void findByContactEmail_cuandoExiste_retornaListaConElEvento() {
-        when(eventRepository.findByContactEmail("contacto@foodtruckfest.com")).thenReturn(Optional.of(festival));
+        when(eventRepository.findByContactEmail("contacto@foodtruckfest.com"))
+                .thenReturn(Optional.of(festival));
 
         assertThat(eventService.findByContactEmail("contacto@foodtruckfest.com"))
-                .extracting(EventResponse::id).containsExactly(1L);
+                .extracting(EventResponse::id)
+                .containsExactly(1L);
     }
 
     @Test
@@ -211,28 +229,38 @@ class EventServiceImplTest {
     void findByTitle_retornaLista() {
         when(eventRepository.findByTitleContainingIgnoreCase("food")).thenReturn(List.of(festival));
 
-        assertThat(eventService.findByTitle("food")).extracting(EventResponse::id).containsExactly(1L);
+        assertThat(eventService.findByTitle("food"))
+                .extracting(EventResponse::id)
+                .containsExactly(1L);
     }
 
     @Test
     void findByCategory_retornaLista() {
         when(eventRepository.findByCategoryIgnoreCase("gastronomía")).thenReturn(List.of(festival));
 
-        assertThat(eventService.findByCategory("gastronomía")).extracting(EventResponse::id).containsExactly(1L);
+        assertThat(eventService.findByCategory("gastronomía"))
+                .extracting(EventResponse::id)
+                .containsExactly(1L);
     }
 
     @Test
     void findByLocation_retornaLista() {
-        when(eventRepository.findByLocationContainingIgnoreCase("madrid")).thenReturn(List.of(festival));
+        when(eventRepository.findByLocationContainingIgnoreCase("madrid"))
+                .thenReturn(List.of(festival));
 
-        assertThat(eventService.findByLocation("madrid")).extracting(EventResponse::id).containsExactly(1L);
+        assertThat(eventService.findByLocation("madrid"))
+                .extracting(EventResponse::id)
+                .containsExactly(1L);
     }
 
     @Test
     void findByOrganizer_retornaLista() {
-        when(eventRepository.findByOrganizerContainingIgnoreCase("foodies")).thenReturn(List.of(festival));
+        when(eventRepository.findByOrganizerContainingIgnoreCase("foodies"))
+                .thenReturn(List.of(festival));
 
-        assertThat(eventService.findByOrganizer("foodies")).extracting(EventResponse::id).containsExactly(1L);
+        assertThat(eventService.findByOrganizer("foodies"))
+                .extracting(EventResponse::id)
+                .containsExactly(1L);
     }
 
     @ParameterizedTest
@@ -269,9 +297,13 @@ class EventServiceImplTest {
 
     @Test
     void findAllFiltro_porContactEmail() {
-        when(eventRepository.findByContactEmail("contacto@foodtruckfest.com")).thenReturn(Optional.of(festival));
+        when(eventRepository.findByContactEmail("contacto@foodtruckfest.com"))
+                .thenReturn(Optional.of(festival));
 
-        assertThat(eventService.findAll(filter("contacto@foodtruckfest.com", null, null, null, null))).hasSize(1);
+        assertThat(
+                        eventService.findAll(
+                                filter("contacto@foodtruckfest.com", null, null, null, null)))
+                .hasSize(1);
     }
 
     @Test
@@ -290,14 +322,16 @@ class EventServiceImplTest {
 
     @Test
     void findAllFiltro_porLocation() {
-        when(eventRepository.findByLocationContainingIgnoreCase("Madrid")).thenReturn(List.of(festival));
+        when(eventRepository.findByLocationContainingIgnoreCase("Madrid"))
+                .thenReturn(List.of(festival));
 
         assertThat(eventService.findAll(filter(null, null, null, "Madrid", null))).hasSize(1);
     }
 
     @Test
     void findAllFiltro_porOrganizer() {
-        when(eventRepository.findByOrganizerContainingIgnoreCase("foodies")).thenReturn(List.of(festival));
+        when(eventRepository.findByOrganizerContainingIgnoreCase("foodies"))
+                .thenReturn(List.of(festival));
 
         assertThat(eventService.findAll(filter(null, null, null, null, "foodies"))).hasSize(1);
     }
@@ -317,7 +351,14 @@ class EventServiceImplTest {
                 String[] components = new String[values.length];
                 components[i] = values[i];
                 components[j] = values[j];
-                pairs.add(Arguments.of(filter(components[0], components[1], components[2], components[3], components[4])));
+                pairs.add(
+                        Arguments.of(
+                                filter(
+                                        components[0],
+                                        components[1],
+                                        components[2],
+                                        components[3],
+                                        components[4])));
             }
         }
         return pairs.build();
@@ -370,15 +411,30 @@ class EventServiceImplTest {
         givenFestivalIsSaved();
         when(eventRepository.existsByContactEmail("nuevo@event.com")).thenReturn(false);
 
-        assertThat(eventService.update(1L, updateEmail("nuevo@event.com")).contactEmail()).isEqualTo("nuevo@event.com");
+        assertThat(eventService.update(1L, updateEmail("nuevo@event.com")).contactEmail())
+                .isEqualTo("nuevo@event.com");
     }
 
     @Test
     void update_parcialSoloCambiaLosCamposPresentes() {
         givenFestivalIsSaved();
 
-        EventResponse resultado = eventService.update(1L, new UpdateEventRequest(null, null, null, null, null, null,
-                "Nuevo Organizador", null, null, null, null, null));
+        EventResponse resultado =
+                eventService.update(
+                        1L,
+                        new UpdateEventRequest(
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                "Nuevo Organizador",
+                                null,
+                                null,
+                                null,
+                                null,
+                                null));
 
         assertThat(resultado.organizer()).isEqualTo("Nuevo Organizador");
         assertThat(resultado.title()).isEqualTo("Festival de Food Trucks");

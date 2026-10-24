@@ -1,10 +1,20 @@
 package com.booqi.booking.client;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.springframework.http.HttpMethod.GET;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
+import static org.springframework.test.web.client.response.MockRestResponseCreators.withException;
+import static org.springframework.test.web.client.response.MockRestResponseCreators.withStatus;
+import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
+
 import com.booqi.booking.client.dto.EventResponse;
 import com.booqi.booking.config.RestClientConfig;
 import com.booqi.booking.exception.BusinessException;
 import com.booqi.booking.exception.RemoteServiceException;
 import com.booqi.booking.exception.ResourceNotFoundException;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -17,15 +27,6 @@ import org.springframework.web.client.RestClient;
 import java.net.SocketTimeoutException;
 import java.time.LocalDateTime;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.springframework.http.HttpMethod.GET;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
-import static org.springframework.test.web.client.response.MockRestResponseCreators.withException;
-import static org.springframework.test.web.client.response.MockRestResponseCreators.withStatus;
-import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
-
 class EventClientTest {
 
     private static final String EVENT_3 = "http://event-service:8081/api/v1/events/3";
@@ -35,32 +36,48 @@ class EventClientTest {
 
     @BeforeEach
     void setUp() {
-        RestClient.Builder builder = RestClientConfig.clientBuilder("http://event-service:8081", "Event");
+        RestClient.Builder builder =
+                RestClientConfig.clientBuilder("http://event-service:8081", "Event");
         server = MockRestServiceServer.bindTo(builder).build();
         client = new EventClient(builder.build());
     }
 
     private void respond(HttpStatus status, String problemDetail) {
-        server.expect(requestTo(EVENT_3)).andExpect(method(GET))
-                .andRespond(withStatus(status).contentType(MediaType.APPLICATION_PROBLEM_JSON).body(problemDetail));
+        server.expect(requestTo(EVENT_3))
+                .andExpect(method(GET))
+                .andRespond(
+                        withStatus(status)
+                                .contentType(MediaType.APPLICATION_PROBLEM_JSON)
+                                .body(problemDetail));
     }
 
     @Test
     void findById_200_mapeaLosCamposUsados() {
-        server.expect(requestTo(EVENT_3)).andExpect(method(GET))
-                .andRespond(withSuccess("""
+        server.expect(requestTo(EVENT_3))
+                .andExpect(method(GET))
+                .andRespond(
+                        withSuccess(
+                                """
                         {"id":3,"title":"Obra de Teatro: La Espera","description":"Drama","availableTickets":4,
                          "location":"Teatro Gran Via, Madrid",
                          "startDate":"2026-03-20T20:30:00","endDate":"2026-03-20T22:30:00",
                          "organizer":"Producciones Escenicas S.L.","price":40.0,"category":"Cultura",
                          "contactEmail":"tickets@teatro.com","contactPhone":"910000003","imageUrl":null,
                          "createdAt":"2026-01-01T00:00:00","updatedAt":"2026-01-01T00:00:00"}
-                        """, MediaType.APPLICATION_JSON));
+                        """,
+                                MediaType.APPLICATION_JSON));
 
         EventResponse event = client.findById(3L);
 
-        assertThat(event).isEqualTo(new EventResponse(3L, "Obra de Teatro: La Espera", "Drama",
-                LocalDateTime.of(2026, 3, 20, 20, 30), "Teatro Gran Via, Madrid", 40.0));
+        assertThat(event)
+                .isEqualTo(
+                        new EventResponse(
+                                3L,
+                                "Obra de Teatro: La Espera",
+                                "Drama",
+                                LocalDateTime.of(2026, 3, 20, 20, 30),
+                                "Teatro Gran Via, Madrid",
+                                40.0));
         server.verify();
     }
 
@@ -83,7 +100,9 @@ class EventClientTest {
     }
 
     @ParameterizedTest
-    @EnumSource(value = HttpStatus.class, names = {"CONFLICT", "UNPROCESSABLE_CONTENT"})
+    @EnumSource(
+            value = HttpStatus.class,
+            names = {"CONFLICT", "UNPROCESSABLE_CONTENT"})
     void findById_409o422_lanzaBusinessConElDetalleRemoto(HttpStatus status) {
         respond(status, "{\"detail\":\"Some rule failed\"}");
 
@@ -102,7 +121,9 @@ class EventClientTest {
     }
 
     @ParameterizedTest
-    @EnumSource(value = HttpStatus.class, names = {"INTERNAL_SERVER_ERROR", "SERVICE_UNAVAILABLE"})
+    @EnumSource(
+            value = HttpStatus.class,
+            names = {"INTERNAL_SERVER_ERROR", "SERVICE_UNAVAILABLE"})
     void findById_5xx_lanzaRemoteServiceException(HttpStatus status) {
         respond(status, "{\"detail\":\"internal secret\"}");
 
@@ -113,7 +134,8 @@ class EventClientTest {
 
     @Test
     void findById_timeout_lanzaRemoteServiceException() {
-        server.expect(requestTo(EVENT_3)).andRespond(withException(new SocketTimeoutException("Read timed out")));
+        server.expect(requestTo(EVENT_3))
+                .andRespond(withException(new SocketTimeoutException("Read timed out")));
 
         assertThatThrownBy(() -> client.findById(3L))
                 .isInstanceOf(RemoteServiceException.class)

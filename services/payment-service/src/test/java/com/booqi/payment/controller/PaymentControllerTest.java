@@ -1,9 +1,24 @@
 package com.booqi.payment.controller;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.not;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
+
 import com.booqi.payment.dto.request.CreatePaymentRequest;
 import com.booqi.payment.dto.request.PaymentFilter;
 import com.booqi.payment.dto.response.PaymentResponse;
@@ -13,6 +28,7 @@ import com.booqi.payment.exception.InvalidFilterException;
 import com.booqi.payment.exception.RemoteServiceException;
 import com.booqi.payment.exception.ResourceNotFoundException;
 import com.booqi.payment.service.PaymentService;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -32,20 +48,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Stream;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.not;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 @WebMvcTest(PaymentController.class)
 @ActiveProfiles("test")
 class PaymentControllerTest {
@@ -54,7 +56,8 @@ class PaymentControllerTest {
     private static final MediaType PROBLEM = MediaType.APPLICATION_PROBLEM_JSON;
     private static final String CARD = "4111111111111112";
 
-    private static final String VALID_CREATE = """
+    private static final String VALID_CREATE =
+            """
             {
               "bookingId": 1,
               "userId": 3,
@@ -69,30 +72,45 @@ class PaymentControllerTest {
 
     private final MockMvc mockMvc;
 
-    @MockitoBean
-    private PaymentService paymentService;
+    @MockitoBean private PaymentService paymentService;
 
     PaymentControllerTest(MockMvc mockMvc) {
         this.mockMvc = mockMvc;
     }
 
     private static PaymentResponse payment(long id, String status) {
-        return new PaymentResponse(id, 1L, 3L, 2L, 2, new BigDecimal("70.00"), "CREDIT_CARD", status, "tx-1", null,
-                LocalDateTime.of(2026, 1, 1, 10, 0, 1), LocalDateTime.of(2026, 1, 1, 10, 0),
+        return new PaymentResponse(
+                id,
+                1L,
+                3L,
+                2L,
+                2,
+                new BigDecimal("70.00"),
+                "CREDIT_CARD",
+                status,
+                "tx-1",
+                null,
+                LocalDateTime.of(2026, 1, 1, 10, 0, 1),
+                LocalDateTime.of(2026, 1, 1, 10, 0),
                 LocalDateTime.of(2026, 1, 1, 10, 0, 1));
     }
 
     private static String createBody(String field, Object value) {
-        return VALID_CREATE.replaceFirst("\"" + field + "\": [^,\\n]*", "\"" + field + "\": " + value);
+        return VALID_CREATE.replaceFirst(
+                "\"" + field + "\": [^,\\n]*", "\"" + field + "\": " + value);
     }
 
     // POST /api/v1/payments
 
     @Test
     void create_retorna201ConLocationYCuerpoSinDatosDeTarjeta() throws Exception {
-        when(paymentService.process(any(CreatePaymentRequest.class))).thenReturn(payment(5, "APPROVED"));
+        when(paymentService.process(any(CreatePaymentRequest.class)))
+                .thenReturn(payment(5, "APPROVED"));
 
-        mockMvc.perform(post(PAYMENTS).contentType(MediaType.APPLICATION_JSON).content(VALID_CREATE))
+        mockMvc.perform(
+                        post(PAYMENTS)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(VALID_CREATE))
                 .andExpect(status().isCreated())
                 .andExpect(header().string("Location", "/api/v1/payments/5"))
                 .andExpect(jsonPath("$.id").value(5))
@@ -106,10 +124,20 @@ class PaymentControllerTest {
                 .andExpect(jsonPath("$.cardNumber").doesNotExist())
                 .andExpect(jsonPath("$.cvv").doesNotExist());
 
-        ArgumentCaptor<CreatePaymentRequest> captor = ArgumentCaptor.forClass(CreatePaymentRequest.class);
+        ArgumentCaptor<CreatePaymentRequest> captor =
+                ArgumentCaptor.forClass(CreatePaymentRequest.class);
         verify(paymentService).process(captor.capture());
-        assertThat(captor.getValue()).isEqualTo(new CreatePaymentRequest(1L, 3L, 2L, 2, new BigDecimal("70.00"),
-                "CREDIT_CARD", CARD, "123"));
+        assertThat(captor.getValue())
+                .isEqualTo(
+                        new CreatePaymentRequest(
+                                1L,
+                                3L,
+                                2L,
+                                2,
+                                new BigDecimal("70.00"),
+                                "CREDIT_CARD",
+                                CARD,
+                                "123"));
     }
 
     static Stream<Arguments> camposInvalidos() {
@@ -133,8 +161,12 @@ class PaymentControllerTest {
 
     @ParameterizedTest(name = "{0} = {1} -> 400")
     @MethodSource("camposInvalidos")
-    void create_conCampoInvalido_retorna400ConErrores(String field, String value, String message) throws Exception {
-        mockMvc.perform(post(PAYMENTS).contentType(MediaType.APPLICATION_JSON).content(createBody(field, value)))
+    void create_conCampoInvalido_retorna400ConErrores(String field, String value, String message)
+            throws Exception {
+        mockMvc.perform(
+                        post(PAYMENTS)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(createBody(field, value)))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentType(PROBLEM))
                 .andExpect(jsonPath("$.type").value("about:blank"))
@@ -166,13 +198,19 @@ class PaymentControllerTest {
     void create_conValorValido_retorna201(String field, String value) throws Exception {
         when(paymentService.process(any())).thenReturn(payment(5, "APPROVED"));
 
-        mockMvc.perform(post(PAYMENTS).contentType(MediaType.APPLICATION_JSON).content(createBody(field, value)))
+        mockMvc.perform(
+                        post(PAYMENTS)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(createBody(field, value)))
                 .andExpect(status().isCreated());
     }
 
     @Test
     void create_conJsonMalformado_retorna400Problem() throws Exception {
-        mockMvc.perform(post(PAYMENTS).contentType(MediaType.APPLICATION_JSON).content("{\"bookingId\": "))
+        mockMvc.perform(
+                        post(PAYMENTS)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content("{\"bookingId\": "))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentType(PROBLEM))
                 .andExpect(jsonPath("$.type").value("about:blank"))
@@ -183,15 +221,23 @@ class PaymentControllerTest {
 
     @Test
     void create_conConflict_retorna409() throws Exception {
-        when(paymentService.process(any())).thenThrow(new ConflictException("Payment already exists"));
+        when(paymentService.process(any()))
+                .thenThrow(new ConflictException("Payment already exists"));
 
-        mockMvc.perform(post(PAYMENTS).contentType(MediaType.APPLICATION_JSON).content(VALID_CREATE))
+        mockMvc.perform(
+                        post(PAYMENTS)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(VALID_CREATE))
                 .andExpect(status().isConflict())
                 .andExpect(content().contentType(PROBLEM))
-                .andExpect(content().json("""
+                .andExpect(
+                        content()
+                                .json(
+                                        """
                         {"type": "about:blank", "title": "Conflict", "status": 409,
                          "detail": "Payment already exists", "instance": "/api/v1/payments"}
-                        """, JsonCompareMode.STRICT));
+                        """,
+                                        JsonCompareMode.STRICT));
     }
 
     @Test
@@ -199,27 +245,41 @@ class PaymentControllerTest {
         when(paymentService.process(any()))
                 .thenThrow(new BusinessException("Total price must not exceed 99999999.99"));
 
-        mockMvc.perform(post(PAYMENTS).contentType(MediaType.APPLICATION_JSON)
-                        .content(createBody("totalPrice", "100000000.00")))
+        mockMvc.perform(
+                        post(PAYMENTS)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(createBody("totalPrice", "100000000.00")))
                 .andExpect(status().isUnprocessableContent())
                 .andExpect(content().contentType(PROBLEM))
-                .andExpect(content().json("""
+                .andExpect(
+                        content()
+                                .json(
+                                        """
                         {"type": "about:blank", "title": "Unprocessable Content", "status": 422,
                          "detail": "Total price must not exceed 99999999.99", "instance": "/api/v1/payments"}
-                        """, JsonCompareMode.STRICT));
+                        """,
+                                        JsonCompareMode.STRICT));
     }
 
     @Test
     void create_conServicioRemotoNoDisponible_retorna503() throws Exception {
-        when(paymentService.process(any())).thenThrow(new RemoteServiceException("Event service is unavailable"));
+        when(paymentService.process(any()))
+                .thenThrow(new RemoteServiceException("Event service is unavailable"));
 
-        mockMvc.perform(post(PAYMENTS).contentType(MediaType.APPLICATION_JSON).content(VALID_CREATE))
+        mockMvc.perform(
+                        post(PAYMENTS)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(VALID_CREATE))
                 .andExpect(status().isServiceUnavailable())
                 .andExpect(content().contentType(PROBLEM))
-                .andExpect(content().json("""
+                .andExpect(
+                        content()
+                                .json(
+                                        """
                         {"type": "about:blank", "title": "Service Unavailable", "status": 503,
                          "detail": "Event service is unavailable", "instance": "/api/v1/payments"}
-                        """, JsonCompareMode.STRICT));
+                        """,
+                                        JsonCompareMode.STRICT));
     }
 
     @Test
@@ -233,11 +293,16 @@ class PaymentControllerTest {
         try {
             when(paymentService.process(any())).thenReturn(payment(5, "APPROVED"));
 
-            mockMvc.perform(post(PAYMENTS).contentType(MediaType.APPLICATION_JSON).content(VALID_CREATE))
+            mockMvc.perform(
+                            post(PAYMENTS)
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .content(VALID_CREATE))
                     .andExpect(status().isCreated());
 
-            List<String> messages = appender.list.stream().map(ILoggingEvent::getFormattedMessage).toList();
-            assertThat(messages).isNotEmpty()
+            List<String> messages =
+                    appender.list.stream().map(ILoggingEvent::getFormattedMessage).toList();
+            assertThat(messages)
+                    .isNotEmpty()
                     .noneMatch(message -> message.contains(CARD))
                     .noneMatch(message -> message.contains("cvv=123"));
         } finally {
@@ -250,7 +315,8 @@ class PaymentControllerTest {
 
     @Test
     void list_sinParametros_pasaFiltroVacioAlServicio() throws Exception {
-        when(paymentService.findAll(any(PaymentFilter.class))).thenReturn(List.of(payment(1, "APPROVED")));
+        when(paymentService.findAll(any(PaymentFilter.class)))
+                .thenReturn(List.of(payment(1, "APPROVED")));
 
         mockMvc.perform(get(PAYMENTS))
                 .andExpect(status().isOk())
@@ -266,8 +332,12 @@ class PaymentControllerTest {
     void list_conParametros_losVinculaEnPaymentFilter() throws Exception {
         when(paymentService.findAll(any(PaymentFilter.class))).thenReturn(List.of());
 
-        mockMvc.perform(get(PAYMENTS).param("userId", "3").param("eventId", "2").param("bookingId", "1")
-                        .param("status", "APPROVED"))
+        mockMvc.perform(
+                        get(PAYMENTS)
+                                .param("userId", "3")
+                                .param("eventId", "2")
+                                .param("bookingId", "1")
+                                .param("status", "APPROVED"))
                 .andExpect(status().isOk())
                 .andExpect(content().json("[]"));
 
@@ -284,10 +354,14 @@ class PaymentControllerTest {
         mockMvc.perform(get(PAYMENTS).param("userId", "3").param("status", "APPROVED"))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentType(PROBLEM))
-                .andExpect(content().json("""
+                .andExpect(
+                        content()
+                                .json(
+                                        """
                         {"type": "about:blank", "title": "Bad Request", "status": 400,
                          "detail": "Only one filter may be used at a time", "instance": "/api/v1/payments"}
-                        """, JsonCompareMode.STRICT));
+                        """,
+                                        JsonCompareMode.STRICT));
     }
 
     @ParameterizedTest(name = "{0}=abc -> 400")
@@ -299,14 +373,17 @@ class PaymentControllerTest {
                 .andExpect(jsonPath("$.type").value("about:blank"))
                 .andExpect(jsonPath("$.instance").value(PAYMENTS))
                 .andExpect(jsonPath("$.errors[0].field").value(param))
-                .andExpect(jsonPath("$.errors[0].message").value("Invalid value for parameter '" + param + "'"))
+                .andExpect(
+                        jsonPath("$.errors[0].message")
+                                .value("Invalid value for parameter '" + param + "'"))
                 .andExpect(content().string(not(containsString("java."))));
         verifyNoInteractions(paymentService);
     }
 
     @Test
     void list_errorInesperado_retorna500Generico() throws Exception {
-        when(paymentService.findAll(any(PaymentFilter.class))).thenThrow(new RuntimeException("boom secret"));
+        when(paymentService.findAll(any(PaymentFilter.class)))
+                .thenThrow(new RuntimeException("boom secret"));
 
         mockMvc.perform(get(PAYMENTS))
                 .andExpect(status().isInternalServerError())
@@ -332,15 +409,20 @@ class PaymentControllerTest {
 
     @Test
     void findById_inexistente_retorna404ProblemExacto() throws Exception {
-        when(paymentService.findById(999L)).thenThrow(new ResourceNotFoundException("Payment with id 999 not found"));
+        when(paymentService.findById(999L))
+                .thenThrow(new ResourceNotFoundException("Payment with id 999 not found"));
 
         mockMvc.perform(get(PAYMENTS + "/999"))
                 .andExpect(status().isNotFound())
                 .andExpect(content().contentType(PROBLEM))
-                .andExpect(content().json("""
+                .andExpect(
+                        content()
+                                .json(
+                                        """
                         {"type": "about:blank", "title": "Not Found", "status": 404,
                          "detail": "Payment with id 999 not found", "instance": "/api/v1/payments/999"}
-                        """, JsonCompareMode.STRICT));
+                        """,
+                                        JsonCompareMode.STRICT));
     }
 
     @Test

@@ -22,7 +22,6 @@ export default function Navbar() {
 
   return (
     <nav className={`nav-root${scrolled ? ' scrolled' : ''}`}>
-
       {/* logo: imagen del ticket + texto */}
       <Link to="/" className="nav-logo">
         <img src={logo} alt="booqi" className="nav-logo-img" />
@@ -34,9 +33,7 @@ export default function Navbar() {
         <Link to="/">Inicio</Link>
         <Link to="/events">Eventos</Link>
         <Link to="/contact">Contacto</Link>
-        {user?.role === 'ADMIN' && (
-          <Link to="/admin">Panel Admin</Link>
-        )}
+        {user?.role === 'ADMIN' && <Link to="/admin">Panel Admin</Link>}
       </div>
 
       {/* acciones de la derecha según sesión */}
@@ -47,16 +44,21 @@ export default function Navbar() {
             <Link to="/cart" className="nav-btn nav-btn-ghost">
               🛒 {cartCount > 0 && <span className="nav-cart-badge">{cartCount}</span>}
             </Link>
-            <button className="nav-btn nav-btn-ghost" onClick={logout}>Salir</button>
+            <button className="nav-btn nav-btn-ghost" onClick={logout}>
+              Salir
+            </button>
           </>
         ) : (
           <>
-            <Link to="/login" className="nav-btn nav-btn-ghost">Iniciar sesión</Link>
-            <Link to="/register" className="nav-btn nav-btn-solid">Registrarse</Link>
+            <Link to="/login" className="nav-btn nav-btn-ghost">
+              Iniciar sesión
+            </Link>
+            <Link to="/register" className="nav-btn nav-btn-solid">
+              Registrarse
+            </Link>
           </>
         )}
       </div>
-
     </nav>
   )
 }

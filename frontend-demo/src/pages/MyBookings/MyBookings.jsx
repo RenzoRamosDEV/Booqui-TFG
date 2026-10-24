@@ -20,12 +20,12 @@ export default function MyBookings() {
       setLoading(false)
       return
     }
-    
+
     const fetchBookings = async () => {
       try {
         setLoading(true)
         const bookingsData = getUserBookings(user.idUser)
-        
+
         const grouped = bookingsData.reduce((acc, booking) => {
           const eventKey = booking.eventId
           if (!acc[eventKey]) {
@@ -39,26 +39,26 @@ export default function MyBookings() {
               bookings: [],
               totalTickets: 0,
               totalSpent: 0,
-              status: booking.status
+              status: booking.status,
             }
           }
           acc[eventKey].bookings.push(booking)
-          acc[eventKey].totalTickets += (booking.ticketQuantity || 1)
-          acc[eventKey].totalSpent += (booking.totalPrice || (booking.basePrice * booking.ticketQuantity) || 0)
+          acc[eventKey].totalTickets += booking.ticketQuantity || 1
+          acc[eventKey].totalSpent +=
+            booking.totalPrice || booking.basePrice * booking.ticketQuantity || 0
           return acc
         }, {})
-        
+
         const groupedArray = Object.values(grouped)
         setGroupedBookings(groupedArray)
-        
+
         const initialExpand = {}
-        groupedArray.forEach(event => {
+        groupedArray.forEach((event) => {
           if (event.bookings.length > 1) {
             initialExpand[event.eventId] = false
           }
         })
         setExpandedEvents(initialExpand)
-        
       } catch (err) {
         console.error('Error fetching bookings:', err)
         setError('No se pudieron cargar tus reservas')
@@ -66,14 +66,14 @@ export default function MyBookings() {
         setLoading(false)
       }
     }
-    
+
     fetchBookings()
   }, [user])
 
   const toggleEventExpand = (eventId) => {
-    setExpandedEvents(prev => ({
+    setExpandedEvents((prev) => ({
       ...prev,
-      [eventId]: !prev[eventId]
+      [eventId]: !prev[eventId],
     }))
   }
 
@@ -90,11 +90,11 @@ export default function MyBookings() {
             price: booking.basePrice || 0,
             description: booking.eventDescription || event.eventDescription,
             urlImage: booking.eventImage || event.eventImage,
-            bookingId: booking.bookingId
+            bookingId: booking.bookingId,
           })
         }
       }
-      
+
       const pdfBytes = await generateTicketPDF({
         bookingId: event.bookings[0]?.bookingId || `EVT${event.eventId}`,
         paymentId: `PAY${event.bookings[0]?.bookingId || event.eventId}`,
@@ -102,10 +102,10 @@ export default function MyBookings() {
         user: {
           firstName: event.bookings[0]?.userFirstName || user?.firstName || '',
           lastName: event.bookings[0]?.userLastName || user?.lastName || '',
-          contactEmail: event.bookings[0]?.userEmail || user?.contactEmail || ''
-        }
+          contactEmail: event.bookings[0]?.userEmail || user?.contactEmail || '',
+        },
       })
-      
+
       downloadPDF(pdfBytes, `booqi-${event.eventTitle}-entradas.pdf`)
     } catch (err) {
       console.error('Error generando tickets:', err)
@@ -126,10 +126,10 @@ export default function MyBookings() {
           location: booking.eventLocation,
           price: booking.basePrice,
           description: booking.eventDescription,
-          urlImage: booking.eventImage
+          urlImage: booking.eventImage,
         })
       }
-      
+
       const pdfBytes = await generateTicketPDF({
         bookingId: booking.bookingId,
         paymentId: booking.paymentId || `PAY${booking.bookingId}`,
@@ -137,10 +137,10 @@ export default function MyBookings() {
         user: {
           firstName: booking.userFirstName || user?.firstName || '',
           lastName: booking.userLastName || user?.lastName || '',
-          contactEmail: booking.userEmail || user?.contactEmail || ''
-        }
+          contactEmail: booking.userEmail || user?.contactEmail || '',
+        },
       })
-      
+
       downloadPDF(pdfBytes, `booqi-entrada-${booking.bookingId}.pdf`)
     } catch (err) {
       console.error('Error generando ticket:', err)
@@ -157,7 +157,7 @@ export default function MyBookings() {
       weekday: 'long',
       year: 'numeric',
       month: 'long',
-      day: 'numeric'
+      day: 'numeric',
     })
   }
 
@@ -166,7 +166,7 @@ export default function MyBookings() {
     const date = new Date(dateString)
     return date.toLocaleTimeString('es-ES', {
       hour: '2-digit',
-      minute: '2-digit'
+      minute: '2-digit',
     })
   }
 
@@ -185,22 +185,26 @@ export default function MyBookings() {
           </div>
         </div>
         <footer className="home-footer">
-          <Link to="/" className="home-footer-logo">booqi</Link>
+          <Link to="/" className="home-footer-logo">
+            booqi
+          </Link>
           <div className="home-footer-links">
             <Link to="/">Inicio</Link>
             <Link to="/events">Eventos</Link>
             <Link to="/contact">Contacto</Link>
           </div>
-          <span className="home-footer-copy">2026 booqi. Todos los derechos reservados a Mel y Renzo</span>
+          <span className="home-footer-copy">
+            2026 booqi. Todos los derechos reservados a Mel y Renzo
+          </span>
         </footer>
       </div>
-  )
-}
+    )
+  }
 
   return (
     <div className="mybookings-root">
       <Navbar />
-      
+
       <div className="mybookings-container">
         <div className="mybookings-header">
           <h1>
@@ -238,14 +242,16 @@ export default function MyBookings() {
             {groupedBookings.map((event) => {
               const isExpanded = expandedEvents[event.eventId]
               const hasMultipleBookings = event.bookings.length > 1
-              const allConfirmed = event.bookings.every(b => b.status === 'CONFIRMED')
-              
+              const allConfirmed = event.bookings.every((b) => b.status === 'CONFIRMED')
+
               return (
                 <div key={event.eventId} className="mybookings-card">
                   {/* Cabecera del evento */}
                   <div className="mybookings-card-header">
                     <div className="mybookings-card-status">
-                      <span className={`mybookings-status-badge ${allConfirmed ? 'confirmed' : 'pending'}`}>
+                      <span
+                        className={`mybookings-status-badge ${allConfirmed ? 'confirmed' : 'pending'}`}
+                      >
                         {allConfirmed ? 'Confirmada' : 'Pendiente'}
                       </span>
                       <span className="mybookings-date">
@@ -254,9 +260,11 @@ export default function MyBookings() {
                       </span>
                     </div>
                     <h3 className="mybookings-card-title">{event.eventTitle}</h3>
-                    <p className="mybookings-card-description">{event.eventDescription?.substring(0, 100)}...</p>
+                    <p className="mybookings-card-description">
+                      {event.eventDescription?.substring(0, 100)}...
+                    </p>
                   </div>
-                  
+
                   {/* Cuerpo del evento */}
                   <div className="mybookings-card-body">
                     <div className="mybookings-info-row">
@@ -265,55 +273,78 @@ export default function MyBookings() {
                     </div>
                     <div className="mybookings-info-row">
                       <i className="bi bi-clock"></i>
-                      <span>{formatDate(event.eventStartDate)} - {formatTime(event.eventStartDate)}</span>
+                      <span>
+                        {formatDate(event.eventStartDate)} - {formatTime(event.eventStartDate)}
+                      </span>
                     </div>
                     <div className="mybookings-info-row">
                       <i className="bi bi-ticket"></i>
-                      <span>{event.totalTickets} entrada{event.totalTickets !== 1 ? 's' : ''} totales</span>
+                      <span>
+                        {event.totalTickets} entrada{event.totalTickets !== 1 ? 's' : ''} totales
+                      </span>
                     </div>
                     <div className="mybookings-info-row">
                       <i className="bi bi-cash"></i>
                       <span>{event.totalSpent.toFixed(2)} € total gastado</span>
                     </div>
                   </div>
-                  
+
                   {/* Reservas individuales (expandible) */}
                   {hasMultipleBookings && (
                     <div className="mybookings-expand-section">
-                      <button 
+                      <button
                         className="mybookings-expand-btn"
                         onClick={() => toggleEventExpand(event.eventId)}
                       >
                         <i className={`bi ${isExpanded ? 'bi-chevron-up' : 'bi-chevron-down'}`}></i>
                         {isExpanded ? 'Ocultar reservas' : `Ver ${event.bookings.length} reservas`}
                       </button>
-                      
+
                       {isExpanded && (
                         <div className="mybookings-sub-bookings">
                           {event.bookings.map((booking) => (
                             <div key={booking.bookingId} className="mybookings-sub-booking">
                               <div className="mybookings-sub-booking-header">
                                 <span className="mybookings-sub-booking-id">
-                                  <i className="bi bi-upc-scan"></i>
-                                  #{String(booking.bookingId).slice(-8)}
+                                  <i className="bi bi-upc-scan"></i>#
+                                  {String(booking.bookingId).slice(-8)}
                                 </span>
                                 <span className="mybookings-sub-booking-date">
-                                  {new Date(booking.purchaseDate || booking.bookingDate).toLocaleDateString('es-ES')}
+                                  {new Date(
+                                    booking.purchaseDate || booking.bookingDate,
+                                  ).toLocaleDateString('es-ES')}
                                 </span>
                               </div>
                               <div className="mybookings-sub-booking-details">
-                                <span><i className="bi bi-ticket"></i> {booking.ticketQuantity} entrada{booking.ticketQuantity !== 1 ? 's' : ''}</span>
-                                <span><i className="bi bi-cash"></i> {(booking.totalPrice || booking.basePrice * booking.ticketQuantity).toFixed(2)} €</span>
+                                <span>
+                                  <i className="bi bi-ticket"></i> {booking.ticketQuantity} entrada
+                                  {booking.ticketQuantity !== 1 ? 's' : ''}
+                                </span>
+                                <span>
+                                  <i className="bi bi-cash"></i>{' '}
+                                  {(
+                                    booking.totalPrice || booking.basePrice * booking.ticketQuantity
+                                  ).toFixed(2)}{' '}
+                                  €
+                                </span>
                               </div>
-                              <button 
+                              <button
                                 className="mybookings-sub-download-btn"
                                 onClick={() => handleDownloadSingleTicket(booking)}
-                                disabled={downloadingEventId === booking.bookingId || booking.status === 'CANCELLED'}
+                                disabled={
+                                  downloadingEventId === booking.bookingId ||
+                                  booking.status === 'CANCELLED'
+                                }
                               >
                                 {downloadingEventId === booking.bookingId ? (
-                                  <><div className="mybookings-btn-spinner-small"></div> Generando...</>
+                                  <>
+                                    <div className="mybookings-btn-spinner-small"></div>{' '}
+                                    Generando...
+                                  </>
                                 ) : (
-                                  <><i className="bi bi-download"></i> Esta reserva</>
+                                  <>
+                                    <i className="bi bi-download"></i> Esta reserva
+                                  </>
                                 )}
                               </button>
                             </div>
@@ -322,10 +353,10 @@ export default function MyBookings() {
                       )}
                     </div>
                   )}
-                  
+
                   {/* Footer con botón principal */}
                   <div className="mybookings-card-footer">
-                    <button 
+                    <button
                       className="mybookings-download-btn"
                       onClick={() => handleDownloadAllTickets(event)}
                       disabled={downloadingEventId === event.eventId}
@@ -333,7 +364,8 @@ export default function MyBookings() {
                       {downloadingEventId === event.eventId ? (
                         <>
                           <div className="mybookings-btn-spinner"></div>
-                          Generando {event.totalTickets} entrada{event.totalTickets !== 1 ? 's' : ''}...
+                          Generando {event.totalTickets} entrada
+                          {event.totalTickets !== 1 ? 's' : ''}...
                         </>
                       ) : (
                         <>
@@ -342,7 +374,7 @@ export default function MyBookings() {
                         </>
                       )}
                     </button>
-                    
+
                     {!hasMultipleBookings && (
                       <div className="mybookings-booking-id">
                         <i className="bi bi-upc-scan"></i>
@@ -357,13 +389,17 @@ export default function MyBookings() {
         )}
       </div>
       <footer className="home-footer">
-        <Link to="/" className="home-footer-logo">booqi</Link>
+        <Link to="/" className="home-footer-logo">
+          booqi
+        </Link>
         <div className="home-footer-links">
           <Link to="/">Inicio</Link>
           <Link to="/events">Eventos</Link>
           <Link to="/contact">Contacto</Link>
         </div>
-        <span className="home-footer-copy">2026 booqi. Todos los derechos reservados a Mel y Renzo</span>
+        <span className="home-footer-copy">
+          2026 booqi. Todos los derechos reservados a Mel y Renzo
+        </span>
       </footer>
     </div>
   )

@@ -43,7 +43,9 @@ export default function Cart() {
             <div className="cart-empty-icon">🛒</div>
             <h2>Tu carrito está vacío</h2>
             <p>Aún no has añadido ningún evento.</p>
-            <Link to="/events" className="cart-empty-btn">Explorar eventos</Link>
+            <Link to="/events" className="cart-empty-btn">
+              Explorar eventos
+            </Link>
           </div>
         ) : (
           <>
@@ -63,16 +65,18 @@ export default function Cart() {
                     const id = item.idEvent || item.id
                     const qty = item.qty || 1
                     const lineTotal = ((item.price || 0) * qty).toFixed(2)
-                    
+
                     return (
                       <tr key={id || i}>
                         <td>
                           <div className="cart-item-cell">
-                            <img 
-                              className="cart-item-img" 
-                              src={item.urlImage || PLACEHOLDER} 
-                              alt={item.title} 
-                              onError={e => { e.target.src = PLACEHOLDER }} 
+                            <img
+                              className="cart-item-img"
+                              src={item.urlImage || PLACEHOLDER}
+                              alt={item.title}
+                              onError={(e) => {
+                                e.target.src = PLACEHOLDER
+                              }}
                             />
                             <div>
                               <div className="cart-item-name">{item.title}</div>
@@ -87,18 +91,30 @@ export default function Cart() {
                         </td>
                         <td>
                           <div className="cart-qty-wrap">
-                            <button className="cart-qty-btn" onClick={() => updateQty(id, qty - 1)}>−</button>
+                            <button className="cart-qty-btn" onClick={() => updateQty(id, qty - 1)}>
+                              −
+                            </button>
                             <span className="cart-qty-num">{qty}</span>
-                            <button className="cart-qty-btn" onClick={() => updateQty(id, qty + 1)}>+</button>
+                            <button className="cart-qty-btn" onClick={() => updateQty(id, qty + 1)}>
+                              +
+                            </button>
                           </div>
                         </td>
-                        <td><span className="cart-total-cell">{lineTotal}€</span></td>
+                        <td>
+                          <span className="cart-total-cell">{lineTotal}€</span>
+                        </td>
                         <td>
                           <button className="cart-delete-btn" onClick={() => removeFromCart(id)}>
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                              <polyline points="3 6 5 6 21 6"/>
-                              <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
-                              <path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/>
+                            <svg
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                            >
+                              <polyline points="3 6 5 6 21 6" />
+                              <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+                              <path d="M10 11v6M14 11v6" />
+                              <path d="M9 6V4h6v2" />
                             </svg>
                           </button>
                         </td>
@@ -127,21 +143,29 @@ export default function Cart() {
                 <span>Total</span>
                 <span>{total.toFixed(2)}€</span>
               </div>
-              <button className="cart-buy-btn" onClick={handleCheckout}>Comprar</button>
-              <Link to="/events" className="cart-continue-link">← Seguir explorando</Link>
+              <button className="cart-buy-btn" onClick={handleCheckout}>
+                Comprar
+              </button>
+              <Link to="/events" className="cart-continue-link">
+                ← Seguir explorando
+              </Link>
             </div>
           </>
         )}
       </div>
 
       <footer className="home-footer">
-        <Link to="/" className="home-footer-logo">booqi</Link>
+        <Link to="/" className="home-footer-logo">
+          booqi
+        </Link>
         <div className="home-footer-links">
           <Link to="/">Inicio</Link>
           <Link to="/events">Eventos</Link>
           <Link to="/contact">Contacto</Link>
         </div>
-        <span className="home-footer-copy">2026 booqi. Todos los derechos reservados a Mel y Renzo</span>
+        <span className="home-footer-copy">
+          2026 booqi. Todos los derechos reservados a Mel y Renzo
+        </span>
       </footer>
     </div>
   )

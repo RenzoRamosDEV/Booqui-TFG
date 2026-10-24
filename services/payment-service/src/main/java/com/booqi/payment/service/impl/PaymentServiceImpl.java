@@ -12,8 +12,10 @@ import com.booqi.payment.exception.ResourceNotFoundException;
 import com.booqi.payment.mapper.PaymentMapper;
 import com.booqi.payment.repository.PaymentRepository;
 import com.booqi.payment.service.PaymentService;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -77,9 +79,13 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     public PaymentResponse findById(Long id) {
-        return paymentRepository.findById(id)
+        return paymentRepository
+                .findById(id)
                 .map(paymentMapper::toResponse)
-                .orElseThrow(() -> new ResourceNotFoundException("Payment with id " + id + " not found"));
+                .orElseThrow(
+                        () ->
+                                new ResourceNotFoundException(
+                                        "Payment with id " + id + " not found"));
     }
 
     @Override
@@ -113,18 +119,24 @@ public class PaymentServiceImpl implements PaymentService {
         if (request.totalPrice().compareTo(MAX_TOTAL_PRICE) > 0) {
             throw new BusinessException("Total price must not exceed " + MAX_TOTAL_PRICE);
         }
-        log.info("Starting payment for booking {}, user {}, event {}, {} tickets",
-                request.bookingId(), request.userId(), request.eventId(), request.ticketQuantity());
+        log.info(
+                "Starting payment for booking {}, user {}, event {}, {} tickets",
+                request.bookingId(),
+                request.userId(),
+                request.eventId(),
+                request.ticketQuantity());
 
-        Payment payment = paymentRepository.save(Payment.builder()
-                .bookingId(request.bookingId())
-                .userId(request.userId())
-                .eventId(request.eventId())
-                .ticketQuantity(request.ticketQuantity())
-                .totalPrice(request.totalPrice())
-                .paymentMethod(request.paymentMethod())
-                .status(PENDING)
-                .build());
+        Payment payment =
+                paymentRepository.save(
+                        Payment.builder()
+                                .bookingId(request.bookingId())
+                                .userId(request.userId())
+                                .eventId(request.eventId())
+                                .ticketQuantity(request.ticketQuantity())
+                                .totalPrice(request.totalPrice())
+                                .paymentMethod(request.paymentMethod())
+                                .status(PENDING)
+                                .build());
         log.info("Payment {} registered as PENDING", payment.getId());
 
         try {
@@ -135,13 +147,17 @@ public class PaymentServiceImpl implements PaymentService {
                 payment.setTransactionId(UUID.randomUUID().toString());
                 payment.setPaymentDate(LocalDateTime.now());
                 payment = paymentRepository.save(payment);
-                log.info("Payment {} approved with transaction {}", payment.getId(), payment.getTransactionId());
+                log.info(
+                        "Payment {} approved with transaction {}",
+                        payment.getId(),
+                        payment.getTransactionId());
             } else {
                 payment.setStatus(REJECTED);
                 payment.setErrorMessage("Payment rejected by simulation");
                 payment.setPaymentDate(LocalDateTime.now());
                 payment = paymentRepository.save(payment);
-                log.warn("Payment {} rejected for booking {}", payment.getId(), request.bookingId());
+                log.warn(
+                        "Payment {} rejected for booking {}", payment.getId(), request.bookingId());
                 bookingClient.cancel(request.bookingId());
             }
         } catch (Exception e) {
@@ -162,9 +178,15 @@ public class PaymentServiceImpl implements PaymentService {
             Thread.currentThread().interrupt();
         }
         String cardNumber = request.cardNumber();
-        boolean approved = cardNumber == null || cardNumber.isEmpty()
-                || Character.getNumericValue(cardNumber.charAt(cardNumber.length() - 1)) % 2 == 0;
-        log.info("Simulated payment {} for method {}", approved ? APPROVED : REJECTED, request.paymentMethod());
+        boolean approved =
+                cardNumber == null
+                        || cardNumber.isEmpty()
+                        || Character.getNumericValue(cardNumber.charAt(cardNumber.length() - 1)) % 2
+                                == 0;
+        log.info(
+                "Simulated payment {} for method {}",
+                approved ? APPROVED : REJECTED,
+                request.paymentMethod());
         return approved;
     }
 
@@ -172,7 +194,10 @@ public class PaymentServiceImpl implements PaymentService {
         try {
             bookingClient.cancel(bookingId);
         } catch (Exception e) {
-            log.error("Could not cancel booking {} after payment failure: {}", bookingId, e.getMessage());
+            log.error(
+                    "Could not cancel booking {} after payment failure: {}",
+                    bookingId,
+                    e.getMessage());
         }
     }
 

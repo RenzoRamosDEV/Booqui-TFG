@@ -17,74 +17,79 @@ export default function CreateEventModal({ isOpen, onClose, onEventCreated }) {
     category: 'Otros',
     contactEmail: '',
     contactPhone: '',
-    urlImage: ''
+    urlImage: '',
   })
-  
+
   const [loading, setLoading] = useState(false)
   const [errors, setErrors] = useState({})
 
   const handleChange = (e) => {
     const { name, value } = e.target
-    setFormData(prev => ({ ...prev, [name]: value }))
+    setFormData((prev) => ({ ...prev, [name]: value }))
     if (errors[name]) {
-      setErrors(prev => ({ ...prev, [name]: '' }))
+      setErrors((prev) => ({ ...prev, [name]: '' }))
     }
   }
 
   const validateForm = () => {
     const newErrors = {}
-    
+
     if (!formData.title.trim()) newErrors.title = 'El título es obligatorio'
     if (formData.title.length < 3) newErrors.title = 'Mínimo 3 caracteres'
-    
-    if (!formData.availableTickets) newErrors.availableTickets = 'El número de entradas es obligatorio'
+
+    if (!formData.availableTickets)
+      newErrors.availableTickets = 'El número de entradas es obligatorio'
     if (formData.availableTickets < 0) newErrors.availableTickets = 'No puede ser negativo'
-    
+
     if (!formData.location.trim()) newErrors.location = 'La ubicación es obligatoria'
-    
+
     if (!formData.startDate) newErrors.startDate = 'La fecha de inicio es obligatoria'
     if (!formData.endDate) newErrors.endDate = 'La fecha de fin es obligatoria'
-    
-    if (formData.startDate && formData.endDate && new Date(formData.startDate) >= new Date(formData.endDate)) {
+
+    if (
+      formData.startDate &&
+      formData.endDate &&
+      new Date(formData.startDate) >= new Date(formData.endDate)
+    ) {
       newErrors.endDate = 'La fecha de fin debe ser posterior a la de inicio'
     }
-    
+
     if (!formData.organized.trim()) newErrors.organized = 'El organizador es obligatorio'
-    
+
     if (!formData.price && formData.price !== 0) newErrors.price = 'El precio es obligatorio'
     if (formData.price < 0) newErrors.price = 'El precio no puede ser negativo'
-    
+
     if (!formData.contactEmail.trim()) newErrors.contactEmail = 'El email es obligatorio'
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     if (formData.contactEmail && !emailRegex.test(formData.contactEmail)) {
       newErrors.contactEmail = 'Email inválido'
     }
-    
+
     if (!formData.contactPhone.trim()) newErrors.contactPhone = 'El teléfono es obligatorio'
     const phoneRegex = /^\+?[0-9]{9,15}$/
     if (formData.contactPhone && !phoneRegex.test(formData.contactPhone)) {
       newErrors.contactPhone = 'Teléfono inválido (9-15 dígitos)'
     }
-    
+
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    
+
     if (!validateForm()) return
-    
+
     setLoading(true)
     try {
       const eventData = {
         ...formData,
         availableTickets: parseInt(formData.availableTickets),
-        price: parseFloat(formData.price)
+        price: parseFloat(formData.price),
       }
-      
+
       const newEvent = addMockEvent(eventData)
-      
+
       if (newEvent) {
         onEventCreated(newEvent)
         onClose()
@@ -111,7 +116,7 @@ export default function CreateEventModal({ isOpen, onClose, onEventCreated }) {
       category: 'Otros',
       contactEmail: '',
       contactPhone: '',
-      urlImage: ''
+      urlImage: '',
     })
     setErrors({})
   }
@@ -140,7 +145,6 @@ export default function CreateEventModal({ isOpen, onClose, onEventCreated }) {
         {/* Formulario de creación de evento */}
         <form onSubmit={handleSubmit} className="create-event-form">
           <div className="create-event-form-grid">
-            
             {/* Título del evento - campo obligatorio */}
             <div className="form-group full-width">
               <label htmlFor="title">
@@ -185,7 +189,9 @@ export default function CreateEventModal({ isOpen, onClose, onEventCreated }) {
                 min="0"
                 className={errors.availableTickets ? 'error' : ''}
               />
-              {errors.availableTickets && <span className="error-text">{errors.availableTickets}</span>}
+              {errors.availableTickets && (
+                <span className="error-text">{errors.availableTickets}</span>
+              )}
             </div>
 
             <div className="form-group">
@@ -279,8 +285,10 @@ export default function CreateEventModal({ isOpen, onClose, onEventCreated }) {
                 value={formData.category}
                 onChange={handleChange}
               >
-                {CATEGORIES.map(cat => (
-                  <option key={cat} value={cat}>{cat}</option>
+                {CATEGORIES.map((cat) => (
+                  <option key={cat} value={cat}>
+                    {cat}
+                  </option>
                 ))}
               </select>
             </div>

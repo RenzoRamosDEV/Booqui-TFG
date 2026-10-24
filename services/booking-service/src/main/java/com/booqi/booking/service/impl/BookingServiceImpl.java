@@ -13,8 +13,10 @@ import com.booqi.booking.exception.ResourceNotFoundException;
 import com.booqi.booking.mapper.BookingMapper;
 import com.booqi.booking.repository.BookingRepository;
 import com.booqi.booking.service.BookingService;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -78,23 +80,29 @@ public class BookingServiceImpl implements BookingService {
         UserResponse user = userClient.findById(request.userId());
         EventResponse event = eventClient.findById(request.eventId());
         BigDecimal basePrice = BigDecimal.valueOf(event.price());
-        Booking booking = Booking.builder()
-                .userId(user.id())
-                .userFirstName(user.firstName())
-                .userLastName(user.lastName())
-                .userEmail(user.contactEmail())
-                .eventId(event.id())
-                .eventTitle(event.title())
-                .eventDescription(event.description())
-                .eventStartDate(event.startDate())
-                .eventLocation(event.location())
-                .ticketQuantity(request.ticketQuantity())
-                .basePrice(basePrice)
-                .totalPrice(basePrice.multiply(BigDecimal.valueOf(request.ticketQuantity())))
-                .status(PENDING)
-                .build();
+        Booking booking =
+                Booking.builder()
+                        .userId(user.id())
+                        .userFirstName(user.firstName())
+                        .userLastName(user.lastName())
+                        .userEmail(user.contactEmail())
+                        .eventId(event.id())
+                        .eventTitle(event.title())
+                        .eventDescription(event.description())
+                        .eventStartDate(event.startDate())
+                        .eventLocation(event.location())
+                        .ticketQuantity(request.ticketQuantity())
+                        .basePrice(basePrice)
+                        .totalPrice(
+                                basePrice.multiply(BigDecimal.valueOf(request.ticketQuantity())))
+                        .status(PENDING)
+                        .build();
         Booking saved = bookingRepository.save(booking);
-        log.info("Booking {} created for user {} and event {}", saved.getId(), saved.getUserId(), saved.getEventId());
+        log.info(
+                "Booking {} created for user {} and event {}",
+                saved.getId(),
+                saved.getUserId(),
+                saved.getEventId());
         return bookingMapper.toResponse(saved);
     }
 
@@ -143,8 +151,12 @@ public class BookingServiceImpl implements BookingService {
     }
 
     private Booking getBooking(Long id) {
-        return bookingRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Booking with id " + id + " not found"));
+        return bookingRepository
+                .findById(id)
+                .orElseThrow(
+                        () ->
+                                new ResourceNotFoundException(
+                                        "Booking with id " + id + " not found"));
     }
 
     private static long countTrue(boolean... conditions) {

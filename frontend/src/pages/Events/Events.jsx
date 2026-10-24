@@ -6,7 +6,16 @@ import { useAuth } from '../../context/useAuth'
 import Navbar from '../../components/Navbar/Navbar'
 import './EventsStyle.css'
 
-const CATEGORIES = ['Todas', 'Música', 'Arte', 'Deporte', 'Gastronomía', 'Tecnología', 'Educación', 'Otros']
+const CATEGORIES = [
+  'Todas',
+  'Música',
+  'Arte',
+  'Deporte',
+  'Gastronomía',
+  'Tecnología',
+  'Educación',
+  'Otros',
+]
 
 const PLACEHOLDER_IMGS = [
   'https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=400&q=70',
@@ -31,42 +40,53 @@ export default function Events() {
     const loadEvents = () => {
       setLoading(true)
       const req = activeCategory === 'Todas' ? getAllEvents() : getEventsByCategory(activeCategory)
-      req.then(r => setEvents(r.data || [])).catch(() => setEvents([])).finally(() => setLoading(false))
+      req
+        .then((r) => setEvents(r.data || []))
+        .catch(() => setEvents([]))
+        .finally(() => setLoading(false))
     }
-    
+
     loadEvents()
   }, [activeCategory])
 
   const loadEvents = () => {
     setLoading(true)
     const req = activeCategory === 'Todas' ? getAllEvents() : getEventsByCategory(activeCategory)
-    req.then(r => setEvents(r.data || [])).catch(() => setEvents([])).finally(() => setLoading(false))
+    req
+      .then((r) => setEvents(r.data || []))
+      .catch(() => setEvents([]))
+      .finally(() => setLoading(false))
   }
 
   // busca por título, si está vacío recarga todo
   const handleSearch = (e) => {
     e.preventDefault()
-    if (!searchInput.trim()) { loadEvents(); return }
+    if (!searchInput.trim()) {
+      loadEvents()
+      return
+    }
     setLoading(true)
     getEventsByTitle(searchInput.trim())
-      .then(r => setEvents(r.data || []))
+      .then((r) => setEvents(r.data || []))
       .catch(() => setEvents([]))
       .finally(() => setLoading(false))
   }
 
-  const isInCart = (id) => cart?.some(i => i.id === id)
+  const isInCart = (id) => cart?.some((i) => i.id === id)
 
   // si no hay sesión redirige al login antes de añadir
   const handleAdd = (e, event) => {
     e.stopPropagation()
     e.preventDefault()
-    if (!user) { navigate('/login'); return }
+    if (!user) {
+      navigate('/login')
+      return
+    }
     addToCart(event)
   }
 
   return (
     <div className="ev-root">
-
       {/* navbar compartido */}
       <Navbar />
 
@@ -87,7 +107,7 @@ export default function Events() {
       {/* barra de filtros por categoría y búsqueda */}
       <div className="ev-toolbar">
         <div className="ev-category-tabs">
-          {CATEGORIES.map(cat => (
+          {CATEGORIES.map((cat) => (
             <button
               key={cat}
               className={`ev-cat-tab${activeCategory === cat ? ' active' : ''}`}
@@ -103,9 +123,15 @@ export default function Events() {
               className="ev-search"
               placeholder="Buscar eventos..."
               value={searchInput}
-              onChange={e => setSearchInput(e.target.value)}
+              onChange={(e) => setSearchInput(e.target.value)}
             />
-            <button type="submit" className="ev-nav-btn ev-nav-btn-solid" style={{ borderRadius: 8 }}>Buscar</button>
+            <button
+              type="submit"
+              className="ev-nav-btn ev-nav-btn-solid"
+              style={{ borderRadius: 8 }}
+            >
+              Buscar
+            </button>
           </form>
           <span className="ev-show-label">{events.length} eventos</span>
         </div>
@@ -114,83 +140,92 @@ export default function Events() {
       {/* grid de tarjetas */}
       <div className="ev-grid-wrap">
         <div className="ev-grid">
-          {loading
-            ? Array(12).fill(0).map((_, i) => (
-                <div key={i} style={{ height: 300 }} className="ev-skeleton" />
-              ))
-            : events.length === 0
-              ? (
-                <div className="ev-empty">
-                  <h3>No hay eventos disponibles</h3>
-                  <p>Prueba con otra categoría o búsqueda</p>
+          {loading ? (
+            Array(12)
+              .fill(0)
+              .map((_, i) => <div key={i} style={{ height: 300 }} className="ev-skeleton" />)
+          ) : events.length === 0 ? (
+            <div className="ev-empty">
+              <h3>No hay eventos disponibles</h3>
+              <p>Prueba con otra categoría o búsqueda</p>
+            </div>
+          ) : (
+            events.map((ev, i) => {
+              const added = isInCart(ev.id)
+              const isNew = i < 3
+              const isSoldOut = ev.availableTickets === 0
+              const isLowStock = ev.availableTickets > 0 && ev.availableTickets <= 10 && !isSoldOut
+
+              return (
+                <div
+                  key={ev.id || i}
+                  className={`ev-card${isSoldOut ? ' sold-out' : ''}`}
+                  onClick={() => navigate(`/events/${ev.id}`)}
+                >
+                  <div className="ev-card-img">
+                    <img
+                      src={ev.imageUrl || PLACEHOLDER_IMGS[i % PLACEHOLDER_IMGS.length]}
+                      alt={ev.title}
+                      onError={(e) => {
+                        e.target.src = PLACEHOLDER_IMGS[i % PLACEHOLDER_IMGS.length]
+                      }}
+                    />
+                    {isSoldOut && <span className="ev-badge ev-badge-soldout">AGOTADO</span>}
+                    {!isSoldOut && isLowStock && (
+                      <span className="ev-badge ev-badge-low">ÚLTIMAS</span>
+                    )}
+                    {!isSoldOut && !isLowStock && isNew && !ev.imageUrl && (
+                      <span className="ev-badge ev-badge-new">New</span>
+                    )}
+                  </div>
+
+                  <div className="ev-card-body">
+                    <div className="ev-card-title">{ev.title}</div>
+                    <div className="ev-card-location">{ev.location}</div>
+                    {ev.startDate && (
+                      <div className="ev-card-meta">
+                        📅{' '}
+                        {new Date(ev.startDate).toLocaleDateString('es-ES', {
+                          day: '2-digit',
+                          month: 'short',
+                          year: 'numeric',
+                        })}
+                      </div>
+                    )}
+
+                    <div className="ev-card-footer">
+                      <div>
+                        <div className="ev-stock-info">
+                          {isSoldOut ? (
+                            <span className="stock-text soldout">Sin entradas</span>
+                          ) : (
+                            <span className="stock-text">{ev.availableTickets} disponibles</span>
+                          )}
+                        </div>
+                        <span className="ev-card-price">
+                          {ev.price === 0 ? 'Gratis' : `${ev.price}€`}
+                        </span>
+                      </div>
+
+                      <button
+                        className={`ev-add-btn${added ? ' added' : ''}${isSoldOut ? ' disabled' : ''}`}
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          e.preventDefault()
+                          if (!isSoldOut && !added) handleAdd(e, ev)
+                        }}
+                        disabled={added || isSoldOut}
+                      >
+                        {isSoldOut ? 'Agotado' : added ? '✓ Añadido' : '+ Carrito'}
+                      </button>
+                    </div>
+                  </div>
                 </div>
               )
-              : events.map((ev, i) => {
-                  const added = isInCart(ev.id)
-                  const isNew = i < 3
-                  const isSoldOut = ev.availableTickets === 0
-                  const isLowStock = ev.availableTickets > 0 && ev.availableTickets <= 10 && !isSoldOut
-                  
-                  return (
-                    <div 
-                      key={ev.id || i} 
-                      className={`ev-card${isSoldOut ? ' sold-out' : ''}`}
-                      onClick={() => navigate(`/events/${ev.id}`)}
-                    >
-                      <div className="ev-card-img">
-                        <img
-                          src={ev.imageUrl || PLACEHOLDER_IMGS[i % PLACEHOLDER_IMGS.length]}
-                          alt={ev.title}
-                          onError={e => { e.target.src = PLACEHOLDER_IMGS[i % PLACEHOLDER_IMGS.length] }}
-                        />
-                        {isSoldOut && <span className="ev-badge ev-badge-soldout">AGOTADO</span>}
-                        {!isSoldOut && isLowStock && <span className="ev-badge ev-badge-low">ÚLTIMAS</span>}
-                        {!isSoldOut && !isLowStock && isNew && !ev.imageUrl && <span className="ev-badge ev-badge-new">New</span>}
-                      </div>
-                      
-                      <div className="ev-card-body">
-                        <div className="ev-card-title">{ev.title}</div>
-                        <div className="ev-card-location">{ev.location}</div>
-                        {ev.startDate && (
-                          <div className="ev-card-meta">
-                            📅 {new Date(ev.startDate).toLocaleDateString('es-ES', { day:'2-digit', month:'short', year:'numeric' })}
-                          </div>
-                        )}
-                        
-                        <div className="ev-card-footer">
-                          <div>
-                            <div className="ev-stock-info">
-                              {isSoldOut ? (
-                                <span className="stock-text soldout">Sin entradas</span>
-                              ) : (
-                                <span className="stock-text">{ev.availableTickets} disponibles</span>
-                              )}
-                            </div>
-                            <span className="ev-card-price">
-                              {ev.price === 0 ? 'Gratis' : `${ev.price}€`}
-                            </span>
-                          </div>
-                          
-                          <button
-                            className={`ev-add-btn${added ? ' added' : ''}${isSoldOut ? ' disabled' : ''}`}
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              e.preventDefault()
-                              if (!isSoldOut && !added) handleAdd(e, ev)
-                            }}
-                            disabled={added || isSoldOut}
-                          >
-                            {isSoldOut ? 'Agotado' : added ? '✓ Añadido' : '+ Carrito'}
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  )
-                })
-          }
+            })
+          )}
         </div>
       </div>
-
     </div>
   )
 }

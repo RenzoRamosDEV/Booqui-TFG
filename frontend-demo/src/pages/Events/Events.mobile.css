@@ -2,7 +2,9 @@
    Se importa después de Events.css para ganar la cascada */
 
 @media (max-width: 768px) {
-  .ev-root { overflow-x: hidden; }
+  .ev-root {
+    overflow-x: hidden;
+  }
 
   .ev-hero {
     height: 240px;
@@ -57,7 +59,9 @@
     gap: 0.4rem;
     max-width: 100%;
   }
-  .ev-toolbar .ev-category-tabs::-webkit-scrollbar { display: none; }
+  .ev-toolbar .ev-category-tabs::-webkit-scrollbar {
+    display: none;
+  }
   .ev-toolbar .ev-category-tabs .ev-cat-tab {
     flex-shrink: 0;
     scroll-snap-align: start;

@@ -1,5 +1,14 @@
 package com.booqi.user.service.impl;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
+
 import com.booqi.user.dto.request.CreateUserRequest;
 import com.booqi.user.dto.request.LoginRequest;
 import com.booqi.user.dto.request.UpdateUserRequest;
@@ -13,6 +22,7 @@ import com.booqi.user.exception.ResourceNotFoundException;
 import com.booqi.user.mapper.UserMapper;
 import com.booqi.user.mapper.UserMapperImpl;
 import com.booqi.user.repository.UserRepository;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -31,51 +41,45 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.when;
-
 @ExtendWith(MockitoExtension.class)
 class UserServiceImplTest {
 
-    @Mock
-    private UserRepository userRepository;
+    @Mock private UserRepository userRepository;
 
-    @Spy
-    private UserMapper userMapper = new UserMapperImpl();
+    @Spy private UserMapper userMapper = new UserMapperImpl();
 
-    @Mock
-    private PasswordEncoder passwordEncoder;
+    @Mock private PasswordEncoder passwordEncoder;
 
-    @InjectMocks
-    private UserServiceImpl userService;
+    @InjectMocks private UserServiceImpl userService;
 
     private User juan;
     private CreateUserRequest createRequest;
 
     @BeforeEach
     void setUp() {
-        juan = User.builder()
-                .id(1L)
-                .firstName("Juan")
-                .lastName("Pérez")
-                .dateOfBirth(LocalDate.of(1990, 5, 15))
-                .contactPhone("631835827")
-                .contactEmail("juan.perez@email.com")
-                .password("$2a$10$storedhash")
-                .role(User.Role.CUSTOMER)
-                .build();
+        juan =
+                User.builder()
+                        .id(1L)
+                        .firstName("Juan")
+                        .lastName("Pérez")
+                        .dateOfBirth(LocalDate.of(1990, 5, 15))
+                        .contactPhone("631835827")
+                        .contactEmail("juan.perez@email.com")
+                        .password("$2a$10$storedhash")
+                        .role(User.Role.CUSTOMER)
+                        .build();
         createRequest = createRequestWithRole("ADMIN");
     }
 
     private static CreateUserRequest createRequestWithRole(String role) {
-        return new CreateUserRequest("Juan", "Pérez", LocalDate.of(1990, 5, 15), "631835827",
-                "juan.perez@email.com", "securepass123", role);
+        return new CreateUserRequest(
+                "Juan",
+                "Pérez",
+                LocalDate.of(1990, 5, 15),
+                "631835827",
+                "juan.perez@email.com",
+                "securepass123",
+                role);
     }
 
     private static UpdateUserRequest update(String contactEmail, String password, String role) {
@@ -93,11 +97,13 @@ class UserServiceImplTest {
     @Test
     void create_cuandoDatosValidos_guardaYRetornaUsuario() {
         when(userRepository.existsByContactEmail("juan.perez@email.com")).thenReturn(false);
-        when(userRepository.save(any(User.class))).thenAnswer(inv -> {
-            User u = inv.getArgument(0);
-            u.setId(5L);
-            return u;
-        });
+        when(userRepository.save(any(User.class)))
+                .thenAnswer(
+                        inv -> {
+                            User u = inv.getArgument(0);
+                            u.setId(5L);
+                            return u;
+                        });
 
         UserResponse resultado = userService.create(createRequest);
 
@@ -167,10 +173,12 @@ class UserServiceImplTest {
 
     @Test
     void findByContactEmail_cuandoExiste_retornaListaConElUsuario() {
-        when(userRepository.findByContactEmail("juan.perez@email.com")).thenReturn(Optional.of(juan));
+        when(userRepository.findByContactEmail("juan.perez@email.com"))
+                .thenReturn(Optional.of(juan));
 
         assertThat(userService.findByContactEmail("juan.perez@email.com"))
-                .extracting(UserResponse::id).containsExactly(1L);
+                .extracting(UserResponse::id)
+                .containsExactly(1L);
     }
 
     @Test
@@ -184,7 +192,9 @@ class UserServiceImplTest {
     void findByContactPhone_retornaLista() {
         when(userRepository.findByContactPhone("631835827")).thenReturn(List.of(juan));
 
-        assertThat(userService.findByContactPhone("631835827")).extracting(UserResponse::id).containsExactly(1L);
+        assertThat(userService.findByContactPhone("631835827"))
+                .extracting(UserResponse::id)
+                .containsExactly(1L);
     }
 
     @Test
@@ -216,7 +226,8 @@ class UserServiceImplTest {
 
     @Test
     void findByFirstNameAndLastName_retornaLista() {
-        when(userRepository.findByFirstNameIgnoreCaseAndLastNameIgnoreCase("juan", "pérez")).thenReturn(List.of(juan));
+        when(userRepository.findByFirstNameIgnoreCaseAndLastNameIgnoreCase("juan", "pérez"))
+                .thenReturn(List.of(juan));
 
         assertThat(userService.findByFirstNameAndLastName("juan", "pérez")).hasSize(1);
     }
@@ -255,14 +266,16 @@ class UserServiceImplTest {
     void findAllFiltro_porContactEmail() {
         when(userRepository.findByContactEmail("mel@booqi.com")).thenReturn(Optional.of(juan));
 
-        assertThat(userService.findAll(new UserFilter("mel@booqi.com", null, null, null, null))).hasSize(1);
+        assertThat(userService.findAll(new UserFilter("mel@booqi.com", null, null, null, null)))
+                .hasSize(1);
     }
 
     @Test
     void findAllFiltro_porContactPhone() {
         when(userRepository.findByContactPhone("631835827")).thenReturn(List.of(juan));
 
-        assertThat(userService.findAll(new UserFilter(null, "631835827", null, null, null))).hasSize(1);
+        assertThat(userService.findAll(new UserFilter(null, "631835827", null, null, null)))
+                .hasSize(1);
     }
 
     @Test
@@ -288,9 +301,11 @@ class UserServiceImplTest {
 
     @Test
     void findAllFiltro_porNombreCompleto() {
-        when(userRepository.findByFirstNameIgnoreCaseAndLastNameIgnoreCase("mel", "admin")).thenReturn(List.of(juan));
+        when(userRepository.findByFirstNameIgnoreCaseAndLastNameIgnoreCase("mel", "admin"))
+                .thenReturn(List.of(juan));
 
-        assertThat(userService.findAll(new UserFilter(null, null, null, "mel", "admin"))).hasSize(1);
+        assertThat(userService.findAll(new UserFilter(null, null, null, "mel", "admin")))
+                .hasSize(1);
     }
 
     @Test
@@ -302,29 +317,42 @@ class UserServiceImplTest {
 
     @Test
     void findAllFiltro_dosFiltrosExclusivos_lanzaInvalidFilterSinConsultar() {
-        assertThatThrownBy(() -> userService.findAll(new UserFilter("mel@booqi.com", null, "ADMIN", null, null)))
+        assertThatThrownBy(
+                        () ->
+                                userService.findAll(
+                                        new UserFilter("mel@booqi.com", null, "ADMIN", null, null)))
                 .isInstanceOf(InvalidFilterException.class)
-                .hasMessage("Only one filter may be used at a time (firstName and lastName may be combined)");
+                .hasMessage(
+                        "Only one filter may be used at a time (firstName and lastName may be combined)");
         verifyNoInteractions(userRepository);
     }
 
     @Test
     void findAllFiltro_nombreCompletoMasRol_lanzaInvalidFilter() {
-        assertThatThrownBy(() -> userService.findAll(new UserFilter(null, null, "ADMIN", "Mel", "Admin")))
+        assertThatThrownBy(
+                        () ->
+                                userService.findAll(
+                                        new UserFilter(null, null, "ADMIN", "Mel", "Admin")))
                 .isInstanceOf(InvalidFilterException.class);
         verifyNoInteractions(userRepository);
     }
 
     @Test
     void findAllFiltro_nombreMasTelefono_lanzaInvalidFilter() {
-        assertThatThrownBy(() -> userService.findAll(new UserFilter(null, "631835827", null, "Mel", null)))
+        assertThatThrownBy(
+                        () ->
+                                userService.findAll(
+                                        new UserFilter(null, "631835827", null, "Mel", null)))
                 .isInstanceOf(InvalidFilterException.class);
         verifyNoInteractions(userRepository);
     }
 
     @Test
     void findAllFiltro_apellidoMasEmail_lanzaInvalidFilter() {
-        assertThatThrownBy(() -> userService.findAll(new UserFilter("mel@booqi.com", null, null, null, "Admin")))
+        assertThatThrownBy(
+                        () ->
+                                userService.findAll(
+                                        new UserFilter("mel@booqi.com", null, null, null, "Admin")))
                 .isInstanceOf(InvalidFilterException.class);
         verifyNoInteractions(userRepository);
     }
@@ -379,8 +407,9 @@ class UserServiceImplTest {
         when(userRepository.findById(1L)).thenReturn(Optional.of(juan));
         when(userRepository.save(juan)).thenReturn(juan);
 
-        UserResponse resultado = userService.update(1L,
-                new UpdateUserRequest("Andy", null, null, null, null, null, null));
+        UserResponse resultado =
+                userService.update(
+                        1L, new UpdateUserRequest("Andy", null, null, null, null, null, null));
 
         assertThat(resultado.firstName()).isEqualTo("Andy");
         assertThat(resultado.lastName()).isEqualTo("Pérez");
@@ -482,10 +511,12 @@ class UserServiceImplTest {
 
     @Test
     void login_cuandoPasswordCoincideConHash_retornaUsuario() {
-        when(userRepository.findByContactEmail("juan.perez@email.com")).thenReturn(Optional.of(juan));
+        when(userRepository.findByContactEmail("juan.perez@email.com"))
+                .thenReturn(Optional.of(juan));
         when(passwordEncoder.matches("securepass123", "$2a$10$storedhash")).thenReturn(true);
 
-        UserResponse resultado = userService.login(new LoginRequest("juan.perez@email.com", "securepass123"));
+        UserResponse resultado =
+                userService.login(new LoginRequest("juan.perez@email.com", "securepass123"));
 
         assertThat(resultado.id()).isEqualTo(1L);
     }
@@ -494,7 +525,8 @@ class UserServiceImplTest {
     void login_cuandoEmailDesconocido_lanzaInvalidCredentials() {
         when(userRepository.findByContactEmail("nobody@booqi.com")).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> userService.login(new LoginRequest("nobody@booqi.com", "whatever1")))
+        assertThatThrownBy(
+                        () -> userService.login(new LoginRequest("nobody@booqi.com", "whatever1")))
                 .isInstanceOf(InvalidCredentialsException.class)
                 .hasMessage("Invalid email or password");
         verify(passwordEncoder, never()).matches(any(), any());
@@ -502,10 +534,14 @@ class UserServiceImplTest {
 
     @Test
     void login_cuandoPasswordNoCoincide_lanzaInvalidCredentialsConMismoMensaje() {
-        when(userRepository.findByContactEmail("juan.perez@email.com")).thenReturn(Optional.of(juan));
+        when(userRepository.findByContactEmail("juan.perez@email.com"))
+                .thenReturn(Optional.of(juan));
         when(passwordEncoder.matches("wrong-pass", "$2a$10$storedhash")).thenReturn(false);
 
-        assertThatThrownBy(() -> userService.login(new LoginRequest("juan.perez@email.com", "wrong-pass")))
+        assertThatThrownBy(
+                        () ->
+                                userService.login(
+                                        new LoginRequest("juan.perez@email.com", "wrong-pass")))
                 .isInstanceOf(InvalidCredentialsException.class)
                 .hasMessage("Invalid email or password");
     }

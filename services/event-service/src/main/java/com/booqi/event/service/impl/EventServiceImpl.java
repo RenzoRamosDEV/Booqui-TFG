@@ -12,8 +12,10 @@ import com.booqi.event.exception.ResourceNotFoundException;
 import com.booqi.event.mapper.EventMapper;
 import com.booqi.event.repository.EventRepository;
 import com.booqi.event.service.EventService;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -93,7 +95,8 @@ public class EventServiceImpl implements EventService {
     public EventResponse update(Long id, UpdateEventRequest request) {
         Event event = getEvent(id);
         String newEmail = request.contactEmail();
-        if (newEmail != null && !newEmail.equals(event.getContactEmail())
+        if (newEmail != null
+                && !newEmail.equals(event.getContactEmail())
                 && eventRepository.existsByContactEmail(newEmail)) {
             throw duplicateEmail(newEmail);
         }
@@ -127,7 +130,8 @@ public class EventServiceImpl implements EventService {
         if (!StringUtils.hasText(contactEmail)) {
             return List.of();
         }
-        return eventRepository.findByContactEmail(contactEmail)
+        return eventRepository
+                .findByContactEmail(contactEmail)
                 .map(event -> List.of(eventMapper.toResponse(event)))
                 .orElse(List.of());
     }
@@ -164,8 +168,13 @@ public class EventServiceImpl implements EventService {
             throw new BusinessException("Event " + id + " has no stock configured");
         }
         if (available < quantity) {
-            throw new BusinessException("Insufficient stock for event " + id
-                    + ": available " + available + ", requested " + quantity);
+            throw new BusinessException(
+                    "Insufficient stock for event "
+                            + id
+                            + ": available "
+                            + available
+                            + ", requested "
+                            + quantity);
         }
         event.setAvailableTickets(available - quantity);
         Event saved = eventRepository.save(event);

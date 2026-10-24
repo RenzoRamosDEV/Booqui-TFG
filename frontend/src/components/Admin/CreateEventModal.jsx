@@ -1,4 +1,3 @@
-
 // Componente modal para crear nuevos eventos desde el panel de administración
 
 import { useState } from 'react'
@@ -12,103 +11,108 @@ const CATEGORIES = ['Música', 'Arte', 'Deporte', 'Gastronomía', 'Tecnología',
 export default function CreateEventModal({ isOpen, onClose, onEventCreated }) {
   // Estado para los datos del formulario
   const [formData, setFormData] = useState({
-    title: '',              // Título del evento
-    description: '',        // Descripción 
-    availableTickets: '',   // Número de entradas disponibles
-    location: '',           // Ubicación del evento
-    startDate: '',          // Fecha y hora de inicio
-    endDate: '',            // Fecha y hora de fin
-    organizer: '',          // Nombre del organizador
-    price: '',              // Precio por entrada
-    category: 'Otros',      // Categoría (por defecto "Otros")
-    contactEmail: '',       // Email de contacto
-    contactPhone: '',       // Teléfono de contacto
-    imageUrl: ''            // URL de la imagen  que funciona copiando la direccion de imagen xd
+    title: '', // Título del evento
+    description: '', // Descripción
+    availableTickets: '', // Número de entradas disponibles
+    location: '', // Ubicación del evento
+    startDate: '', // Fecha y hora de inicio
+    endDate: '', // Fecha y hora de fin
+    organizer: '', // Nombre del organizador
+    price: '', // Precio por entrada
+    category: 'Otros', // Categoría (por defecto "Otros")
+    contactEmail: '', // Email de contacto
+    contactPhone: '', // Teléfono de contacto
+    imageUrl: '', // URL de la imagen  que funciona copiando la direccion de imagen xd
   })
-  
-  const [loading, setLoading] = useState(false)  // Estado de carga durante el envío
-  const [errors, setErrors] = useState({})       // Errores de validación
+
+  const [loading, setLoading] = useState(false) // Estado de carga durante el envío
+  const [errors, setErrors] = useState({}) // Errores de validación
 
   // Maneja los cambios en los campos del formulario
   const handleChange = (e) => {
     const { name, value } = e.target
-    setFormData(prev => ({ ...prev, [name]: value }))
+    setFormData((prev) => ({ ...prev, [name]: value }))
     // Limpiar el error del campo cuando el usuario empieza a escribir
     if (errors[name]) {
-      setErrors(prev => ({ ...prev, [name]: '' }))
+      setErrors((prev) => ({ ...prev, [name]: '' }))
     }
   }
 
   // Valida todos los campos del formulario antes de enviar
   const validateForm = () => {
     const newErrors = {}
-    
+
     // Validación del título
     if (!formData.title.trim()) newErrors.title = 'El título es obligatorio'
     if (formData.title.length < 3) newErrors.title = 'Mínimo 3 caracteres'
-    
+
     // Validación de entradas disponibles
-    if (!formData.availableTickets) newErrors.availableTickets = 'El número de entradas es obligatorio'
+    if (!formData.availableTickets)
+      newErrors.availableTickets = 'El número de entradas es obligatorio'
     if (formData.availableTickets < 0) newErrors.availableTickets = 'No puede ser negativo'
-    
+
     // Validación de ubicación
     if (!formData.location.trim()) newErrors.location = 'La ubicación es obligatoria'
-    
+
     // Validación de fechas
     if (!formData.startDate) newErrors.startDate = 'La fecha de inicio es obligatoria'
     if (!formData.endDate) newErrors.endDate = 'La fecha de fin es obligatoria'
-    
+
     // Validación: fecha de fin debe ser posterior a fecha de inicio
-    if (formData.startDate && formData.endDate && new Date(formData.startDate) >= new Date(formData.endDate)) {
+    if (
+      formData.startDate &&
+      formData.endDate &&
+      new Date(formData.startDate) >= new Date(formData.endDate)
+    ) {
       newErrors.endDate = 'La fecha de fin debe ser posterior a la de inicio'
     }
-    
+
     // Validación del organizador
     if (!formData.organizer.trim()) newErrors.organizer = 'El organizador es obligatorio'
-    
+
     // Validación del precio
     if (!formData.price && formData.price !== 0) newErrors.price = 'El precio es obligatorio'
     if (formData.price < 0) newErrors.price = 'El precio no puede ser negativo'
-    
+
     // Validación del email
     if (!formData.contactEmail.trim()) newErrors.contactEmail = 'El email es obligatorio'
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     if (formData.contactEmail && !emailRegex.test(formData.contactEmail)) {
       newErrors.contactEmail = 'Email inválido'
     }
-    
+
     // Validación del teléfono (9-15 dígitos, opcionalmente con +)
     if (!formData.contactPhone.trim()) newErrors.contactPhone = 'El teléfono es obligatorio'
     const phoneRegex = /^\+?[0-9]{9,15}$/
     if (formData.contactPhone && !phoneRegex.test(formData.contactPhone)) {
       newErrors.contactPhone = 'Teléfono inválido (9-15 dígitos)'
     }
-    
+
     setErrors(newErrors)
-    return Object.keys(newErrors).length === 0  // Retorna true si no hay errores
+    return Object.keys(newErrors).length === 0 // Retorna true si no hay errores
   }
 
   // Envía el formulario para crear el evento
   const handleSubmit = async (e) => {
     e.preventDefault()
-    
-    if (!validateForm()) return  // Si hay errores, no enviar
-    
+
+    if (!validateForm()) return // Si hay errores, no enviar
+
     setLoading(true)
     try {
       // Preparar los datos para la API (convertir tipos numéricos)
       const eventData = {
         ...formData,
         availableTickets: parseInt(formData.availableTickets),
-        price: parseFloat(formData.price)
+        price: parseFloat(formData.price),
       }
-      
-      const response = await createEvent(eventData)  // Llamada a la API
-      
+
+      const response = await createEvent(eventData) // Llamada a la API
+
       if (response.data) {
-        onEventCreated(response.data)  
-        onClose()                       
-        resetForm()                     // Limpiar el formulario
+        onEventCreated(response.data)
+        onClose()
+        resetForm() // Limpiar el formulario
       }
     } catch (err) {
       console.error('Error creando evento:', err)
@@ -133,7 +137,7 @@ export default function CreateEventModal({ isOpen, onClose, onEventCreated }) {
       category: 'Otros',
       contactEmail: '',
       contactPhone: '',
-      imageUrl: ''
+      imageUrl: '',
     })
     setErrors({})
   }
@@ -164,7 +168,6 @@ export default function CreateEventModal({ isOpen, onClose, onEventCreated }) {
         {/* Formulario de creación de evento */}
         <form onSubmit={handleSubmit} className="create-event-form">
           <div className="create-event-form-grid">
-            
             {/* Título del evento - campo obligatorio */}
             <div className="form-group full-width">
               <label htmlFor="title">
@@ -209,7 +212,9 @@ export default function CreateEventModal({ isOpen, onClose, onEventCreated }) {
                 min="0"
                 className={errors.availableTickets ? 'error' : ''}
               />
-              {errors.availableTickets && <span className="error-text">{errors.availableTickets}</span>}
+              {errors.availableTickets && (
+                <span className="error-text">{errors.availableTickets}</span>
+              )}
             </div>
 
             <div className="form-group">
@@ -303,8 +308,10 @@ export default function CreateEventModal({ isOpen, onClose, onEventCreated }) {
                 value={formData.category}
                 onChange={handleChange}
               >
-                {CATEGORIES.map(cat => (
-                  <option key={cat} value={cat}>{cat}</option>
+                {CATEGORIES.map((cat) => (
+                  <option key={cat} value={cat}>
+                    {cat}
+                  </option>
                 ))}
               </select>
             </div>

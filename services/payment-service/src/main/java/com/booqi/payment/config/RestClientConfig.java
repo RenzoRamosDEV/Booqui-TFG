@@ -1,6 +1,7 @@
 package com.booqi.payment.config;
 
 import com.booqi.payment.client.RemoteErrorHandler;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,7 +24,8 @@ public class RestClientConfig {
     }
 
     @Bean
-    public RestClient bookingRestClient(@Value("${booqi.clients.booking.base-url}") String baseUrl) {
+    public RestClient bookingRestClient(
+            @Value("${booqi.clients.booking.base-url}") String baseUrl) {
         return clientBuilder(baseUrl, "Booking").build();
     }
 

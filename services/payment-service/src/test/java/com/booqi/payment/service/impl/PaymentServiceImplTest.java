@@ -1,9 +1,20 @@
 package com.booqi.payment.service.impl;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
+
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
+
 import com.booqi.payment.client.BookingClient;
 import com.booqi.payment.client.EventClient;
 import com.booqi.payment.dto.request.CreatePaymentRequest;
@@ -17,6 +28,7 @@ import com.booqi.payment.exception.ResourceNotFoundException;
 import com.booqi.payment.mapper.PaymentMapper;
 import com.booqi.payment.mapper.PaymentMapperImpl;
 import com.booqi.payment.repository.PaymentRepository;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -34,36 +46,21 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.when;
-
 @ExtendWith(MockitoExtension.class)
 class PaymentServiceImplTest {
 
     private static final String EVEN_CARD = "4111111111111112";
     private static final String ODD_CARD = "4111111111111111";
 
-    @Mock
-    private PaymentRepository paymentRepository;
+    @Mock private PaymentRepository paymentRepository;
 
-    @Mock
-    private EventClient eventClient;
+    @Mock private EventClient eventClient;
 
-    @Mock
-    private BookingClient bookingClient;
+    @Mock private BookingClient bookingClient;
 
-    @Spy
-    private PaymentMapper paymentMapper = new PaymentMapperImpl();
+    @Spy private PaymentMapper paymentMapper = new PaymentMapperImpl();
 
-    @InjectMocks
-    private PaymentServiceImpl paymentService;
+    @InjectMocks private PaymentServiceImpl paymentService;
 
     private final List<Payment> savedSnapshots = new ArrayList<>();
 
@@ -71,7 +68,8 @@ class PaymentServiceImplTest {
         return request(method, cardNumber, new BigDecimal("100.00"));
     }
 
-    private static CreatePaymentRequest request(String method, String cardNumber, BigDecimal totalPrice) {
+    private static CreatePaymentRequest request(
+            String method, String cardNumber, BigDecimal totalPrice) {
         return new CreatePaymentRequest(1L, 3L, 2L, 2, totalPrice, method, cardNumber, "123");
     }
 
@@ -98,13 +96,15 @@ class PaymentServiceImplTest {
     }
 
     private void givenRepositoryAssignsIdAndRecordsEachSave() {
-        when(paymentRepository.save(any(Payment.class))).thenAnswer(invocation -> {
-            Payment argument = invocation.getArgument(0);
-            savedSnapshots.add(copyOf(argument));
-            Payment managed = copyOf(argument);
-            managed.setId(5L);
-            return managed;
-        });
+        when(paymentRepository.save(any(Payment.class)))
+                .thenAnswer(
+                        invocation -> {
+                            Payment argument = invocation.getArgument(0);
+                            savedSnapshots.add(copyOf(argument));
+                            Payment managed = copyOf(argument);
+                            managed.setId(5L);
+                            return managed;
+                        });
     }
 
     private Payment firstSave() {
@@ -116,8 +116,16 @@ class PaymentServiceImplTest {
     }
 
     private static Payment payment(long id, String status) {
-        return Payment.builder().id(id).bookingId(1L).userId(3L).eventId(2L).ticketQuantity(2)
-                .totalPrice(new BigDecimal("100.00")).paymentMethod("PAYPAL").status(status).build();
+        return Payment.builder()
+                .id(id)
+                .bookingId(1L)
+                .userId(3L)
+                .eventId(2L)
+                .ticketQuantity(2)
+                .totalPrice(new BigDecimal("100.00"))
+                .paymentMethod("PAYPAL")
+                .status(status)
+                .build();
     }
 
     // process: simulation outcome
@@ -225,7 +233,9 @@ class PaymentServiceImplTest {
     @Test
     void process_cuandoDecrementStockFalla_guardaRechazadoConElMensajeYCancela() {
         givenRepositoryAssignsIdAndRecordsEachSave();
-        doThrow(new RuntimeException("fallo externo")).when(eventClient).decrementStock(anyLong(), any());
+        doThrow(new RuntimeException("fallo externo"))
+                .when(eventClient)
+                .decrementStock(anyLong(), any());
 
         PaymentResponse result = paymentService.process(cardRequest(EVEN_CARD));
 
@@ -266,13 +276,16 @@ class PaymentServiceImplTest {
     void process_cuandoStockInsuficiente_guardaRechazadoConElDetalleRemotoSinConfirmar() {
         givenRepositoryAssignsIdAndRecordsEachSave();
         doThrow(new BusinessException("Insufficient stock for event 3: available 4, requested 5"))
-                .when(eventClient).decrementStock(anyLong(), any());
+                .when(eventClient)
+                .decrementStock(anyLong(), any());
 
         PaymentResponse result = paymentService.process(request("PAYPAL", null));
 
         assertThat(result.status()).isEqualTo("REJECTED");
-        assertThat(result.errorMessage()).isEqualTo("Insufficient stock for event 3: available 4, requested 5");
-        assertThat(lastSave().getErrorMessage()).isEqualTo("Insufficient stock for event 3: available 4, requested 5");
+        assertThat(result.errorMessage())
+                .isEqualTo("Insufficient stock for event 3: available 4, requested 5");
+        assertThat(lastSave().getErrorMessage())
+                .isEqualTo("Insufficient stock for event 3: available 4, requested 5");
         verify(bookingClient, never()).confirm(anyLong());
         verify(bookingClient).cancel(1L);
     }
@@ -281,7 +294,8 @@ class PaymentServiceImplTest {
     void process_cuandoEventServiceNoDisponible_guardaRechazado() {
         givenRepositoryAssignsIdAndRecordsEachSave();
         doThrow(new RemoteServiceException("Event service is unavailable"))
-                .when(eventClient).decrementStock(anyLong(), any());
+                .when(eventClient)
+                .decrementStock(anyLong(), any());
 
         PaymentResponse result = paymentService.process(request("PAYPAL", null));
 
@@ -306,7 +320,8 @@ class PaymentServiceImplTest {
     void process_totalPriceEnElMaximo_seProcesa() {
         givenRepositoryAssignsIdAndRecordsEachSave();
 
-        PaymentResponse result = paymentService.process(request("PAYPAL", null, new BigDecimal("99999999.99")));
+        PaymentResponse result =
+                paymentService.process(request("PAYPAL", null, new BigDecimal("99999999.99")));
 
         assertThat(result.status()).isEqualTo("APPROVED");
         assertThat(firstSave().getTotalPrice()).isEqualByComparingTo("99999999.99");
@@ -327,8 +342,10 @@ class PaymentServiceImplTest {
 
             paymentService.process(cardRequest(EVEN_CARD));
 
-            List<String> messages = appender.list.stream().map(ILoggingEvent::getFormattedMessage).toList();
-            assertThat(messages).isNotEmpty()
+            List<String> messages =
+                    appender.list.stream().map(ILoggingEvent::getFormattedMessage).toList();
+            assertThat(messages)
+                    .isNotEmpty()
                     .noneMatch(message -> message.contains(EVEN_CARD))
                     .noneMatch(message -> message.contains("cvv=123"))
                     .noneMatch(message -> message.contains("Card ends in"))
@@ -373,9 +390,12 @@ class PaymentServiceImplTest {
 
     @Test
     void findAll_retornaTodosMapeados() {
-        when(paymentRepository.findAll()).thenReturn(List.of(payment(1L, "APPROVED"), payment(2L, "REJECTED")));
+        when(paymentRepository.findAll())
+                .thenReturn(List.of(payment(1L, "APPROVED"), payment(2L, "REJECTED")));
 
-        assertThat(paymentService.findAll()).extracting(PaymentResponse::id).containsExactly(1L, 2L);
+        assertThat(paymentService.findAll())
+                .extracting(PaymentResponse::id)
+                .containsExactly(1L, 2L);
     }
 
     @Test
@@ -389,28 +409,37 @@ class PaymentServiceImplTest {
     void findByUserId_retornaPagosDelUsuario() {
         when(paymentRepository.findByUserId(3L)).thenReturn(List.of(payment(1L, "APPROVED")));
 
-        assertThat(paymentService.findByUserId(3L)).extracting(PaymentResponse::id).containsExactly(1L);
+        assertThat(paymentService.findByUserId(3L))
+                .extracting(PaymentResponse::id)
+                .containsExactly(1L);
     }
 
     @Test
     void findByEventId_retornaPagosDelEvento() {
         when(paymentRepository.findByEventId(2L)).thenReturn(List.of(payment(2L, "APPROVED")));
 
-        assertThat(paymentService.findByEventId(2L)).extracting(PaymentResponse::id).containsExactly(2L);
+        assertThat(paymentService.findByEventId(2L))
+                .extracting(PaymentResponse::id)
+                .containsExactly(2L);
     }
 
     @Test
     void findByBookingId_retornaPagosDeLaReserva() {
         when(paymentRepository.findByBookingId(1L)).thenReturn(List.of(payment(3L, "APPROVED")));
 
-        assertThat(paymentService.findByBookingId(1L)).extracting(PaymentResponse::id).containsExactly(3L);
+        assertThat(paymentService.findByBookingId(1L))
+                .extracting(PaymentResponse::id)
+                .containsExactly(3L);
     }
 
     @Test
     void findByStatus_retornaPagosConEseEstado() {
-        when(paymentRepository.findByStatus("REJECTED")).thenReturn(List.of(payment(4L, "REJECTED")));
+        when(paymentRepository.findByStatus("REJECTED"))
+                .thenReturn(List.of(payment(4L, "REJECTED")));
 
-        assertThat(paymentService.findByStatus("REJECTED")).extracting(PaymentResponse::id).containsExactly(4L);
+        assertThat(paymentService.findByStatus("REJECTED"))
+                .extracting(PaymentResponse::id)
+                .containsExactly(4L);
     }
 
     // findAll(PaymentFilter)
@@ -435,7 +464,8 @@ class PaymentServiceImplTest {
         when(paymentRepository.findByUserId(3L)).thenReturn(List.of(payment(1L, "APPROVED")));
 
         assertThat(paymentService.findAll(new PaymentFilter(3L, null, null, null)))
-                .extracting(PaymentResponse::id).containsExactly(1L);
+                .extracting(PaymentResponse::id)
+                .containsExactly(1L);
     }
 
     @Test
@@ -443,7 +473,8 @@ class PaymentServiceImplTest {
         when(paymentRepository.findByEventId(2L)).thenReturn(List.of(payment(2L, "APPROVED")));
 
         assertThat(paymentService.findAll(new PaymentFilter(null, 2L, null, null)))
-                .extracting(PaymentResponse::id).containsExactly(2L);
+                .extracting(PaymentResponse::id)
+                .containsExactly(2L);
     }
 
     @Test
@@ -451,15 +482,18 @@ class PaymentServiceImplTest {
         when(paymentRepository.findByBookingId(1L)).thenReturn(List.of(payment(3L, "APPROVED")));
 
         assertThat(paymentService.findAll(new PaymentFilter(null, null, 1L, null)))
-                .extracting(PaymentResponse::id).containsExactly(3L);
+                .extracting(PaymentResponse::id)
+                .containsExactly(3L);
     }
 
     @Test
     void findAllFiltro_porStatus() {
-        when(paymentRepository.findByStatus("APPROVED")).thenReturn(List.of(payment(4L, "APPROVED")));
+        when(paymentRepository.findByStatus("APPROVED"))
+                .thenReturn(List.of(payment(4L, "APPROVED")));
 
         assertThat(paymentService.findAll(new PaymentFilter(null, null, null, "APPROVED")))
-                .extracting(PaymentResponse::id).containsExactly(4L);
+                .extracting(PaymentResponse::id)
+                .containsExactly(4L);
     }
 
     @Test

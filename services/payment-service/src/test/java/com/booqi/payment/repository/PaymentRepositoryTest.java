@@ -1,7 +1,10 @@
 package com.booqi.payment.repository;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.booqi.payment.config.JpaConfig;
 import com.booqi.payment.entity.Payment;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
@@ -13,8 +16,6 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
@@ -33,7 +34,8 @@ class PaymentRepositoryTest {
         paymentRepository.deleteAll();
     }
 
-    private static Payment buildPayment(Long bookingId, Long userId, Long eventId, String method, String status) {
+    private static Payment buildPayment(
+            Long bookingId, Long userId, Long eventId, String method, String status) {
         return Payment.builder()
                 .bookingId(bookingId)
                 .userId(userId)
@@ -62,7 +64,8 @@ class PaymentRepositoryTest {
 
     @Test
     void save_rellenaIdYFechasDeAuditoria() {
-        Payment saved = paymentRepository.saveAndFlush(buildPayment(1L, 1L, 1L, "PAYPAL", "PENDING"));
+        Payment saved =
+                paymentRepository.saveAndFlush(buildPayment(1L, 1L, 1L, "PAYPAL", "PENDING"));
 
         assertThat(saved.getId()).isNotNull();
         assertThat(saved.getCreatedAt()).isNotNull();
@@ -71,7 +74,8 @@ class PaymentRepositoryTest {
 
     @Test
     void cambioDeEstado_avanzaUpdatedAtYConservaCreatedAt() throws InterruptedException {
-        Payment saved = paymentRepository.saveAndFlush(buildPayment(1L, 1L, 1L, "PAYPAL", "PENDING"));
+        Payment saved =
+                paymentRepository.saveAndFlush(buildPayment(1L, 1L, 1L, "PAYPAL", "PENDING"));
         LocalDateTime createdAt = saved.getCreatedAt();
         LocalDateTime updatedAtInicial = saved.getUpdatedAt();
         Thread.sleep(5);
@@ -200,7 +204,8 @@ class PaymentRepositoryTest {
         Payment payment = buildPayment(1L, 1L, 1L, "PAYPAL", "APPROVED");
         payment.setTotalPrice(new BigDecimal("0.00"));
 
-        assertThat(paymentRepository.save(payment).getTotalPrice()).isEqualByComparingTo(BigDecimal.ZERO);
+        assertThat(paymentRepository.save(payment).getTotalPrice())
+                .isEqualByComparingTo(BigDecimal.ZERO);
     }
 
     @Test
@@ -209,6 +214,7 @@ class PaymentRepositoryTest {
         payment.setTicketQuantity(500);
         payment.setTotalPrice(new BigDecimal("99999.99"));
 
-        assertThat(paymentRepository.save(payment).getTotalPrice()).isEqualByComparingTo(new BigDecimal("99999.99"));
+        assertThat(paymentRepository.save(payment).getTotalPrice())
+                .isEqualByComparingTo(new BigDecimal("99999.99"));
     }
 }

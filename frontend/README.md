@@ -236,6 +236,21 @@ de posición (`PlaceholderPage`) muestran un `EmptyState` «Próximamente»; el 
 las pantallas reales. Mientras una página sale con su animación sigue montada; `RequireAuth` no redirige desde una
 página que está saliendo para no entrar en un bucle de redirecciones.
 
+## Entradas (PDF y QR)
+
+Un único módulo en `src/features/tickets/` genera las entradas para el checkout y para «Mis reservas»:
+
+- `ticketPages(bookings)` (puro): una página por entrada (`ticketQuantity` por reserva), numeradas `n / N` por
+  reserva, con evento, fecha en `es-ES`, lugar, titular y código de reserva; las reservas `CANCELLED` no generan
+  páginas. `ticketFileName` da `booqi-<slug-del-título>-<id>.pdf`.
+- `renderTicketPdf(pages)` dibuja el PDF con `pdf-lib` (A5 apaisado, banda de marca, matriz con QR). El logo se
+  importa como asset de Vite (`import logoUrl from '../../assets/logo_booqi_nuevo.png'`), nunca por ruta de `src`.
+  Los textos se limitan al juego de caracteres de las fuentes estándar de PDF (lo demás se sustituye por `?`).
+- `qrDataUrl(id)` genera en el navegador, con `qrcode`, un PNG que codifica solo el id de la reserva en decimal.
+  Ningún backend puede verificarlo (ver `docs/BACKEND_GAPS.md`).
+- `pdf-lib` y `qrcode` solo se cargan con `import()` al pulsar «Descargar entradas» o al mostrar un QR, así que
+  quedan fuera del chunk de entrada. Un fallo al generar muestra un toast de error, nunca `alert`.
+
 ## Decisiones
 
 - **HTTP (D2).** Una única instancia Axios sin interceptor de petición; los errores se normalizan a `ApiError`

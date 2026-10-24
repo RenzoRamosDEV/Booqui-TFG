@@ -113,6 +113,29 @@ crudo) expone `theme` y `toggle()`.
 Las fuentes (Space Grotesk para titulares, Inter para el texto) se sirven desde el propio origen con
 `@fontsource-variable`; no se hace ninguna petición a Google Fonts.
 
+## Componentes UI
+
+Los componentes base viven en `src/components/ui/`, hechos a mano sobre Tailwind (variantes con mapas de
+clases y `cn()`), con sus pruebas al lado. Todos muestran un anillo de foco `--ring` con `focus-visible`.
+
+| Componente                    | Variantes / props clave                                                             | Contrato de accesibilidad                                                                                                                                                                         |
+| ----------------------------- | ----------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Button`                      | `variant` primary · secondary · ghost · destructive; `size` sm · md · lg; `loading` | `type="button"` por defecto; en `loading` queda deshabilitado, con `aria-busy="true"` e ignora clics; escala ≤ 1,02 al pasar el ratón (sin escala con movimiento reducido)                        |
+| `Input`, `Select`, `Textarea` | `label` (obligatorio), `error`, props nativas y `ref` (React Hook Form)             | Etiqueta visible asociada con `useId()`; con `error`: `aria-invalid="true"` y `aria-describedby` al mensaje mostrado bajo el campo                                                                |
+| `Card`                        | props de `div`                                                                      | Contenedor neutro                                                                                                                                                                                 |
+| `Badge`                       | `tone` neutral · brand · success · warning · danger                                 | Texto, nunca solo color                                                                                                                                                                           |
+| `Skeleton`                    | `className` para el tamaño                                                          | `aria-hidden="true"`; quien lo use marca la región con `aria-busy`; sin animación con movimiento reducido                                                                                         |
+| `Avatar`                      | `name`, `src` opcional                                                              | Imagen con `alt` = nombre; sin imagen (o si falla) iniciales con `role="img"` y `aria-label`                                                                                                      |
+| `EmptyState`                  | `title`, `description`, `icon`, `action`                                            | Título como `h2`                                                                                                                                                                                  |
+| `Tabs`                        | `label`, `items`, `defaultValue`, `onChange`                                        | `tablist`/`tab`/`tabpanel` enlazados; tabindex itinerante; ←/→ (circular), Inicio y Fin mueven foco y selección                                                                                   |
+| `Pagination`                  | `page`, `totalPages`, `onPageChange`                                                | `nav` «Paginación»; anterior/siguiente deshabilitados en los extremos; `aria-current="page"`; elipsis ocultas al lector                                                                           |
+| `Dialog`, `Drawer`            | `open`, `onClose`, `title`, `description`, `footer`                                 | Portal a `body`, `role="dialog"`, `aria-modal`, nombre y descripción; foco atrapado (Tab circular), Escape/fondo/botón «Cerrar» cierran, foco devuelto al disparador, scroll del `body` bloqueado |
+| `ToastProvider` + `useToast`  | `show({ title, description, tone, duration = 4000 })`, `dismiss(id)`                | Región `role="status"` `aria-live="polite"` siempre presente; cierre automático y botón «Cerrar notificación»                                                                                     |
+
+Las animaciones salen de `src/lib/motion.ts` (`overlayTransition`, `toastTransition`, `pressable`), que con
+movimiento reducido devuelven solo fundidos de opacidad de 150 ms. `Dialog`/`Drawer` no usan `<dialog>` nativo:
+jsdom no implementa `showModal` y la animación de salida necesita el elemento montado.
+
 ## Mutation testing
 
 `npm run test:mutation` ejecuta Stryker sobre `src/lib/**`, `src/features/**/api/**` y `src/features/**/hooks/**`

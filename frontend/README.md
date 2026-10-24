@@ -125,10 +125,12 @@ ficheros:
 npm run test:mutation -- --mutate src/lib/contrast.ts,src/lib/theme.ts
 ```
 
-El informe HTML queda en `reports/mutation/index.html`.
+El informe HTML queda en `reports/mutation/index.html`. Con el modo incremental el informe muestra también los
+resultados guardados de ficheros fuera del `--mutate`; la puntuación de un cambio se lee en sus filas.
 
 ### Mutantes supervivientes justificados
 
-| Fichero                 | Mutante                              | Por qué sobrevive                                                                                                                                                               |
-| ----------------------- | ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `src/lib/contrast.ts:5` | `srgb <= 0.04045` → `srgb < 0.04045` | Equivalente: los canales son enteros de 8 bits y ninguno da exactamente 0,04045 (10/255 = 0,0392 y 11/255 = 0,0431), así que ambas comparaciones eligen siempre el mismo tramo. |
+| Fichero                        | Mutante                                                    | Por qué sobrevive                                                                                                                                                                                                        |
+| ------------------------------ | ---------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `src/lib/contrast.ts:5`        | `srgb <= 0.04045` → `srgb < 0.04045`                       | Equivalente: los canales son enteros de 8 bits y ninguno da exactamente 0,04045 (10/255 = 0,0392 y 11/255 = 0,0431), así que ambas comparaciones eligen siempre el mismo tramo.                                          |
+| `src/lib/use-focus-trap.ts:51` | `previouslyFocused?.focus()` → `previouslyFocused.focus()` | Equivalente en la práctica: `document.activeElement` solo es `null` sin documento cargado; con la app montada siempre hay un elemento activo (como mínimo `body`). El `?.` se mantiene porque el tipo DOM admite `null`. |

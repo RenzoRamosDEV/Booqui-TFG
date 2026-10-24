@@ -81,6 +81,17 @@ test.describe('landing content', () => {
     expect(deployed).toEqual([])
   })
 
+  test('header and footer brand marks show the app logo', async ({ page }) => {
+    const logos = page.locator('.brand__mark img')
+    await expect(logos).toHaveCount(2)
+    for (const logo of await logos.all()) {
+      await expect(logo).toHaveAttribute('src', 'assets/logo.png')
+      await expect(logo).toHaveAttribute('alt', '')
+      expect(await logo.evaluate((img: HTMLImageElement) => img.naturalWidth)).toBeGreaterThan(0)
+    }
+    expect(readFileSync(join(landingDir, 'assets/logo.png')).length).toBeLessThan(20_000)
+  })
+
   test('credits the author in the footer', async ({ page }) => {
     await expect(page.locator('footer')).toContainText('RenzoRamosDEV')
   })

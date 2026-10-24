@@ -1,3 +1,4 @@
+import { lazy, Suspense, type ComponentType } from 'react'
 import { createBrowserRouter, type RouteObject } from 'react-router'
 import { RequireAuth } from './guards'
 import { AppLayout } from './layout/AppLayout'
@@ -14,6 +15,23 @@ function placeholder(path: string, props: PlaceholderPageProps): RouteObject {
       return { Component: () => <PlaceholderPage {...props} /> }
     },
   }
+}
+
+/**
+ * React Router resolves the `lazy` of every matched route before the guard element renders, so a
+ * protected page loaded that way would be downloaded even for users the guard turns away. This
+ * resolves to a tiny wrapper instead; the page's own chunk is fetched only when the guard renders it.
+ */
+function loadWhenRendered(load: () => Promise<ComponentType>): RouteObject['lazy'] {
+  const Page = lazy(async () => ({ default: await load() }))
+  function GuardedPage() {
+    return (
+      <Suspense fallback={<RouteSkeleton />}>
+        <Page />
+      </Suspense>
+    )
+  }
+  return async () => ({ Component: GuardedPage })
 }
 
 export const routes: RouteObject[] = [
@@ -100,10 +118,12 @@ export const routes: RouteObject[] = [
           {
             element: <RequireAuth requirement="admin" />,
             children: [
-              placeholder('/admin', {
-                title: 'Administración',
-                description: 'Gestiona usuarios, eventos y ventas de Booqi.',
-              }),
+              {
+                path: '/admin',
+                lazy: loadWhenRendered(() =>
+                  import('../features/admin/pages/AdminPage').then((m) => m.AdminPage),
+                ),
+              },
             ],
           },
           // Already in the entry chunk through the guards, so there is nothing to split.

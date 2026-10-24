@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { toLocalDay } from '../../../lib/dates'
 import type { CreateUserRequest } from '../../../types/user'
 
 const PHONE = /^\+?[0-9]{9,15}$/
@@ -14,17 +15,11 @@ function name(required: string, length: string) {
   return z.string().trim().min(1, required).min(2, length).max(50, length)
 }
 
-function localDay(date: Date): string {
-  const month = String(date.getMonth() + 1).padStart(2, '0')
-  const day = String(date.getDate()).padStart(2, '0')
-  return `${date.getFullYear()}-${month}-${day}`
-}
-
 function pastDay(now: Date) {
   return z
     .string()
     .regex(ISO_DAY, 'La fecha de nacimiento es obligatoria')
-    .refine((day) => day < localDay(now), 'La fecha de nacimiento debe ser una fecha pasada')
+    .refine((day) => day < toLocalDay(now), 'La fecha de nacimiento debe ser una fecha pasada')
 }
 
 const optionalPhone = z

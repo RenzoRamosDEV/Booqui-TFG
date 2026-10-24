@@ -1,6 +1,6 @@
 import { createContext, useContext } from 'react'
 
-export type ToastTone = 'info' | 'success' | 'danger'
+export type ToastTone = 'info' | 'success' | 'warning' | 'danger'
 
 export type ToastOptions = {
   title: string

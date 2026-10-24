@@ -1,5 +1,6 @@
 import { PDFDocument, StandardFonts, rgb, type PDFFont, type PDFImage, type PDFPage } from 'pdf-lib'
 import logoUrl from '../../assets/logo_booqi_nuevo.png'
+import { pdfSafe } from '../../lib/pdf-text'
 import type { TicketPage } from './hooks/ticket-content'
 import { qrDataUrl } from './qr'
 
@@ -23,15 +24,10 @@ async function fetchLogo(): Promise<Uint8Array> {
   return new Uint8Array(await response.arrayBuffer())
 }
 
-/** Standard PDF fonts only cover WinAnsi; anything else (emoji, CJK…) becomes "?". */
-function printable(text: string): string {
-  return text.normalize('NFC').replace(/[^\x20-\x7E\xA0-\xFF€]/g, '?')
-}
-
 function wrap(text: string, font: PDFFont, size: number, maxWidth: number): string[] {
   const lines: string[] = []
   let line = ''
-  for (const word of printable(text).split(/\s+/)) {
+  for (const word of pdfSafe(text).split(/\s+/)) {
     const candidate = line ? `${line} ${word}` : word
     if (line && font.widthOfTextAtSize(candidate, size) > maxWidth) {
       lines.push(line)
@@ -70,7 +66,7 @@ function drawTicket(page: PDFPage, ticket: TicketPage, fonts: Fonts, logo: PDFIm
     font: fonts.bold,
     color: rgb(0.92, 0.88, 1),
   })
-  const label = printable(ticket.ticketLabel)
+  const label = pdfSafe(ticket.ticketLabel)
   page.drawText(label, {
     x: width - MARGIN - fonts.bold.widthOfTextAtSize(label, 18),
     y: height - 56,
@@ -85,13 +81,13 @@ function drawTicket(page: PDFPage, ticket: TicketPage, fonts: Fonts, logo: PDFIm
     y -= 28
   }
   for (const line of [ticket.eventDate, ticket.eventLocation]) {
-    page.drawText(printable(line), { x: MARGIN, y, size: 12, font: fonts.regular, color: muted })
+    page.drawText(pdfSafe(line), { x: MARGIN, y, size: 12, font: fonts.regular, color: muted })
     y -= 18
   }
 
   const detail = (title: string, value: string, x: number, top: number, size = 14) => {
     page.drawText(title.toUpperCase(), { x, y: top, size: 8, font: fonts.bold, color: muted })
-    page.drawText(printable(value), { x, y: top - size - 4, size, font: fonts.bold, color: ink })
+    page.drawText(pdfSafe(value), { x, y: top - size - 4, size, font: fonts.bold, color: ink })
   }
   detail('Titular', ticket.buyerName, MARGIN, 150)
   detail('Código de reserva', ticket.code, MARGIN, 96, 24)

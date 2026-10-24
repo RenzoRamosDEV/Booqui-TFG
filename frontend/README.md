@@ -212,7 +212,7 @@ contenido», navbar con efecto cristal, `main`, pie y transición de página con
 | `/checkout`    | Pago                 | `RequireAuth('auth')`  | Revisión, método de pago y resultado por línea (reserva + pago), con QR y entradas |
 | `/my-bookings` | Mis reservas         | `RequireAuth('auth')`  | Reservas agrupadas por evento, detalle en panel lateral y cancelación con diálogo  |
 | `/profile`     | Mi perfil            | `RequireAuth('auth')`  | Edición del perfil (solo campos cambiados) y cambio de contraseña                  |
-| `/admin`       | Administración       | `RequireAuth('admin')` | Marcador de posición                                                               |
+| `/admin`       | Administración       | `RequireAuth('admin')` | Resumen, usuarios, eventos (crear/editar/borrar) y ventas con informe PDF          |
 | `*`            | Página no encontrada | Libre                  | `NotFoundPage` con enlace a `/`                                                    |
 
 **Carga bajo demanda.** Cada página es una ruta `lazy` de React Router: su código se descarga la primera vez que
@@ -251,6 +251,27 @@ página que está saliendo para no entrar en un bucle de redirecciones.
 - **Confirmación**: resultado por línea con código de reserva, QR y descarga de entradas. El check animado con
   confeti (`SuccessBurst`, solo `transform`/`opacity`, 1,5 s) aparece únicamente si todo se aprobó; con
   movimiento reducido es un fundido del check estático. No se promete ningún envío por correo.
+
+## Administración
+
+`/admin` (solo `ADMIN`) muestra tarjetas de resumen (administradores, clientes, precio medio de los eventos y total
+de ventas aprobadas) y tres pestañas:
+
+- **Usuarios**: `GET /api/v1/users`; se puede borrar cualquier cuenta salvo la propia, siempre con un `Dialog` de
+  confirmación y un toast con el resultado.
+- **Eventos**: crear y editar en un diálogo con las mismas reglas que `CreateEventRequest` (`eventFormSchema`:
+  inicio en el futuro solo al crear, fin no anterior al inicio, categoría de la lista fija). Al editar solo se
+  envían los campos cambiados (`changedFields`). Los errores de campo del backend aparecen bajo su campo y el resto
+  (p. ej. el `409` de email duplicado) en el propio diálogo, que no se cierra.
+- **Ventas**: `GET /api/v1/payments` unido a `GET /api/v1/bookings` por id de reserva (`buildSalesRows`; un pago sin
+  reserva se lista igual), filtros por estado del pago y por evento, y totales aprobado/rechazado/pendiente de las
+  filas filtradas. El informe PDF (de un evento o de la selección filtrada, con `Exportado por <admin>`) se genera
+  con `pdf-lib` bajo demanda y se puede previsualizar en un diálogo o descargar; sin filas se muestra un toast de
+  aviso en lugar de un fichero.
+
+El código de `AdminPage` no se descarga hasta que el guard deja pasar: la ruta resuelve a un envoltorio mínimo que
+importa la página con `React.lazy` al renderizarse (React Router resuelve el `lazy` de las rutas coincidentes antes
+de que el guard decida).
 
 ## Entradas (PDF y QR)
 

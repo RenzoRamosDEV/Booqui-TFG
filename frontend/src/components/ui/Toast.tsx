@@ -1,4 +1,4 @@
-import { CircleAlert, CircleCheck, Info, X, type LucideIcon } from 'lucide-react'
+import { CircleAlert, CircleCheck, Info, TriangleAlert, X, type LucideIcon } from 'lucide-react'
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { cn } from '../../lib/cn'
@@ -14,6 +14,7 @@ const DEFAULT_DURATION = 4000
 const tones: Record<ToastTone, { icon: LucideIcon; className: string }> = {
   info: { icon: Info, className: 'text-brand-600 dark:text-brand-300' },
   success: { icon: CircleCheck, className: 'text-success' },
+  warning: { icon: TriangleAlert, className: 'text-warning' },
   danger: { icon: CircleAlert, className: 'text-danger' },
 }
 

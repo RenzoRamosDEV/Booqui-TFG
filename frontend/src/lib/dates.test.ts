@@ -1,4 +1,13 @@
-import { formatDate, formatDateTime, formatShortDate, formatTime, parseLocalDate } from './dates'
+import {
+  formatDate,
+  formatDateTime,
+  formatLongDateTime,
+  formatNumericDate,
+  formatShortDate,
+  formatTime,
+  parseLocalDate,
+  toLocalDay,
+} from './dates'
 
 describe('dates (es-ES)', () => {
   it('formats a date and time', () => {
@@ -27,6 +36,30 @@ describe('parseLocalDate', () => {
   it('reads a zone-less date-time as local time', () => {
     expect(parseLocalDate('2030-11-10T21:00:00').getTime()).toBe(
       new Date(2030, 10, 10, 21, 0, 0).getTime(),
+    )
+  })
+})
+
+describe('toLocalDay', () => {
+  it.each([
+    [new Date(2030, 5, 5, 23, 59), '2030-06-05'],
+    [new Date(2030, 11, 31, 0, 0), '2030-12-31'],
+    [new Date(2030, 0, 1, 12, 0), '2030-01-01'],
+  ])('%s → %s', (date, day) => {
+    expect(toLocalDay(date)).toBe(day)
+  })
+})
+
+describe('formatNumericDate', () => {
+  it('formats a day as dd/mm/yyyy', () => {
+    expect(formatNumericDate('2030-01-12T10:00:00')).toBe('12/01/2030')
+  })
+})
+
+describe('formatLongDateTime', () => {
+  it('formats a date and time without weekday', () => {
+    expect(formatLongDateTime(new Date(2030, 5, 15, 10, 30))).toBe(
+      '15 de junio de 2030 a las 10:30',
     )
   })
 })

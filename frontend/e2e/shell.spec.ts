@@ -30,7 +30,9 @@ test('a protected route without session redirects to login', async ({ page }) =>
 
 test('a customer on /admin sees the not-found page and sends no admin writes', async ({ page }) => {
   const writes: string[] = []
+  const adminChunks: string[] = []
   page.on('request', (request) => {
+    if (/AdminPage[-.]/.test(request.url())) adminChunks.push(request.url())
     if (/POST|PUT|DELETE/.test(request.method()) && request.url().includes('/api/v1/events')) {
       writes.push(`${request.method()} ${request.url()}`)
     }
@@ -43,6 +45,7 @@ test('a customer on /admin sees the not-found page and sends no admin writes', a
   await expect(page.getByRole('banner').getByText('Mel')).toBeVisible()
   await page.waitForLoadState('networkidle')
   expect(writes).toEqual([])
+  expect(adminChunks).toEqual([])
 })
 
 for (const width of [360, 768, 1024, 1440]) {

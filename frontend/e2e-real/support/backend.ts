@@ -17,6 +17,8 @@ export interface RealEvent {
   title: string
   availableTickets: number
   price: number
+  location: string
+  contactEmail: string
 }
 
 export interface RealBooking {
@@ -24,7 +26,16 @@ export interface RealBooking {
   userId: number
   eventId: number
   ticketQuantity: number
+  totalPrice: number
   status: 'PENDING' | 'CONFIRMED' | 'CANCELLED'
+}
+
+export interface RealPayment {
+  id: number
+  bookingId: number
+  totalPrice: number
+  paymentMethod: string
+  status: 'PENDING' | 'APPROVED' | 'REJECTED'
 }
 
 let sequence = 0
@@ -104,4 +115,67 @@ export async function bookingsOf(
 ): Promise<RealBooking[]> {
   const response = await request.get('/api/v1/bookings', { params: { userId } })
   return expectStatus<RealBooking[]>(response, 200, 'list bookings')
+}
+
+export async function deleteEvent(request: APIRequestContext, id: number): Promise<void> {
+  const response = await request.delete(`/api/v1/events/${id}`)
+  if (response.status() !== 204) {
+    throw new Error(`delete event: expected HTTP 204, got ${response.status()}`)
+  }
+}
+
+export async function findEventByTitle(
+  request: APIRequestContext,
+  title: string,
+): Promise<RealEvent | undefined> {
+  const response = await request.get('/api/v1/events', { params: { title } })
+  const events = await expectStatus<RealEvent[]>(response, 200, 'find event')
+  return events.find((event) => event.title === title)
+}
+
+export async function statusOf(request: APIRequestContext, path: string): Promise<number> {
+  return (await request.get(path)).status()
+}
+
+export async function paymentOfBooking(
+  request: APIRequestContext,
+  bookingId: number,
+): Promise<RealPayment | undefined> {
+  const payments = await expectStatus<RealPayment[]>(
+    await request.get('/api/v1/payments'),
+    200,
+    'list payments',
+  )
+  return payments.find((payment) => payment.bookingId === bookingId)
+}
+
+export async function purchaseViaApi(
+  request: APIRequestContext,
+  customer: Customer,
+  event: RealEvent,
+  ticketQuantity: number,
+  cardNumber: string,
+): Promise<RealPayment> {
+  const booking = await expectStatus<RealBooking>(
+    await request.post('/api/v1/bookings', {
+      data: { userId: customer.id, eventId: event.id, ticketQuantity },
+    }),
+    201,
+    'create booking',
+  )
+  return expectStatus<RealPayment>(
+    await request.post('/api/v1/payments', {
+      data: {
+        bookingId: booking.id,
+        userId: customer.id,
+        eventId: event.id,
+        ticketQuantity,
+        totalPrice: booking.totalPrice,
+        paymentMethod: 'CREDIT_CARD',
+        cardNumber,
+      },
+    }),
+    201,
+    'create payment',
+  )
 }

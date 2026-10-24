@@ -50,7 +50,8 @@ No reutiliza servidores ya arrancados, para no probar por error otra aplicación
 ## E2E contra el backend real
 
 `npm run test:e2e:real` (`playwright.real.config.ts`, carpeta `e2e-real/`) ejecuta en el navegador los flujos de
-login, compra y «Mis reservas» contra los servicios reales, sin interceptar ninguna petición y
+login, compra y «Mis reservas» y el recorrido de paridad (`e2e-real/parity.spec.ts`, una prueba por fila de
+[`docs/FEATURE_PARITY.md`](docs/FEATURE_PARITY.md), más una que comprueba que no falta ninguna fila) contra los servicios reales, sin interceptar ninguna petición y
 sin arrancar ningún servidor propio. `npm run test:e2e` sigue ejecutando solo la suite simulada y es la que corre en
 CI; esta no.
 

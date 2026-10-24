@@ -161,6 +161,19 @@ de evento (oscuro) y administración (claro), y las convierte a WebP de 640 y 12
 un `<canvas>` de Chromium, sin dependencias de imagen. Por el mismo camino regenera `assets/icon-32.png` y
 `assets/icon-192.png` a partir de `public/BOOQI2.png`.
 
+Presupuesto de calidad: Lighthouse en modo móvil (el predeterminado) ≥ 95 en Rendimiento, Accesibilidad, Buenas
+prácticas y SEO, sobre la landing servida en local. Se mide tres veces y se toma la mediana:
+
+```bash
+npm run serve:landing &
+CHROME_PATH=$(node -e "import('@playwright/test').then((m) => console.log(m.chromium.executablePath()))") \
+  npx lighthouse http://localhost:4190/Booqui-TFG/ --chrome-flags="--headless=new" \
+  --output=json --output=html --output-path=reports/landing-lighthouse/landing
+```
+
+Los informes quedan en `reports/` (ignorado por git). No se ejecuta en CI: necesita un navegador y su variación en
+una máquina cargada no permite usarlo como puerta en cada push.
+
 El tema usa la misma clave que la app, `localStorage['booqi-theme']` (`light` o `dark`), y el mismo script en
 línea antes del primer pintado, así que la elección se comparte con la app cuando ambas están en el mismo origen.
 

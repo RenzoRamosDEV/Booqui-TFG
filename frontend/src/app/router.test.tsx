@@ -1,6 +1,8 @@
 import { render, screen, waitFor, within } from '@testing-library/react'
 import { RouterProvider, createMemoryRouter, type RouteObject } from 'react-router'
 import { useSessionStore } from '../features/auth/hooks/session-store'
+import { installFakeApi } from '../test/fake-api'
+import { eventWith } from '../test/fixtures/events'
 import { userWith } from '../test/users'
 import { Providers } from './providers'
 import { routes } from './router'
@@ -22,13 +24,19 @@ function description() {
 beforeEach(() => {
   useSessionStore.setState({ user: null })
   localStorage.clear()
+  const api = installFakeApi()
+  api.get('/api/v1/events', { status: 200, data: [] })
+  api.get('/api/v1/events/42', {
+    status: 200,
+    data: eventWith({ id: 42, title: 'Jazz en Madrid' }),
+  })
 })
 
 describe('routes', () => {
   it.each([
     ['/', 'Inicio · Booqi'],
     ['/events', 'Eventos · Booqi'],
-    ['/events/42', 'Detalle del evento · Booqi'],
+    ['/events/42', 'Jazz en Madrid · Booqi'],
     ['/cart', 'Carrito · Booqi'],
     ['/login', 'Iniciar sesión · Booqi'],
     ['/register', 'Crear cuenta · Booqi'],
@@ -91,7 +99,7 @@ describe('routes', () => {
   })
 
   it('shows a "Próximamente" placeholder for screens not built yet', async () => {
-    renderAt('/events')
+    renderAt('/cart')
 
     expect(await screen.findByRole('heading', { name: 'Próximamente' })).toBeInTheDocument()
   })

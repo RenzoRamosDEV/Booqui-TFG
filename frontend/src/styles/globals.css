@@ -95,6 +95,11 @@
     mask-image: radial-gradient(ellipse 70% 60% at 50% 30%, #000 30%, transparent 75%);
   }
 
+  .event-fallback-pattern {
+    background-image: radial-gradient(rgb(255 255 255 / 0.35) 1px, transparent 1px);
+    background-size: 16px 16px;
+  }
+
   .brand-blob {
     animation: brand-float 14s ease-in-out infinite alternate;
     will-change: transform;
@@ -106,6 +111,11 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
+    .event-fallback-pattern {
+      background-image: radial-gradient(rgb(255 255 255 / 0.35) 1px, transparent 1px);
+      background-size: 16px 16px;
+    }
+
     .brand-blob {
       animation: none;
     }

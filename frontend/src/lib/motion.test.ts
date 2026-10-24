@@ -1,4 +1,11 @@
-import { overlayTransition, pageTransition, pressable, toastTransition } from './motion'
+import {
+  hoverLift,
+  listStagger,
+  overlayTransition,
+  pageTransition,
+  pressable,
+  toastTransition,
+} from './motion'
 
 type Preset = ReturnType<typeof pageTransition>
 
@@ -86,5 +93,45 @@ describe('motion presets', () => {
     it('does not scale with reduced motion', () => {
       expect(pressable(true)).toEqual({})
     })
+  })
+})
+
+describe('listStagger', () => {
+  it('without reduced motion staggers children rising into place', () => {
+    const { container, item } = listStagger(false)
+
+    expect(container).toEqual({
+      hidden: {},
+      visible: { transition: { staggerChildren: 0.06, delayChildren: 0.04 } },
+    })
+    expect(item.hidden).toEqual({ opacity: 0, y: 16 })
+    expect(item.visible).toEqual({
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.32, ease: [0.22, 1, 0.36, 1] },
+    })
+  })
+
+  it('with reduced motion only fades items in, without stagger', () => {
+    const { container, item } = listStagger(true)
+
+    expect(container).toEqual({ hidden: {}, visible: {} })
+    expect(item).toEqual({
+      hidden: { opacity: 0 },
+      visible: { opacity: 1, transition: { duration: 0.15 } },
+    })
+  })
+})
+
+describe('hoverLift', () => {
+  it('lifts and scales to 1.02 within 150-200 ms', () => {
+    expect(hoverLift(false)).toEqual({
+      whileHover: { scale: 1.02, y: -4 },
+      transition: { duration: 0.18, ease: 'easeOut' },
+    })
+  })
+
+  it('does nothing with reduced motion', () => {
+    expect(hoverLift(true)).toEqual({})
   })
 })

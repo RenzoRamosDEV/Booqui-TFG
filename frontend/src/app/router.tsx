@@ -31,21 +31,25 @@ export const routes: RouteObject[] = [
         id: 'pages',
         ErrorBoundary: RouteErrorPage,
         children: [
-          placeholder('/', {
-            title: 'Inicio',
-            heading: 'Tus eventos favoritos,',
-            description:
-              'Descubre conciertos, exposiciones y experiencias, y reserva tus entradas en segundos.',
-            backdrop: true,
-          }),
-          placeholder('/events', {
-            title: 'Eventos',
-            description: 'Explora todos los eventos disponibles y encuentra tu próximo plan.',
-          }),
-          placeholder('/events/:id', {
-            title: 'Detalle del evento',
-            description: 'Fecha, lugar, precio y entradas disponibles del evento.',
-          }),
+          {
+            path: '/',
+            lazy: () =>
+              import('../features/events/pages/HomePage').then((m) => ({ Component: m.HomePage })),
+          },
+          {
+            path: '/events',
+            lazy: () =>
+              import('../features/events/pages/EventsPage').then((m) => ({
+                Component: m.EventsPage,
+              })),
+          },
+          {
+            path: '/events/:id',
+            lazy: () =>
+              import('../features/events/pages/EventDetailPage').then((m) => ({
+                Component: m.EventDetailPage,
+              })),
+          },
           placeholder('/cart', {
             title: 'Carrito',
             description: 'Revisa las entradas que has añadido antes de pagar.',

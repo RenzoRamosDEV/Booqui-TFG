@@ -200,20 +200,20 @@ no son `ApiError` no se reintentan; las escrituras nunca se reintentan; sin reca
 Definidas en `src/app/router.tsx` (`createBrowserRouter`), todas dentro de `AppLayout` (enlace «Saltar al
 contenido», navbar con efecto cristal, `main`, pie y transición de página con `AnimatePresence mode="wait"`).
 
-| Ruta           | Título (`· Booqi`)   | Acceso                 | Estado                                   |
-| -------------- | -------------------- | ---------------------- | ---------------------------------------- |
-| `/`            | Inicio               | Libre                  | Marcador de posición con `BrandBackdrop` |
-| `/events`      | Eventos              | Libre                  | Marcador de posición                     |
-| `/events/:id`  | Detalle del evento   | Libre                  | Marcador de posición                     |
-| `/cart`        | Carrito              | Libre                  | Marcador de posición                     |
-| `/login`       | Iniciar sesión       | Libre                  | Marcador de posición                     |
-| `/register`    | Crear cuenta         | Libre                  | Marcador de posición                     |
-| `/contact`     | Contacto             | Libre                  | Marcador de posición                     |
-| `/checkout`    | Pago                 | `RequireAuth('auth')`  | Marcador de posición                     |
-| `/my-bookings` | Mis reservas         | `RequireAuth('auth')`  | Marcador de posición                     |
-| `/profile`     | Mi perfil            | `RequireAuth('auth')`  | Marcador de posición                     |
-| `/admin`       | Administración       | `RequireAuth('admin')` | Marcador de posición                     |
-| `*`            | Página no encontrada | Libre                  | `NotFoundPage` con enlace a `/`          |
+| Ruta           | Título (`· Booqi`)   | Acceso                 | Estado                                                     |
+| -------------- | -------------------- | ---------------------- | ---------------------------------------------------------- |
+| `/`            | Inicio               | Libre                  | Portada: hero, búsqueda, categorías, destacados y próximos |
+| `/events`      | Eventos              | Libre                  | Listado con filtros y paginación en la URL                 |
+| `/events/:id`  | (título del evento)  | Libre                  | Detalle, mapa, selector de cantidad y carrito              |
+| `/cart`        | Carrito              | Libre                  | Marcador de posición                                       |
+| `/login`       | Iniciar sesión       | Libre                  | Marcador de posición                                       |
+| `/register`    | Crear cuenta         | Libre                  | Marcador de posición                                       |
+| `/contact`     | Contacto             | Libre                  | Marcador de posición                                       |
+| `/checkout`    | Pago                 | `RequireAuth('auth')`  | Marcador de posición                                       |
+| `/my-bookings` | Mis reservas         | `RequireAuth('auth')`  | Marcador de posición                                       |
+| `/profile`     | Mi perfil            | `RequireAuth('auth')`  | Marcador de posición                                       |
+| `/admin`       | Administración       | `RequireAuth('admin')` | Marcador de posición                                       |
+| `*`            | Página no encontrada | Libre                  | `NotFoundPage` con enlace a `/`                            |
 
 **Carga bajo demanda.** Cada página es una ruta `lazy` de React Router: su código se descarga la primera vez que
 se visita. Mientras carga la primera ruta se muestra `RouteSkeleton` dentro del layout (`HydrateFallback`). Los
@@ -271,13 +271,19 @@ ficheros:
 npm run test:mutation -- --mutate src/lib/contrast.ts,src/lib/theme.ts
 ```
 
+Stryker usa `vitest.mutation.config.ts`, que hereda de `vite.config.ts` pero excluye las pruebas de pantallas
+(`src/**/pages/**/*.test.tsx`) y de `src/app/**`: renderizan páginas enteras y repetirlas para cada mutante haría
+imposible bajar de 3 minutos. Por eso la lógica de `lib`, `api` y `hooks` se cubre con sus propias pruebas
+unitarias y de hooks. En una máquina muy cargada conviene limitar `--mutate` a los ficheros de un cambio.
+
 El informe HTML queda en `reports/mutation/index.html`. Con el modo incremental el informe muestra también los
 resultados guardados de ficheros fuera del `--mutate`; la puntuación de un cambio se lee en sus filas.
 
 ### Mutantes supervivientes justificados
 
-| Fichero                                       | Mutante                                                    | Por qué sobrevive                                                                                                                                                                                                        |
-| --------------------------------------------- | ---------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `src/lib/contrast.ts:5`                       | `srgb <= 0.04045` → `srgb < 0.04045`                       | Equivalente: los canales son enteros de 8 bits y ninguno da exactamente 0,04045 (10/255 = 0,0392 y 11/255 = 0,0431), así que ambas comparaciones eligen siempre el mismo tramo.                                          |
-| `src/lib/use-focus-trap.ts:51`                | `previouslyFocused?.focus()` → `previouslyFocused.focus()` | Equivalente en la práctica: `document.activeElement` solo es `null` sin documento cargado; con la app montada siempre hay un elemento activo (como mínimo `body`). El `?.` se mantiene porque el tipo DOM admite `null`. |
-| `src/features/auth/hooks/session-store.ts:24` | `catch { return undefined }` → `catch {}`                  | Equivalente: un bloque vacío también devuelve `undefined`, que Zod rechaza igual que antes.                                                                                                                              |
+| Fichero                                         | Mutante                                                    | Por qué sobrevive                                                                                                                                                                                                        |
+| ----------------------------------------------- | ---------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `src/lib/contrast.ts:5`                         | `srgb <= 0.04045` → `srgb < 0.04045`                       | Equivalente: los canales son enteros de 8 bits y ninguno da exactamente 0,04045 (10/255 = 0,0392 y 11/255 = 0,0431), así que ambas comparaciones eligen siempre el mismo tramo.                                          |
+| `src/lib/use-focus-trap.ts:51`                  | `previouslyFocused?.focus()` → `previouslyFocused.focus()` | Equivalente en la práctica: `document.activeElement` solo es `null` sin documento cargado; con la app montada siempre hay un elemento activo (como mínimo `body`). El `?.` se mantiene porque el tipo DOM admite `null`. |
+| `src/features/auth/hooks/session-store.ts:24`   | `catch { return undefined }` → `catch {}`                  | Equivalente: un bloque vacío también devuelve `undefined`, que Zod rechaza igual que antes.                                                                                                                              |
+| `src/features/events/hooks/event-filters.ts:51` | `params.get(key) ?? ''` → `?? "Stryker was here!"`         | Equivalente: cualquiera de los dos textos produce una fecha inválida y `isoDay` devuelve `undefined`; el `''` solo existe para no pasar `null` a una función que espera texto.                                           |

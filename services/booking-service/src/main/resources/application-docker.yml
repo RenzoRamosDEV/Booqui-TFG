@@ -1,10 +1,10 @@
 spring:
   datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://mysql:3306/booking}
+    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://booqi-mysql:3306/booking}
 
 booqi:
   clients:
     user:
-      base-url: ${BOOQI_USER_SERVICE_URL:http://user-service:8080}
+      base-url: ${BOOQI_USER_SERVICE_URL:http://booqi-user-service:8080}
     event:
-      base-url: ${BOOQI_EVENT_SERVICE_URL:http://event-service:8081}
+      base-url: ${BOOQI_EVENT_SERVICE_URL:http://booqi-event-service:8081}

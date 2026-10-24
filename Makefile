@@ -1,10 +1,11 @@
 .POSIX:
 COMPOSE_FILE = infra/docker/docker-compose.yml
+COMPOSE_OVERRIDE = infra/docker/docker-compose.override.yml
 ENV_FILE =
 SERVICES = user-service event-service booking-service payment-service
 FRONTENDS = frontend frontend-demo
 RESOLVE_ENV = ef="$(ENV_FILE)"; if [ -z "$$ef" ]; then if [ -f infra/.env ]; then ef=infra/.env; else ef=infra/.env.example; fi; fi
-COMPOSE = docker compose -f $(COMPOSE_FILE) --env-file "$$ef"
+COMPOSE = docker compose -f $(COMPOSE_FILE) -f $(COMPOSE_OVERRIDE) --env-file "$$ef"
 
 .PHONY: help up down clean logs ps build test lint compose-config
 
@@ -19,8 +20,8 @@ help:
 	@echo "  build           Package every service and build every frontend"
 	@echo "  test            Run the test suite of every service"
 	@echo "  lint            Lint every frontend"
-	@echo "  compose-config  Validate the compose file"
-	@echo "Variables: COMPOSE_FILE=$(COMPOSE_FILE) ENV_FILE (default: infra/.env, else infra/.env.example)"
+	@echo "  compose-config  Validate the compose files (base + dev override)"
+	@echo "Variables: COMPOSE_FILE=$(COMPOSE_FILE) COMPOSE_OVERRIDE=$(COMPOSE_OVERRIDE) ENV_FILE (default: infra/.env, else infra/.env.example)"
 
 up:
 	$(RESOLVE_ENV); $(COMPOSE) up -d --build

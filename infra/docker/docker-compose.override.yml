@@ -1,0 +1,26 @@
+# Development override: publishes the service ports and enables the dev profile.
+# The Makefile passes it explicitly; compose only auto-loads it when no -f is given.
+services:
+  booqi-user-service:
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker,dev
+
+  booqi-event-service:
+    ports:
+      - "8081:8081"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker,dev
+
+  booqi-booking-service:
+    ports:
+      - "8082:8082"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker,dev
+
+  booqi-payment-service:
+    ports:
+      - "8083:8083"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker,dev

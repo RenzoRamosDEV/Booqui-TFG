@@ -3,7 +3,7 @@ COMPOSE_FILE = infra/docker/docker-compose.yml
 COMPOSE_OVERRIDE = infra/docker/docker-compose.override.yml
 ENV_FILE =
 SERVICES = user-service event-service booking-service payment-service
-FRONTENDS = frontend frontend-demo
+FRONTENDS = frontend
 RESOLVE_ENV = ef="$(ENV_FILE)"; if [ -z "$$ef" ]; then if [ -f infra/.env ]; then ef=infra/.env; else ef=infra/.env.example; fi; fi
 COMPOSE = docker compose -f $(COMPOSE_FILE) -f $(COMPOSE_OVERRIDE) --env-file "$$ef"
 

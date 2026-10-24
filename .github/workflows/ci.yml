@@ -54,7 +54,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        app: [frontend, frontend-demo]
+        app: [frontend]
     defaults:
       run:
         working-directory: ${{ matrix.app }}
@@ -82,7 +82,6 @@ jobs:
         run: npm run build
 
       - name: Unit tests
-        if: matrix.app == 'frontend'
         run: npm test
 
   compose:

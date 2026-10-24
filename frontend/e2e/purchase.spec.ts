@@ -73,8 +73,7 @@ test('a card ending in an odd digit is rejected and the booking ends cancelled',
   expect(state.bookings[0]!.status).toBe('CANCELLED')
 })
 
-// Enabled once /my-bookings lists the bookings.
-test.fixme('the rejected booking is listed as cancelled in my bookings', async ({ page }) => {
+test('the rejected booking is listed as cancelled in my bookings', async ({ page }) => {
   await signInAs(page, customer)
   await mockApi(page)
 

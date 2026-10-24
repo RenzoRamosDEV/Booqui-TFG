@@ -30,6 +30,7 @@ test('fonts are self-hosted', async ({ page, baseURL }) => {
   })
 
   await page.goto('/')
+  await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
   await page.evaluate(() => document.fonts.ready)
 
   expect(thirdParty).toEqual([])

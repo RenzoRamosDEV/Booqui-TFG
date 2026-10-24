@@ -81,10 +81,13 @@ export const routes: RouteObject[] = [
                     Component: m.CheckoutPage,
                   })),
               },
-              placeholder('/my-bookings', {
-                title: 'Mis reservas',
-                description: 'Consulta tus reservas y descarga tus entradas.',
-              }),
+              {
+                path: '/my-bookings',
+                lazy: () =>
+                  import('../features/bookings/pages/MyBookingsPage').then((m) => ({
+                    Component: m.MyBookingsPage,
+                  })),
+              },
               {
                 path: '/profile',
                 lazy: () =>

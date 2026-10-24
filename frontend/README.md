@@ -210,7 +210,7 @@ contenido», navbar con efecto cristal, `main`, pie y transición de página con
 | `/register`    | Crear cuenta         | Libre                  | Registro de cliente con validación de `CreateUserRequest` y errores por campo      |
 | `/contact`     | Contacto             | Libre                  | Marcador de posición                                                               |
 | `/checkout`    | Pago                 | `RequireAuth('auth')`  | Revisión, método de pago y resultado por línea (reserva + pago), con QR y entradas |
-| `/my-bookings` | Mis reservas         | `RequireAuth('auth')`  | Marcador de posición                                                               |
+| `/my-bookings` | Mis reservas         | `RequireAuth('auth')`  | Reservas agrupadas por evento, detalle en panel lateral y cancelación con diálogo  |
 | `/profile`     | Mi perfil            | `RequireAuth('auth')`  | Edición del perfil (solo campos cambiados) y cambio de contraseña                  |
 | `/admin`       | Administración       | `RequireAuth('admin')` | Marcador de posición                                                               |
 | `*`            | Página no encontrada | Libre                  | `NotFoundPage` con enlace a `/`                                                    |

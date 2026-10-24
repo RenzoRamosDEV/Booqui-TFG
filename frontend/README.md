@@ -2,8 +2,9 @@
 
 Aplicación web de Booqi: React 19 + TypeScript estricto + Vite, Tailwind CSS v4, `motion`, React Router v7,
 TanStack Query, Axios, React Hook Form + Zod, Zustand y Lucide. Pruebas con Vitest + Testing Library y
-Playwright. El contrato con el backend está en [`docs/API_CONTRACT.md`](docs/API_CONTRACT.md) y la lista de
-paridad funcional en [`docs/FEATURE_PARITY.md`](docs/FEATURE_PARITY.md).
+Playwright. El contrato con el backend está en [`docs/API_CONTRACT.md`](docs/API_CONTRACT.md), la lista de
+paridad funcional en [`docs/FEATURE_PARITY.md`](docs/FEATURE_PARITY.md) y lo que falta en el backend (con su
+impacto y la solución en la UI) en [`docs/BACKEND_GAPS.md`](docs/BACKEND_GAPS.md).
 
 ## Puesta en marcha
 
@@ -208,7 +209,7 @@ contenido», navbar con efecto cristal, `main`, pie y transición de página con
 | `/cart`        | Carrito              | Libre                  | Líneas con cantidad acotada, total al céntimo y sin comisiones                     |
 | `/login`       | Iniciar sesión       | Libre                  | Formulario con validación, mensaje en español para 401 y redirección               |
 | `/register`    | Crear cuenta         | Libre                  | Registro de cliente con validación de `CreateUserRequest` y errores por campo      |
-| `/contact`     | Contacto             | Libre                  | Marcador de posición                                                               |
+| `/contact`     | Contacto             | Libre                  | Formulario de contacto simulado (`src/mocks/contact.ts`) con insignia `Demo`       |
 | `/checkout`    | Pago                 | `RequireAuth('auth')`  | Revisión, método de pago y resultado por línea (reserva + pago), con QR y entradas |
 | `/my-bookings` | Mis reservas         | `RequireAuth('auth')`  | Reservas agrupadas por evento, detalle en panel lateral y cancelación con diálogo  |
 | `/profile`     | Mi perfil            | `RequireAuth('auth')`  | Edición del perfil (solo campos cambiados) y cambio de contraseña                  |
@@ -231,9 +232,7 @@ datos usan `QueryState` (`src/components/QueryState.tsx`): esqueleto en una regi
 contenido «Sin conexión» con `Reintentar` (que llama a `refetch`) ante un error de red (`ApiError` con estado `0`),
 mensaje de `userMessage` con `Reintentar` ante otros fallos y el `EmptyState` de la pantalla si no hay datos.
 
-Cada página fija su `<title>` y `meta description` con `PageMeta` (React 19 los sube a `<head>`). Los marcadores
-de posición (`PlaceholderPage`) muestran un `EmptyState` «Próximamente»; el siguiente cambio los sustituye por
-las pantallas reales. Mientras una página sale con su animación sigue montada; `RequireAuth` no redirige desde una
+Cada página fija su `<title>` y `meta description` con `PageMeta` (React 19 los sube a `<head>`). Mientras una página sale con su animación sigue montada; `RequireAuth` no redirige desde una
 página que está saliendo para no entrar en un bucle de redirecciones.
 
 ## Carrito y checkout

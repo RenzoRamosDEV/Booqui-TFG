@@ -98,11 +98,15 @@ describe('routes', () => {
     await waitFor(() => expect(document.title).toBe('Página no encontrada · Booqi'))
   })
 
-  it('shows a "Próximamente" placeholder for screens not built yet', async () => {
-    renderAt('/contact')
+  it.each(['/', '/events', '/cart', '/login', '/register', '/contact'])(
+    '%s shows no placeholder',
+    async (path) => {
+      renderAt(path)
 
-    expect(await screen.findByRole('heading', { name: 'Próximamente' })).toBeInTheDocument()
-  })
+      await screen.findByRole('heading', { level: 1 })
+      expect(document.body).not.toHaveTextContent('Pr\u00f3ximamente')
+    },
+  )
 
   it('decorates the home page with the brand backdrop', async () => {
     renderAt('/')

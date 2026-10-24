@@ -3,19 +3,8 @@ import { createBrowserRouter, type RouteObject } from 'react-router'
 import { RequireAuth } from './guards'
 import { AppLayout } from './layout/AppLayout'
 import { NotFoundPage } from './pages/NotFoundPage'
-import type { PlaceholderPageProps } from './pages/PlaceholderPage'
 import { RouteErrorPage } from './pages/RouteErrorPage'
 import { RouteSkeleton } from './pages/RouteSkeleton'
-
-function placeholder(path: string, props: PlaceholderPageProps): RouteObject {
-  return {
-    path,
-    lazy: async () => {
-      const { PlaceholderPage } = await import('./pages/PlaceholderPage')
-      return { Component: () => <PlaceholderPage {...props} /> }
-    },
-  }
-}
 
 /**
  * React Router resolves the `lazy` of every matched route before the guard element renders, so a
@@ -85,10 +74,13 @@ export const routes: RouteObject[] = [
                 Component: m.RegisterPage,
               })),
           },
-          placeholder('/contact', {
-            title: 'Contacto',
-            description: '¿Tienes dudas? Escríbenos y te responderemos lo antes posible.',
-          }),
+          {
+            path: '/contact',
+            lazy: () =>
+              import('../features/contact/pages/ContactPage').then((m) => ({
+                Component: m.ContactPage,
+              })),
+          },
           {
             element: <RequireAuth requirement="auth" />,
             children: [

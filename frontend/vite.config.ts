@@ -1,3 +1,4 @@
+import type { Plugin } from 'vite'
 import { defineConfig } from 'vitest/config'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
@@ -28,8 +29,28 @@ const vendorGroups = [
   },
 ]
 
+const DEMO_ENTRY = '/src/mocks/demo/main.tsx'
+
+// `vite build --mode demo` (or VITE_DEMO=true) builds the backend-less GitHub Pages demo into dist-demo/:
+// relative asset URLs and the demo entry instead of src/main.tsx, which is the only thing that imports
+// the demo modules, so the production build stays exactly as it was.
+function demoBuild(): Plugin {
+  let demo = false
+  return {
+    name: 'booqi-demo',
+    config(_, { mode }) {
+      demo = mode === 'demo' || process.env.VITE_DEMO === 'true'
+      return demo ? { base: './', build: { outDir: 'dist-demo' } } : {}
+    },
+    transformIndexHtml: {
+      order: 'pre',
+      handler: (html) => (demo ? html.replace('/src/main.tsx', DEMO_ENTRY) : html),
+    },
+  }
+}
+
 export default defineConfig({
-  plugins: [react(), tailwindcss()],
+  plugins: [react(), tailwindcss(), demoBuild()],
   build: {
     rolldownOptions: {
       output: { codeSplitting: { groups: vendorGroups } },

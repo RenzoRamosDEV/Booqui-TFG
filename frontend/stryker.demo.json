@@ -4,7 +4,14 @@
   "vitest": {
     "configFile": "vitest.demo-mutation.config.ts"
   },
-  "mutate": ["src/mocks/mock-backend.ts"],
+  "mutate": [
+    "src/mocks/mock-backend.ts",
+    "src/mocks/demo/adapter.ts",
+    "src/mocks/demo/demo-routes.ts",
+    "src/mocks/demo/install.ts",
+    "src/mocks/demo/seed.ts",
+    "src/mocks/demo/storage.ts"
+  ],
   "coverageAnalysis": "perTest",
   "reporters": ["clear-text", "progress"],
   "thresholds": {
@@ -13,6 +20,6 @@
     "break": 95
   },
   "tempDirName": ".stryker-tmp",
-  "concurrency": 8,
+  "concurrency": 10,
   "timeoutMS": 3000
 }

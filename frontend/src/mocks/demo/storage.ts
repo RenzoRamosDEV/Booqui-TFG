@@ -5,7 +5,7 @@ import { createDemoState } from './seed'
 
 export const DEMO_STATE_KEY = 'booqi-demo-state'
 
-type DemoStorage = Pick<Storage, 'getItem' | 'setItem'>
+export type DemoStorage = Pick<Storage, 'getItem' | 'setItem'>
 
 const COLLECTIONS = ['users', 'events', 'bookings', 'payments'] as const
 

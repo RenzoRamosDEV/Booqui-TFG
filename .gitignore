@@ -49,6 +49,7 @@ apm_modules/
 
 # Build output
 dist/
+dist-demo/
 dist-ssr/
 coverage/
 *.local

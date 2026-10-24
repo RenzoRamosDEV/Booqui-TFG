@@ -6,7 +6,7 @@
 
 Explorar eventos, reservar entradas, pagar y generar el ticket en PDF.
 
-[**Ver la presentación del proyecto →**](https://renzoramosdev.github.io/Booqui-TFG/)
+[**Ver la presentación del proyecto →**](https://renzoramosdev.github.io/Booqui-TFG/) · [**Probar la demo →**](https://renzoramosdev.github.io/Booqui-TFG/demo/)
 
 ![Java](https://img.shields.io/badge/Java-17-ED8B00?logo=openjdk&logoColor=white)
 ![Spring Boot](https://img.shields.io/badge/Spring_Boot-4.0.3-6DB33F?logo=springboot&logoColor=white)
@@ -18,7 +18,7 @@ Explorar eventos, reservar entradas, pagar y generar el ticket en PDF.
 </div>
 
 > [!NOTE]
-> El enlace de arriba es la **landing del proyecto** (una página estática, sin la app ni los microservicios detrás). El sistema completo se levanta con Docker Compose, como se explica en [Puesta en marcha](#puesta-en-marcha).
+> El primer enlace es la **landing del proyecto** (una página estática). El segundo es una **demo solo visual** de la app React: corre entera en el navegador con datos simulados (cuentas de cliente y de admin a un clic), sin microservicios detrás, así que nada de lo que se haga en ella llega a ningún servidor. El sistema completo se levanta con Docker Compose, como se explica en [Puesta en marcha](#puesta-en-marcha).
 >
 > Repositorio original: https://gitlab.com/booqui
 
@@ -74,7 +74,7 @@ las decisiones, en el [registro de ADR](docs/adr/README.md).
 
 ```
 Booqui-TFG/
-├── .github/workflows/          # ci.yml (build, test, lint) y pages.yml (landing)
+├── .github/workflows/          # ci.yml (build, test, lint) y pages.yml (landing + demo)
 ├── services/
 │   ├── pom.xml                 # Agregador Maven de los cuatro servicios
 │   ├── user-service/           # Usuarios y login
@@ -231,11 +231,14 @@ Los comandos de compose usan `infra/.env` si existe y, si no, `infra/.env.exampl
 
 - **backend**: los cuatro servicios en paralelo con Java 17 y `./mvnw -B verify` (compilación, pruebas, spotless y
   checkstyle).
-- **frontend**: `frontend` con Node 22: `npm ci`, lint, comprobación de formato, build y `npm test`.
+- **frontend**: `frontend` con Node 22: `npm ci`, lint, comprobación de formato, build, build de la demo de Pages y
+  `npm test`.
 - **compose**: validación de la configuración de compose.
 
-`.github/workflows/pages.yml` publica `landing/` tal cual (estática, sin build) en GitHub Pages en cada push a `main`,
-en <https://renzoramosdev.github.io/Booqui-TFG/>. Se puede abrir en local con doble clic en `landing/index.html`.
+`.github/workflows/pages.yml` publica en GitHub Pages, en cada push a `main` (o a mano), `landing/` tal cual en
+<https://renzoramosdev.github.io/Booqui-TFG/> y la demo sin backend de la app (`npm run build:demo` en `frontend/`)
+en <https://renzoramosdev.github.io/Booqui-TFG/demo/>. La landing se puede abrir en local con doble clic en
+`landing/index.html`; para verla junto con la demo, ver [Demo en GitHub Pages](frontend/README.md#demo-en-github-pages).
 
 ## Limitaciones conocidas
 

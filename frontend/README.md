@@ -30,10 +30,12 @@ local (`make up` desde la raíz del repositorio).
 | `npm run format`              | Aplica Prettier                                                                                |
 | `npm run format:check`        | Comprueba el formato con Prettier                                                              |
 | `npm test`                    | Ejecuta una vez todas las pruebas unitarias (Vitest, sin watch)                                |
+| `npm run build:demo`          | Genera en `dist-demo/` la demo sin backend de GitHub Pages (ver [Demo](#demo-en-github-pages)) |
 | `npm run test:mutation`       | Mutation testing de la lógica con Stryker (máx. 3 min)                                         |
+| `npm run test:mutation:demo`  | Mutation testing del backend simulado y de la demo (máx. 3 min)                                |
 | `npm run test:e2e`            | Pruebas end-to-end con Playwright (Chromium)                                                   |
 | `npm run test:e2e:real`       | E2E contra el stack de compose (ver [E2E contra el backend real](#e2e-contra-el-backend-real)) |
-| `npm run serve:landing`       | Sirve `../landing` en `http://localhost:4190/Booqui-TFG/`                                      |
+| `npm run serve:landing`       | Sirve `../landing` (y `dist-demo/` bajo `demo/`) en `http://localhost:4190/Booqui-TFG/`        |
 | `npm run test:landing`        | Pruebas del servidor y de la landing (ver [Landing](#landing))                                 |
 | `npm run landing:screenshots` | Regenera las capturas WebP y los iconos de la landing                                          |
 
@@ -175,7 +177,8 @@ npm run serve:landing   # http://localhost:4190/Booqui-TFG/ (puerto configurable
 npm run test:landing    # node:test del servidor + Playwright (e2e-landing/, móvil 412×823 y escritorio 1280×800)
 ```
 
-`scripts/landing-server.mjs` imita a GitHub Pages: `/Booqui-TFG` redirige (301) a `/Booqui-TFG/`, un directorio
+`scripts/landing-server.mjs` imita a GitHub Pages (y, si existe `dist-demo/index.html`, monta la demo bajo
+`/Booqui-TFG/demo/`, como el workflow de Pages): `/Booqui-TFG` redirige (301) a `/Booqui-TFG/`, un directorio
 sirve su `index.html`, y cualquier otra ruta, un fichero inexistente o un intento de salir de la carpeta (`..`)
 devuelven 404. Las pruebas de Playwright cargan la landing por `file://` y bajo el subpath y comprueban que no hay
 peticiones fallidas ni errores de consola, que las fuentes salen de `assets/fonts/`, el tema, las animaciones y el
@@ -210,6 +213,41 @@ una máquina cargada no permite usarlo como puerta en cada push.
 
 El tema usa la misma clave que la app, `localStorage['booqi-theme']` (`light` o `dark`), y el mismo script en
 línea antes del primer pintado, así que la elección se comparte con la app cuando ambas están en el mismo origen.
+
+## Demo en GitHub Pages
+
+GitHub Pages solo sirve ficheros estáticos, así que la demo publicada en
+<https://renzoramosdev.github.io/Booqui-TFG/demo/> (enlazada desde «Ver demo» en la landing) es la misma app con
+el backend sustituido por uno en memoria. Es **solo visual**: nada sale del navegador.
+
+```bash
+npm run build:demo        # dist-demo/ (ignorado por git)
+npm run serve:landing     # landing en http://localhost:4190/Booqui-TFG/ y demo en http://localhost:4190/Booqui-TFG/demo/
+```
+
+- **Build aparte**: `vite build --mode demo` (o `VITE_DEMO=true`) usa `base: './'`, escribe en `dist-demo/` y
+  cambia la entrada de `index.html` por `src/mocks/demo/main.tsx`. Solo esa entrada importa los módulos de la demo,
+  así que `npm run build` (y la imagen de Docker) genera exactamente los mismos bytes que sin demo; además
+  `e2e/build.spec.ts` comprueba que ningún fichero de `dist/` contiene textos propios de la demo. Los componentes
+  de la demo solo usan utilidades de Tailwind que ya usa la app, para no añadir CSS al build de producción.
+- **Backend simulado**: `src/mocks/mock-backend.ts` es el mismo backend en memoria que usa Playwright
+  (`e2e/support/mock-api.ts`) y sigue [`docs/API_CONTRACT.md`](docs/API_CONTRACT.md): errores ProblemDetail, pago
+  aprobado o rechazado según la paridad del último dígito de la tarjeta, stock (un pago sin stock queda
+  `REJECTED` y cancela la reserva), reservas y CRUD de administración. En la demo, `src/mocks/demo/adapter.ts` lo
+  conecta al cliente Axios como `adapter` (con 250 ms de latencia simulada) y `storage.ts` guarda el estado en
+  `sessionStorage`: sobrevive a una recarga y se pierde al cerrar la pestaña.
+- **Datos**: `seed.ts` y `catalogue.ts` crean diez eventos en España con fechas relativas al momento en que se
+  abre la demo (siempre futuras), sin imágenes externas (se ve el marcador de Booqi), unas ventas previas y dos
+  cuentas: `cliente@booqi.demo` / `demo1234` y `admin@booqi.demo` / `demo1234`.
+- **Rutas**: Pages no tiene _fallback_ de SPA, así que la demo usa `createHashRouter` (`/Booqui-TFG/demo/#/events`);
+  la app normal sigue con rutas limpias.
+- **Avisos visibles**: una etiqueta fija «Demo · datos simulados» y, en `#/login`, los botones «Entrar como
+  cliente demo» y «Entrar como admin demo» con las credenciales a la vista (la ruta `/login` se sustituye solo en
+  la demo por `DemoLoginPage`). El formulario de contacto mantiene su aviso de demostración de siempre.
+- **Pruebas**: `npm run test:landing` construye la demo y sirve landing + demo como en Pages;
+  `e2e-landing/demo.spec.ts` comprueba que `/Booqui-TFG/demo/` carga sin 404, sin errores de consola y sin
+  ninguna petición fuera de `/Booqui-TFG/demo/` ni a `/api/`, que la portada muestra eventos, que un enlace
+  profundo con hash sobrevive a una recarga y los dos accesos de un clic (con una compra completa).
 
 ## Componentes UI
 
@@ -436,6 +474,15 @@ resultados guardados de ficheros fuera del `--mutate`; la puntuación de un camb
   almacenamiento que lanza; tema del sistema claro/oscuro) y valores límite de los contadores (0, 1, valor final y
   reentrada en pantalla).
 
+### Demo y backend simulado
+
+`npm run test:mutation:demo` (`stryker.demo.json`) muta `src/mocks/mock-backend.ts` y la lógica de
+`src/mocks/demo/` (`adapter`, `demo-routes`, `install`, `seed`, `storage`) con `vitest.demo-mutation.config.ts`,
+que solo ejecuta las pruebas unitarias `src/mocks/**/*.test.ts` (las de componentes renderizan la app y harían
+que cada mutante agotase el tiempo). Puntuación: 99,77 % (442 muertos, 1 _timeout_, 1 superviviente
+justificado abajo), unos 2 min 50 s. Los datos fijos de `catalogue.ts` y los componentes visuales quedan fuera:
+no tienen lógica.
+
 ### Mutantes supervivientes justificados
 
 | Fichero                                         | Mutante                                                    | Por qué sobrevive                                                                                                                                                                                                        |
@@ -443,5 +490,6 @@ resultados guardados de ficheros fuera del `--mutate`; la puntuación de un camb
 | `src/lib/contrast.ts:5`                         | `srgb <= 0.04045` → `srgb < 0.04045`                       | Equivalente: los canales son enteros de 8 bits y ninguno da exactamente 0,04045 (10/255 = 0,0392 y 11/255 = 0,0431), así que ambas comparaciones eligen siempre el mismo tramo.                                          |
 | `src/lib/use-focus-trap.ts:51`                  | `previouslyFocused?.focus()` → `previouslyFocused.focus()` | Equivalente en la práctica: `document.activeElement` solo es `null` sin documento cargado; con la app montada siempre hay un elemento activo (como mínimo `body`). El `?.` se mantiene porque el tipo DOM admite `null`. |
 | `src/features/auth/hooks/session-store.ts:24`   | `catch { return undefined }` → `catch {}`                  | Equivalente: un bloque vacío también devuelve `undefined`, que Zod rechaza igual que antes.                                                                                                                              |
+| `src/mocks/mock-backend.ts` (`route`)           | `rawId !== undefined && …` → `true && …`                   | Equivalente: `/^\d+$/.test(undefined)` convierte el valor en el texto `'undefined'`, que no es numérico, así que `numeric` sigue siendo `false`; la guarda solo existe para que TypeScript acepte el argumento.          |
 | `scripts/landing-server.mjs` (`isFile`)         | `catch { return false }` → `catch {}`                      | Equivalente: el bloque vacío devuelve `undefined`, que el servidor trata igual que `false` (404).                                                                                                                        |
 | `src/features/events/hooks/event-filters.ts:51` | `params.get(key) ?? ''` → `?? "Stryker was here!"`         | Equivalente: cualquiera de los dos textos produce una fecha inválida y `isoDay` devuelve `undefined`; el `''` solo existe para no pasar `null` a una función que espera texto.                                           |

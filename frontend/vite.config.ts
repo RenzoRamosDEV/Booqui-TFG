@@ -19,6 +19,9 @@ const vendorGroups = [
     name: 'motion',
     test: /[\\/]node_modules[\\/](motion|framer-motion|motion-dom|motion-utils)[\\/]/,
   },
+  // Only reachable from the lazily imported PDF renderers, so this chunk is still loaded on demand.
+  { name: 'pdf-lib', test: /[\\/]node_modules[\\/](pdf-lib|@pdf-lib|pako)[\\/]/ },
+  { name: 'qrcode', test: /[\\/]node_modules[\\/](qrcode|dijkstrajs)[\\/]/ },
   {
     name: 'vendor',
     test: /[\\/]node_modules[\\/](@tanstack|axios|zod|zustand|lucide-react)[\\/]/,

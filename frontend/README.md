@@ -220,8 +220,8 @@ contenido», navbar con efecto cristal, `main`, pie y transición de página con
 se visita. Mientras carga la primera ruta se muestra `RouteSkeleton` dentro del layout (`HydrateFallback`). Los
 guards (`RequireAuth`) se cargan de forma inmediata, así que el permiso se resuelve antes de pedir el código de
 una pantalla protegida. Las dependencias comunes van en chunks de vendor estables (`react`, `router`, `motion`,
-`vendor`, configurados en `vite.config.ts`); las librerías pesadas que solo se usan en algunas acciones se
-importan con `import()` y quedan fuera. `node scripts/check-chunks.mjs`, tras `npm run build`, lista el tamaño de
+`vendor`, configurados en `vite.config.ts`); `pdf-lib` y `qrcode` tienen chunk propio y solo se alcanzan con
+`import()` desde la descarga de entradas, el QR o el informe de ventas, así que la portada no los descarga. `node scripts/check-chunks.mjs`, tras `npm run build`, lista el tamaño de
 cada chunk y falla si alguno supera 500 kB (no se sube el límite de aviso de Vite).
 
 **Errores y conexión.** Una ruta que falla al renderizar o al descargar su código muestra `RouteErrorPage` dentro

@@ -4,7 +4,13 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { after, before } from 'node:test'
 import { test } from 'node:test'
-import { contentType, createLandingServer, routeRequest } from './landing-server.mjs'
+import {
+  contentType,
+  createLandingServer,
+  demoMounts,
+  resolveFile,
+  routeRequest,
+} from './landing-server.mjs'
 
 test('base path without trailing slash redirects to the slash form', () => {
   assert.deepEqual(routeRequest('/Booqui-TFG'), { redirect: '/Booqui-TFG/' })
@@ -69,6 +75,8 @@ for (const [file, type] of [
   ['css/landing.css', 'text/css; charset=utf-8'],
   ['js/landing.js', 'text/javascript; charset=utf-8'],
   ['assets/fonts/inter.woff2', 'font/woff2'],
+  ['assets/inter-latin.woff', 'font/woff'],
+  ['manifest.json', 'application/json; charset=utf-8'],
   ['assets/screenshots/home-light-640.webp', 'image/webp'],
   ['assets/icon-32.png', 'image/png'],
   ['assets/logo.svg', 'image/svg+xml'],
@@ -82,6 +90,82 @@ for (const [file, type] of [
     assert.equal(contentType(file), type)
   })
 }
+
+const mounts = { 'demo/': '/srv/demo' }
+
+for (const [file, expected] of [
+  ['index.html', '/srv/landing/index.html'],
+  ['css/landing.css', '/srv/landing/css/landing.css'],
+  ['demo/index.html', '/srv/demo/index.html'],
+  ['demo/assets/index-abc.js', '/srv/demo/assets/index-abc.js'],
+  ['demox/index.html', '/srv/landing/demox/index.html'],
+  ['demo', '/srv/landing/demo'],
+  ['assets/demo/x.png', '/srv/landing/assets/demo/x.png'],
+]) {
+  test(`${file} resolves to ${expected}`, () => {
+    assert.equal(resolveFile(file, '/srv/landing', mounts), expected)
+  })
+}
+
+test('mounts a built demo under demo/', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'dist-demo-'))
+  writeFileSync(join(dir, 'index.html'), '')
+  assert.deepEqual(demoMounts(dir), { 'demo/': dir })
+  rmSync(dir, { recursive: true, force: true })
+})
+
+test('mounts nothing when the demo folder has no index.html', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'dist-demo-'))
+  assert.deepEqual(demoMounts(dir), {})
+  assert.deepEqual(demoMounts(join(dir, 'missing')), {})
+  rmSync(dir, { recursive: true, force: true })
+})
+
+test('without mounts every file resolves inside the root', () => {
+  assert.equal(resolveFile('demo/index.html', '/srv/landing'), '/srv/landing/demo/index.html')
+})
+
+test.describe('HTTP server with the demo mounted from another folder', () => {
+  let root
+  let demo
+  let server
+  let origin
+
+  before(async () => {
+    root = mkdtempSync(join(tmpdir(), 'landing-'))
+    demo = mkdtempSync(join(tmpdir(), 'demo-'))
+    writeFileSync(join(root, 'index.html'), '<h1>Landing</h1>')
+    writeFileSync(join(demo, 'index.html'), '<h1>Demo</h1>')
+    mkdirSync(join(demo, 'assets'))
+    writeFileSync(join(demo, 'assets/app.js'), 'export {}')
+    server = createLandingServer(root, { 'demo/': demo })
+    await new Promise((listening) => server.listen(0, listening))
+    origin = `http://localhost:${server.address().port}`
+  })
+
+  after(() => {
+    server.close()
+    rmSync(root, { recursive: true, force: true })
+    rmSync(demo, { recursive: true, force: true })
+  })
+
+  test('serves the demo index and its assets from the mounted folder', async () => {
+    const page = await fetch(`${origin}/Booqui-TFG/demo/`)
+    assert.equal(page.status, 200)
+    assert.equal(await page.text(), '<h1>Demo</h1>')
+    const script = await fetch(`${origin}/Booqui-TFG/demo/assets/app.js`)
+    assert.equal(script.headers.get('content-type'), 'text/javascript; charset=utf-8')
+    assert.equal(await script.text(), 'export {}')
+  })
+
+  test('still serves the landing from the root', async () => {
+    assert.equal(await (await fetch(`${origin}/Booqui-TFG/`)).text(), '<h1>Landing</h1>')
+  })
+
+  test('answers 404 for a missing demo file', async () => {
+    assert.equal((await fetch(`${origin}/Booqui-TFG/demo/missing.js`)).status, 404)
+  })
+})
 
 test.describe('HTTP server over a temporary landing folder', () => {
   let root

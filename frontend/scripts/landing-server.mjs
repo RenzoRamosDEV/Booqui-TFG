@@ -1,5 +1,6 @@
 // Static server for ../landing under /Booqui-TFG/, matching the GitHub Pages layout, with no dependencies.
-import { createReadStream } from 'node:fs'
+// `mounts` serves other folders under a prefix, like the built demo under demo/ on Pages.
+import { createReadStream, existsSync } from 'node:fs'
 import { stat } from 'node:fs/promises'
 import { createServer } from 'node:http'
 import { extname, join } from 'node:path'
@@ -11,6 +12,8 @@ const CONTENT_TYPES = {
   '.css': 'text/css; charset=utf-8',
   '.js': 'text/javascript; charset=utf-8',
   '.woff2': 'font/woff2',
+  '.woff': 'font/woff',
+  '.json': 'application/json; charset=utf-8',
   '.webp': 'image/webp',
   '.png': 'image/png',
   '.jpg': 'image/jpeg',
@@ -42,6 +45,15 @@ export function routeRequest(pathname) {
   return { file: relative === '' || relative.endsWith('/') ? `${relative}index.html` : relative }
 }
 
+export function resolveFile(file, root, mounts = {}) {
+  const mount = Object.entries(mounts).find(([prefix]) => file.startsWith(prefix))
+  return mount ? join(mount[1], file.slice(mount[0].length)) : join(root, file)
+}
+
+export function demoMounts(demoDir) {
+  return existsSync(join(demoDir, 'index.html')) ? { 'demo/': demoDir } : {}
+}
+
 async function isFile(path) {
   try {
     return (await stat(path)).isFile()
@@ -50,14 +62,14 @@ async function isFile(path) {
   }
 }
 
-export function createLandingServer(root) {
+export function createLandingServer(root, mounts = {}) {
   return createServer(async (request, response) => {
     const route = routeRequest(new URL(request.url, 'http://localhost').pathname)
     if (route.redirect) {
       response.writeHead(301, { Location: route.redirect }).end()
       return
     }
-    const path = route.file && join(root, route.file)
+    const path = route.file && resolveFile(route.file, root, mounts)
     if (!path || !(await isFile(path))) {
       response.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' }).end('Not found')
       return

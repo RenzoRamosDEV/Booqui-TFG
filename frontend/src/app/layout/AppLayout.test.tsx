@@ -1,4 +1,4 @@
-import { render, screen, waitFor, within } from '@testing-library/react'
+import { act, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { RouterProvider, createMemoryRouter } from 'react-router'
 import { useSessionStore } from '../../features/auth/hooks/session-store'
@@ -149,5 +149,39 @@ describe('AppLayout', () => {
 
     const footer = within(screen.getByRole('contentinfo'))
     expect(hrefs(footer)).toEqual(expect.arrayContaining(['/events', '/contact']))
+  })
+
+  describe('offline', () => {
+    function goOffline(online: boolean) {
+      Object.defineProperty(navigator, 'onLine', { configurable: true, get: () => online })
+      window.dispatchEvent(new Event(online ? 'online' : 'offline'))
+    }
+
+    afterEach(() => {
+      Object.defineProperty(navigator, 'onLine', { configurable: true, get: () => true })
+    })
+
+    it('swaps the screen for the offline page and restores it when back online', () => {
+      renderShell('/events')
+
+      act(() => goOffline(false))
+      expect(screen.getByRole('heading', { name: 'Sin conexión' })).toBeInTheDocument()
+      expect(screen.getByRole('main')).not.toHaveTextContent('Eventos de prueba')
+      expect(screen.getByRole('banner')).toBeInTheDocument()
+
+      act(() => goOffline(true))
+      expect(screen.queryByRole('heading', { name: 'Sin conexión' })).not.toBeInTheDocument()
+      expect(screen.getByRole('main')).toHaveTextContent('Eventos de prueba')
+    })
+
+    it('retries by reading the connection state again', async () => {
+      renderShell('/events')
+      act(() => goOffline(false))
+      Object.defineProperty(navigator, 'onLine', { configurable: true, get: () => true })
+
+      await userEvent.click(screen.getByRole('button', { name: 'Reintentar' }))
+
+      expect(screen.getByRole('main')).toHaveTextContent('Eventos de prueba')
+    })
   })
 })

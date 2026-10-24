@@ -3,7 +3,7 @@ import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { cn } from '../../lib/cn'
 import { toastTransition } from '../../lib/motion'
-import { focusRing } from './Button'
+import { focusRing } from './button-styles'
 import { ToastContext, type ToastOptions, type ToastTone } from './use-toast'
 
 type ToastEntry = Required<Pick<ToastOptions, 'title' | 'tone' | 'duration'>> &

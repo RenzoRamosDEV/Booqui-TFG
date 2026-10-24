@@ -1,6 +1,6 @@
 import { useId, useRef, useState, type KeyboardEvent, type ReactNode } from 'react'
 import { cn } from '../../lib/cn'
-import { focusRing } from './Button'
+import { focusRing } from './button-styles'
 
 export type TabItem = { id: string; label: string; content: ReactNode }
 

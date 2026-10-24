@@ -10,8 +10,28 @@ const apiProxy = {
   '/api/v1/payments': 'http://localhost:8083',
 }
 
+// Long-lived vendor chunks for the code every route needs; libraries reached only through dynamic
+// import() (PDF, QR) are deliberately left out so they stay in their own on-demand chunks.
+const vendorGroups = [
+  { name: 'react', test: /[\\/]node_modules[\\/](react|react-dom|scheduler)[\\/]/ },
+  { name: 'router', test: /[\\/]node_modules[\\/](react-router|cookie|set-cookie-parser)[\\/]/ },
+  {
+    name: 'motion',
+    test: /[\\/]node_modules[\\/](motion|framer-motion|motion-dom|motion-utils)[\\/]/,
+  },
+  {
+    name: 'vendor',
+    test: /[\\/]node_modules[\\/](@tanstack|axios|zod|zustand|lucide-react)[\\/]/,
+  },
+]
+
 export default defineConfig({
   plugins: [react(), tailwindcss()],
+  build: {
+    rolldownOptions: {
+      output: { codeSplitting: { groups: vendorGroups } },
+    },
+  },
   server: {
     proxy: apiProxy,
   },

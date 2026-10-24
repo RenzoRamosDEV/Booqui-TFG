@@ -121,6 +121,7 @@ clases y `cn()`), con sus pruebas al lado. Todos muestran un anillo de foco `--r
 | Componente                    | Variantes / props clave                                                             | Contrato de accesibilidad                                                                                                                                                                         |
 | ----------------------------- | ----------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `Button`                      | `variant` primary · secondary · ghost · destructive; `size` sm · md · lg; `loading` | `type="button"` por defecto; en `loading` queda deshabilitado, con `aria-busy="true"` e ignora clics; escala ≤ 1,02 al pasar el ratón (sin escala con movimiento reducido)                        |
+| `ButtonLink`                  | mismas `variant`/`size` que `Button`, props de `Link`                               | Enlace real (`<a href>`) con el aspecto de un botón; clases compartidas en `button-styles.ts`                                                                                                     |
 | `Input`, `Select`, `Textarea` | `label` (obligatorio), `error`, props nativas y `ref` (React Hook Form)             | Etiqueta visible asociada con `useId()`; con `error`: `aria-invalid="true"` y `aria-describedby` al mensaje mostrado bajo el campo                                                                |
 | `Card`                        | props de `div`                                                                      | Contenedor neutro                                                                                                                                                                                 |
 | `Badge`                       | `tone` neutral · brand · success · warning · danger                                 | Texto, nunca solo color                                                                                                                                                                           |
@@ -213,6 +214,22 @@ contenido», navbar con efecto cristal, `main`, pie y transición de página con
 | `/profile`     | Mi perfil            | `RequireAuth('auth')`  | Marcador de posición                     |
 | `/admin`       | Administración       | `RequireAuth('admin')` | Marcador de posición                     |
 | `*`            | Página no encontrada | Libre                  | `NotFoundPage` con enlace a `/`          |
+
+**Carga bajo demanda.** Cada página es una ruta `lazy` de React Router: su código se descarga la primera vez que
+se visita. Mientras carga la primera ruta se muestra `RouteSkeleton` dentro del layout (`HydrateFallback`). Los
+guards (`RequireAuth`) se cargan de forma inmediata, así que el permiso se resuelve antes de pedir el código de
+una pantalla protegida. Las dependencias comunes van en chunks de vendor estables (`react`, `router`, `motion`,
+`vendor`, configurados en `vite.config.ts`); las librerías pesadas que solo se usan en algunas acciones se
+importan con `import()` y quedan fuera. `node scripts/check-chunks.mjs`, tras `npm run build`, lista el tamaño de
+cada chunk y falla si alguno supera 500 kB (no se sube el límite de aviso de Vite).
+
+**Errores y conexión.** Una ruta que falla al renderizar o al descargar su código muestra `RouteErrorPage` dentro
+del layout («Algo ha salido mal», botón `Recargar` y enlace a `/`, sin detalles técnicos); un segundo
+`ErrorBoundary` en la raíz cubre un fallo del propio layout. Si `navigator.onLine` es `false`, `AppLayout`
+sustituye la página por `OfflinePage` (con `Reintentar`) y la restaura al volver la conexión. Las lecturas de
+datos usan `QueryState` (`src/components/QueryState.tsx`): esqueleto en una región `aria-busy` mientras carga,
+contenido «Sin conexión» con `Reintentar` (que llama a `refetch`) ante un error de red (`ApiError` con estado `0`),
+mensaje de `userMessage` con `Reintentar` ante otros fallos y el `EmptyState` de la pantalla si no hay datos.
 
 Cada página fija su `<title>` y `meta description` con `PageMeta` (React 19 los sube a `<head>`). Los marcadores
 de posición (`PlaceholderPage`) muestran un `EmptyState` «Próximamente»; el siguiente cambio los sustituye por

@@ -1,7 +1,7 @@
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { cn } from '../../lib/cn'
 import { getPageItems } from '../../lib/pagination'
-import { focusRing } from './Button'
+import { focusRing } from './button-styles'
 
 export type PaginationProps = {
   page: number

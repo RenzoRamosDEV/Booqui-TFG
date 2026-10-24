@@ -1,6 +1,8 @@
-import type { MouseEvent } from 'react'
-import { focusRing } from '../../components/ui/Button'
+import { useReducer, type MouseEvent, type ReactNode } from 'react'
+import { focusRing } from '../../components/ui/button-styles'
 import { cn } from '../../lib/cn'
+import { useOnlineStatus } from '../../lib/network'
+import { OfflinePage } from '../pages/OfflinePage'
 import { Footer } from './Footer'
 import { Navbar } from './Navbar'
 import { PageTransition } from './PageTransition'
@@ -10,7 +12,11 @@ function focusMain(event: MouseEvent<HTMLAnchorElement>) {
   document.getElementById('main')?.focus()
 }
 
-export function AppLayout() {
+/** `children` replaces the routed outlet, e.g. with a skeleton while the first route loads. */
+export function AppLayout({ children }: { children?: ReactNode }) {
+  const online = useOnlineStatus()
+  // Re-rendering re-reads navigator.onLine, which is all a manual retry can do while offline.
+  const [, retry] = useReducer((count: number) => count + 1, 0)
   return (
     <div className="flex min-h-dvh flex-col overflow-x-clip">
       <a
@@ -29,7 +35,7 @@ export function AppLayout() {
         tabIndex={-1}
         className="mx-auto w-full max-w-6xl flex-1 px-4 pt-10 outline-none"
       >
-        <PageTransition />
+        {online ? (children ?? <PageTransition />) : <OfflinePage onRetry={retry} />}
       </main>
       <Footer />
     </div>

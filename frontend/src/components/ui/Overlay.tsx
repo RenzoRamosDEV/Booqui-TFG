@@ -5,7 +5,7 @@ import { createPortal } from 'react-dom'
 import { cn } from '../../lib/cn'
 import { overlayTransition, type OverlayPlacement } from '../../lib/motion'
 import { useFocusTrap } from '../../lib/use-focus-trap'
-import { focusRing } from './Button'
+import { focusRing } from './button-styles'
 
 export type OverlayProps = {
   open: boolean

@@ -1,5 +1,5 @@
 import { Link } from 'react-router'
-import { focusRing } from '../../components/ui/Button'
+import { focusRing } from '../../components/ui/button-styles'
 import { cn } from '../../lib/cn'
 
 const footerLinks = [

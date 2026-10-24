@@ -1,0 +1,156 @@
+// MOCK: catálogo de ejemplo de la demo de GitHub Pages, que no tiene backend. Los días son relativos al
+// momento en que se abre la demo, así que los eventos siempre son futuros.
+import type { EventResponse } from '../../types/event'
+
+export type EventSeed = Pick<
+  EventResponse,
+  | 'title'
+  | 'description'
+  | 'availableTickets'
+  | 'location'
+  | 'organizer'
+  | 'price'
+  | 'category'
+  | 'contactEmail'
+> & { inDays: number; hour: number; minute?: number; hours: number }
+
+export const DEMO_EVENTS: EventSeed[] = [
+  {
+    title: 'Noche de jazz en el Café Central',
+    description: 'Cuarteto de jazz en directo en uno de los clubes más veteranos de Madrid.',
+    availableTickets: 4,
+    location: 'Café Central, Madrid',
+    organizer: 'Café Central',
+    price: 18,
+    category: 'Música',
+    contactEmail: 'jazz@cafecentral.demo',
+    inDays: 2,
+    hour: 21,
+    minute: 30,
+    hours: 2,
+  },
+  {
+    title: 'Ruta de tapas por Triana',
+    description: 'Paseo guiado por cinco bares del barrio con una tapa y una bebida en cada uno.',
+    availableTickets: 25,
+    location: 'Calle Betis, Sevilla',
+    organizer: 'Sabores del Sur',
+    price: 32,
+    category: 'Gastronomía',
+    contactEmail: 'hola@saboresdelsur.demo',
+    inDays: 5,
+    hour: 13,
+    hours: 3,
+  },
+  {
+    title: 'Taller de cerámica para principiantes',
+    description: 'Aprende a modelar tu primera pieza en torno. Incluye materiales y cocción.',
+    availableTickets: 12,
+    location: 'Estudio Barro, Valencia',
+    organizer: 'Estudio Barro',
+    price: 45,
+    category: 'Arte',
+    contactEmail: 'taller@estudiobarro.demo',
+    inDays: 9,
+    hour: 10,
+    hours: 3,
+  },
+  {
+    title: 'Carrera popular del Retiro',
+    description: 'Recorrido de 10 km por el parque, con dorsal, avituallamiento y medalla.',
+    availableTickets: 300,
+    location: 'Parque del Retiro, Madrid',
+    organizer: 'Club Atletismo Retiro',
+    price: 12,
+    category: 'Deporte',
+    contactEmail: 'inscripciones@atletismoretiro.demo',
+    inDays: 12,
+    hour: 9,
+    hours: 3,
+  },
+  {
+    title: 'Jornada de inteligencia artificial aplicada',
+    description: 'Charlas y talleres sobre cómo llevar modelos de IA a producción.',
+    availableTickets: 80,
+    location: 'Palacio de Congresos, Málaga',
+    organizer: 'Comunidad Tech Málaga',
+    price: 0,
+    category: 'Tecnología',
+    contactEmail: 'info@techmalaga.demo',
+    inDays: 16,
+    hour: 9,
+    minute: 30,
+    hours: 8,
+  },
+  {
+    title: 'Concierto de flamenco en la Alhambra',
+    description: 'Cante, toque y baile al aire libre con vistas a la ciudad.',
+    availableTickets: 60,
+    location: 'Palacio de Carlos V, Granada',
+    organizer: 'Festival Flamenco Granada',
+    price: 35,
+    category: 'Música',
+    contactEmail: 'entradas@flamencogranada.demo',
+    inDays: 21,
+    hour: 22,
+    hours: 2,
+  },
+  {
+    title: 'Curso intensivo de fotografía urbana',
+    description: 'Dos sesiones prácticas por el casco antiguo y revisión de las fotos en grupo.',
+    availableTickets: 15,
+    location: 'Casco Viejo, Bilbao',
+    organizer: 'Escuela Óptica',
+    price: 60,
+    category: 'Educación',
+    contactEmail: 'cursos@escuelaoptica.demo',
+    inDays: 27,
+    hour: 17,
+    hours: 4,
+  },
+  {
+    title: 'Exposición «Luz del Mediterráneo»',
+    description: 'Pintura contemporánea inspirada en la costa, con visita comentada.',
+    availableTickets: 120,
+    location: 'Museo de Bellas Artes, Alicante',
+    organizer: 'Museo de Bellas Artes',
+    price: 8,
+    category: 'Arte',
+    contactEmail: 'visitas@bellasartes.demo',
+    inDays: 33,
+    hour: 11,
+    hours: 6,
+  },
+  {
+    title: 'Partido benéfico de baloncesto',
+    description: 'Exjugadores de la liga contra el equipo local; la recaudación va a una ONG.',
+    availableTickets: 450,
+    location: 'Pabellón Príncipe Felipe, Zaragoza',
+    organizer: 'Fundación Canasta',
+    price: 10,
+    category: 'Deporte',
+    contactEmail: 'info@fundacioncanasta.demo',
+    inDays: 40,
+    hour: 19,
+    hours: 2,
+  },
+  {
+    title: 'Mercado de vinos de la Rioja',
+    description: 'Catas guiadas de bodegas pequeñas y maridaje con productos de la tierra.',
+    availableTickets: 90,
+    location: 'Calle Laurel, Logroño',
+    organizer: 'Asociación de Bodegas Riojanas',
+    price: 25,
+    category: 'Gastronomía',
+    contactEmail: 'mercado@bodegasriojanas.demo',
+    inDays: 48,
+    hour: 18,
+    hours: 5,
+  },
+]
+
+export const DEMO_CUSTOMER_NAMES = [
+  ['Lucía', 'Martín'],
+  ['Andrés', 'Núñez'],
+  ['Begoña', 'Ibáñez'],
+] as const

@@ -9,7 +9,7 @@ Explorar eventos, reservar entradas, pagar y generar el ticket en PDF.
 [**Ver la demo →**](https://renzoramosdev.github.io/Booqui-TFG/)
 
 ![Java](https://img.shields.io/badge/Java-17-ED8B00?logo=openjdk&logoColor=white)
-![Spring Boot](https://img.shields.io/badge/Spring_Boot-4.0-6DB33F?logo=springboot&logoColor=white)
+![Spring Boot](https://img.shields.io/badge/Spring_Boot-4.0.3-6DB33F?logo=springboot&logoColor=white)
 ![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=white)
 ![MySQL](https://img.shields.io/badge/MySQL-8.0-4479A1?logo=mysql&logoColor=white)
 ![Docker](https://img.shields.io/badge/Docker_Compose-6_contenedores-2496ED?logo=docker&logoColor=white)
@@ -18,7 +18,7 @@ Explorar eventos, reservar entradas, pagar y generar el ticket en PDF.
 </div>
 
 > [!NOTE]
-> La demo enlazada arriba es una **demo visual del frontend**, sin los microservicios detrás. El sistema completo se levanta con Docker Compose, como se explica más abajo.
+> La demo enlazada arriba es una **demo visual del frontend**, sin los microservicios detrás. El sistema completo se levanta con Docker Compose, como se explica en [Puesta en marcha](#puesta-en-marcha).
 >
 > Repositorio original: https://gitlab.com/booqui
 
@@ -60,20 +60,47 @@ Explorar eventos, reservar entradas, pagar y generar el ticket en PDF.
 
 ## Arquitectura
 
-Cuatro microservicios backend independientes, un frontend y una capa de despliegue con Docker.
+Cuatro microservicios Spring Boot (usuarios `8080`, eventos `8081`, reservas `8082`, pagos `8083`), cada uno con su propio
+esquema en MySQL (*database per service*) y una API REST bajo `/api/v1/...` con errores RFC 9457 (ProblemDetail).
+booking-service consulta a user-service y event-service; payment-service actualiza el stock en event-service y confirma o
+cancela la reserva en booking-service. El frontend React se sirve con nginx, que además hace de proxy de la API.
 
-| Servicio | Puerto | De qué se encarga |
-|---|:---:|---|
-| **User Service** | 8080 | Registro, login, perfiles, roles y permisos |
-| **Event Service** | 8081 | Catálogo de eventos, capacidad, disponibilidad y categorías |
-| **Booking Service** | 8082 | Creación y consulta de reservas, y validación de disponibilidad |
-| **Payment Service** | 8083 | Procesamiento de pagos y estado de las transacciones |
+Diagramas, flujo de checkout, plantilla de servicio y modelo de errores en [docs/architecture.md](docs/architecture.md);
+las decisiones, en el [registro de ADR](docs/adr/README.md).
 
-Cada microservicio tiene **su propia base de datos** (`user`, `event`, `booking`, `payment`), siguiendo el patrón *Database per Service*. Se comunican entre sí por **REST con `RestTemplate`**: Booking consume User y Event; Payment consume Booking y Event.
+---
 
-### Vistas del frontend
+## Estructura
 
-Home · Events · Event Detail · Cart · Checkout · My Bookings · Login/Register · Admin Panel · Contact
+```
+Booqui-TFG/
+├── .github/workflows/          # ci.yml (build, test, lint) y pages.yml (demo)
+├── services/
+│   ├── pom.xml                 # Agregador Maven de los cuatro servicios
+│   ├── user-service/           # Usuarios y login
+│   ├── event-service/          # Eventos y stock de entradas
+│   ├── booking-service/        # Reservas
+│   └── payment-service/        # Pagos simulados
+├── frontend/                   # Aplicación React (Vite) servida por nginx
+├── frontend-demo/              # Demo visual del frontend (GitHub Pages)
+├── infra/
+│   ├── docker/
+│   │   ├── docker-compose.yml
+│   │   └── docker-compose.override.yml   # Puertos de los servicios y perfil dev
+│   ├── db/init/
+│   │   ├── 001_init_database.sql         # Esquemas y datos semilla
+│   │   └── 002_create_app_user.sh        # Usuario de aplicación
+│   └── .env.example
+├── docs/
+│   ├── architecture.md
+│   ├── adr/                    # Decisiones de arquitectura
+│   ├── assets/screenshots/
+│   └── notes/
+├── Makefile                    # Comandos de build, test, lint y despliegue
+├── CONTRIBUTING.md
+├── .editorconfig
+└── .git-blame-ignore-revs
+```
 
 ---
 
@@ -85,88 +112,155 @@ Home · Events · Event Detail · Cart · Checkout · My Bookings · Login/Regis
 |---|---|---|
 | Java | 17 | Lenguaje principal |
 | Spring Boot | 4.0.3 | Framework de las aplicaciones |
-| Spring Data JPA | — | Persistencia y acceso a datos |
-| Spring Web | — | APIs RESTful |
-| Spring Validation | — | Validación de datos |
+| Spring Web MVC, Data JPA, Validation, Actuator | gestionada por Spring Boot 4.0.3 | APIs REST, persistencia, validación y salud |
+| Spring Security Crypto | gestionada por Spring Boot 4.0.3 | Hash BCrypt de contraseñas (user-service) |
+| Lombok | gestionada por Spring Boot 4.0.3 | Menos código repetitivo |
+| MapStruct | 1.6.3 | Mapeo entre entidades y DTO |
+| springdoc-openapi | 3.0.3 | Documentación OpenAPI y Swagger UI |
 | MySQL | 8.0 | Base de datos relacional |
-| Lombok | — | Menos código repetitivo |
-| MapStruct | 1.5.5 | Mapeo de objetos |
-| SpringDoc OpenAPI | 2.3.0 | Documentación automática de las APIs |
-| Maven | — | Dependencias y build |
+| H2 | gestionada por Spring Boot 4.0.3 | Base de datos en memoria para las pruebas |
+| Maven (wrapper) | 3.9.12 | Dependencias y build |
 
 ### Frontend
 
 | Tecnología | Versión | Para qué |
 |---|---|---|
-| React | 19.2.0 | Interfaz de usuario |
+| React | 19.2.4 | Interfaz de usuario |
 | Vite | 7.3.1 | Build y servidor de desarrollo |
 | React Router DOM | 7.13.1 | Enrutado |
 | Axios | 1.13.5 | Cliente HTTP |
 | Bootstrap | 5.3.8 | Diseño responsivo |
 | Bootstrap Icons | 1.13.1 | Iconografía |
-| PDF-Lib | 1.17.1 | Generación de los tickets en PDF |
-| ESLint | 9.39.1 | Linting |
+| pdf-lib | 1.17.1 | Generación de los tickets en PDF |
 
-### Infraestructura
+### Infraestructura y calidad
 
-**Docker** para contenerizar cada servicio, **Docker Compose** para orquestarlos, **Nginx** sirviendo el frontend y **MySQL** como base de datos.
-
----
-
-## Documentación de las APIs
-
-Cada microservicio publica su documentación con Swagger/OpenAPI:
-
-```
-http://localhost:8080/swagger-ui.html    # User
-http://localhost:8081/swagger-ui.html    # Event
-http://localhost:8082/swagger-ui.html    # Booking
-http://localhost:8083/swagger-ui.html    # Payment
-```
+| Tecnología | Versión | Para qué |
+|---|---|---|
+| Docker Compose | v2 o superior | Orquestación de los seis contenedores |
+| nginx | `nginx:alpine` | Sirve el frontend y hace de proxy de `/api/v1` |
+| Imágenes de build | `eclipse-temurin` 17, `node:20-alpine` | Construcción de servicios y frontend |
+| spotless + google-java-format | 3.10.4 + 1.35.0 (AOSP) | Formato del código Java |
+| maven-checkstyle-plugin + Checkstyle | 3.6.0 + 12.3.1 | Reglas de estilo Java |
+| pitest-maven + junit5 plugin | 1.17.0 + 1.2.2 | Mutation testing |
+| ESLint / Prettier | 9.39.3 / 3.9.10 | Lint y formato de los frontends |
+| GitHub Actions | Java 17 (temurin), Node 22 | Integración continua |
 
 ---
 
-## Despliegue
+## Puesta en marcha
 
-El proyecto está completamente dockerizado. Docker Compose orquesta seis contenedores:
+Requisitos: **Docker o Podman con Compose v2+** y **make** (GNU o POSIX). JDK 17 y Node 22 solo hacen falta para
+construir o probar fuera de los contenedores.
 
-- 1 de MySQL
-- 4 de los microservicios backend
-- 1 del frontend con Nginx
+```bash
+cp infra/.env.example infra/.env   # cambia las contraseñas de ejemplo
+make up
+```
 
-Con una red Docker dedicada para la comunicación entre servicios y volúmenes persistentes para la base de datos.
+La primera vez se construyen las imágenes y el stack tarda unos 2–3 minutos en estar sano. Después, abre
+<http://localhost>.
+
+```bash
+make ps      # estado de los contenedores
+make logs    # logs en directo
+make down    # parar el stack
+make clean   # parar y borrar el volumen de MySQL (necesario tras cambiar el esquema)
+```
+
+> [!TIP]
+> **Docker o Podman rootless.** Si el host no permite publicar el puerto 80 (`net.ipv4.ip_unprivileged_port_start` > 80),
+> pon `BOOQI_FRONTEND_PORT=8088` en `infra/.env` y abre <http://localhost:8088>. Los montajes ya llevan `:z` para
+> SELinux, y aunque Podman descarte el `HEALTHCHECK` de las imágenes, compose declara sus propios healthchecks.
+
+## Servicios y URLs
+
+| Componente | URL | Swagger UI | Salud |
+|---|---|---|---|
+| Frontend (+ proxy de la API) | <http://localhost> (o `:8088`) | — | — |
+| user-service | <http://localhost:8080/api/v1/users> | <http://localhost:8080/swagger-ui.html> | <http://localhost:8080/actuator/health> |
+| event-service | <http://localhost:8081/api/v1/events> | <http://localhost:8081/swagger-ui.html> | <http://localhost:8081/actuator/health> |
+| booking-service | <http://localhost:8082/api/v1/bookings> | <http://localhost:8082/swagger-ui.html> | <http://localhost:8082/actuator/health> |
+| payment-service | <http://localhost:8083/api/v1/payments> | <http://localhost:8083/swagger-ui.html> | <http://localhost:8083/actuator/health> |
+| MySQL | `localhost:3307` | — | — |
+
+Los puertos `8080`–`8083` los publica el override de desarrollo (`infra/docker/docker-compose.override.yml`), que
+`make up` carga siempre. El OpenAPI en JSON está en `/v3/api-docs` de cada servicio.
+
+## Credenciales de demo
+
+| Rol | Email | Contraseña |
+|---|---|---|
+| ADMIN | `mel@booqi.com` | `admin_mel` |
+| CUSTOMER | `andres.g@email.com` | `cust_pass_1` |
+
+Son datos semilla de la base de datos local (`infra/db/init/001_init_database.sql`, guardados como hash BCrypt), no
+credenciales reales.
+
+## Comandos (Makefile)
+
+| Comando | Qué hace |
+|---|---|
+| `make help` | Muestra la ayuda (objetivo por defecto) |
+| `make up` | Construye y arranca el stack en segundo plano |
+| `make down` | Para y elimina los contenedores del stack |
+| `make clean` | Para el stack y borra sus volúmenes |
+| `make logs` | Sigue los logs del stack |
+| `make ps` | Lista los contenedores del stack |
+| `make build` | Empaqueta cada servicio y construye cada frontend |
+| `make test` | Ejecuta las pruebas de cada servicio |
+| `make lint` | Comprueba formato y lint de servicios y frontends |
+| `make format` | Aplica el formato con spotless y prettier |
+| `make compose-config` | Valida los ficheros de compose (base + override de desarrollo) |
+
+Los comandos de compose usan `infra/.env` si existe y, si no, `infra/.env.example`. Se puede forzar otro fichero con
+`make up ENV_FILE=ruta/al/.env`.
 
 ---
 
-## Estructura
+## Calidad y CI
 
-```
-booqi/
-├── services/
-│   ├── user-service/       # Microservicio de usuarios
-│   ├── event-service/      # Microservicio de eventos
-│   ├── booking-service/    # Microservicio de reservas
-│   └── payment-service/    # Microservicio de pagos
-├── frontend/               # Aplicación frontend
-├── frontend-demo/          # Demo visual del frontend (GitHub Pages)
-├── infra/                  # Configuración de despliegue
-│   ├── docker/
-│   │   └── docker-compose.yml
-│   ├── db/init/
-│   │   └── 001_init_database.sql
-│   └── .env.example
-├── docs/                   # Capturas y notas
-└── Makefile                # Comandos de build, test y despliegue
-```
+`.github/workflows/ci.yml` se ejecuta en cada push y pull request:
 
-### Patrones y prácticas
+- **backend**: los cuatro servicios en paralelo con Java 17 y `./mvnw -B verify` (compilación, pruebas, spotless y
+  checkstyle).
+- **frontend**: `frontend` y `frontend-demo` con Node 22: `npm ci`, lint, comprobación de formato, build y, en
+  `frontend`, `npm test`.
+- **compose**: validación de la configuración de compose.
 
-Arquitectura de microservicios · Repository Pattern · DTO · Mapper con MapStruct · Inyección de dependencias · Separación en capas (Controller, Service, Repository) · Bean Validation · CORS configurado · Healthchecks en los contenedores · Variables de entorno
+`.github/workflows/pages.yml` publica `frontend-demo` en GitHub Pages desde `main`.
+
+## Limitaciones conocidas
+
+Booqi es un proyecto académico y tiene limitaciones documentadas que no se han corregido, entre ellas:
+
+- La autorización solo existe en el frontend: no hay token ni sesión en el servidor, y `PUT /api/v1/users/{id}` permite
+  cambiar el rol.
+- El pago no es idempotente y no hay compensación de stock si falla un paso posterior.
+- No hay bloqueo al descontar stock, y la reserva no comprueba stock ni fecha del evento.
+- El checkout solo mira el resultado del primer pago.
+- Los datos semilla con tildes están mal codificados, así que los filtros con acentos no encuentran resultados.
+
+Lista completa en [docs/architecture.md](docs/architecture.md#limitaciones-conocidas).
+
+## Documentación
+
+- [Arquitectura](docs/architecture.md)
+- [Decisiones de arquitectura (ADR)](docs/adr/README.md)
+- [Guía de contribución](CONTRIBUTING.md)
+- Servicios: [user-service](services/user-service/README.md) ·
+  [event-service](services/event-service/README.md) ·
+  [booking-service](services/booking-service/README.md) ·
+  [payment-service](services/payment-service/README.md)
+- [Notas](docs/notes/)
 
 ---
 
-## Desarrolladores
+## Autores
 
-**Renzo Iván Ramos de los Ríos** · **Melanie Gabriela Cárdenas Hidalgo**
+**Renzo Iván Ramos de los Ríos** ([@RenzoRamosDEV](https://github.com/RenzoRamosDEV)) ·
+**Melanie Gabriela Cárdenas Hidalgo** ([@MelGabi](https://github.com/MelGabi))
 
-**Licencia**: [MIT](LICENSE)
+## Licencia
+
+[MIT](LICENSE)

@@ -1,0 +1,11 @@
+{
+  "$schema": "../node_modules/@stryker-mutator/core/schema/stryker-schema.json",
+  "testRunner": "command",
+  "commandRunner": { "command": "node --test scripts/landing-server.test.mjs" },
+  "mutate": ["scripts/landing-server.mjs"],
+  "coverageAnalysis": "off",
+  "reporters": ["clear-text", "progress"],
+  "thresholds": { "high": 98, "low": 96, "break": 95 },
+  "tempDirName": ".stryker-tmp",
+  "concurrency": 4
+}

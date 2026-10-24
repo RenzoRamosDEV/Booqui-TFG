@@ -16,5 +16,12 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true
   },
-  "include": ["vite.config.ts", "vitest.mutation.config.ts", "playwright.config.ts", "e2e"]
+  "include": [
+    "vite.config.ts",
+    "vitest.mutation.config.ts",
+    "playwright.config.ts",
+    "playwright.landing.config.ts",
+    "e2e",
+    "e2e-landing"
+  ]
 }

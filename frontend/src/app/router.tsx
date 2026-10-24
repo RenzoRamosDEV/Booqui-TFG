@@ -50,10 +50,11 @@ export const routes: RouteObject[] = [
                 Component: m.EventDetailPage,
               })),
           },
-          placeholder('/cart', {
-            title: 'Carrito',
-            description: 'Revisa las entradas que has añadido antes de pagar.',
-          }),
+          {
+            path: '/cart',
+            lazy: () =>
+              import('../features/cart/pages/CartPage').then((m) => ({ Component: m.CartPage })),
+          },
           {
             path: '/login',
             lazy: () =>
@@ -73,10 +74,13 @@ export const routes: RouteObject[] = [
           {
             element: <RequireAuth requirement="auth" />,
             children: [
-              placeholder('/checkout', {
-                title: 'Pago',
-                description: 'Confirma tus entradas y completa el pago de forma segura.',
-              }),
+              {
+                path: '/checkout',
+                lazy: () =>
+                  import('../features/checkout/pages/CheckoutPage').then((m) => ({
+                    Component: m.CheckoutPage,
+                  })),
+              },
               placeholder('/my-bookings', {
                 title: 'Mis reservas',
                 description: 'Consulta tus reservas y descarga tus entradas.',
@@ -109,4 +113,18 @@ export const routes: RouteObject[] = [
 
 export function createAppRouter() {
   return createBrowserRouter(routes)
+}
+
+export type AppRouter = ReturnType<typeof createAppRouter>
+
+/** Resolves once the first route's code has loaded, so the layout mounts only once. */
+export function routerReady(router: AppRouter): Promise<void> {
+  if (router.state.initialized) return Promise.resolve()
+  return new Promise((resolve) => {
+    const unsubscribe = router.subscribe((state) => {
+      if (!state.initialized) return
+      unsubscribe()
+      resolve()
+    })
+  })
 }

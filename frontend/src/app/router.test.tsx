@@ -99,7 +99,7 @@ describe('routes', () => {
   })
 
   it('shows a "Próximamente" placeholder for screens not built yet', async () => {
-    renderAt('/cart')
+    renderAt('/contact')
 
     expect(await screen.findByRole('heading', { name: 'Próximamente' })).toBeInTheDocument()
   })

@@ -200,20 +200,20 @@ no son `ApiError` no se reintentan; las escrituras nunca se reintentan; sin reca
 Definidas en `src/app/router.tsx` (`createBrowserRouter`), todas dentro de `AppLayout` (enlace «Saltar al
 contenido», navbar con efecto cristal, `main`, pie y transición de página con `AnimatePresence mode="wait"`).
 
-| Ruta           | Título (`· Booqi`)   | Acceso                 | Estado                                                                        |
-| -------------- | -------------------- | ---------------------- | ----------------------------------------------------------------------------- |
-| `/`            | Inicio               | Libre                  | Portada: hero, búsqueda, categorías, destacados y próximos                    |
-| `/events`      | Eventos              | Libre                  | Listado con filtros y paginación en la URL                                    |
-| `/events/:id`  | (título del evento)  | Libre                  | Detalle, mapa, selector de cantidad y carrito                                 |
-| `/cart`        | Carrito              | Libre                  | Marcador de posición                                                          |
-| `/login`       | Iniciar sesión       | Libre                  | Formulario con validación, mensaje en español para 401 y redirección          |
-| `/register`    | Crear cuenta         | Libre                  | Registro de cliente con validación de `CreateUserRequest` y errores por campo |
-| `/contact`     | Contacto             | Libre                  | Marcador de posición                                                          |
-| `/checkout`    | Pago                 | `RequireAuth('auth')`  | Marcador de posición                                                          |
-| `/my-bookings` | Mis reservas         | `RequireAuth('auth')`  | Marcador de posición                                                          |
-| `/profile`     | Mi perfil            | `RequireAuth('auth')`  | Edición del perfil (solo campos cambiados) y cambio de contraseña             |
-| `/admin`       | Administración       | `RequireAuth('admin')` | Marcador de posición                                                          |
-| `*`            | Página no encontrada | Libre                  | `NotFoundPage` con enlace a `/`                                               |
+| Ruta           | Título (`· Booqi`)   | Acceso                 | Estado                                                                             |
+| -------------- | -------------------- | ---------------------- | ---------------------------------------------------------------------------------- |
+| `/`            | Inicio               | Libre                  | Portada: hero, búsqueda, categorías, destacados y próximos                         |
+| `/events`      | Eventos              | Libre                  | Listado con filtros y paginación en la URL                                         |
+| `/events/:id`  | (título del evento)  | Libre                  | Detalle, mapa, selector de cantidad y carrito                                      |
+| `/cart`        | Carrito              | Libre                  | Líneas con cantidad acotada, total al céntimo y sin comisiones                     |
+| `/login`       | Iniciar sesión       | Libre                  | Formulario con validación, mensaje en español para 401 y redirección               |
+| `/register`    | Crear cuenta         | Libre                  | Registro de cliente con validación de `CreateUserRequest` y errores por campo      |
+| `/contact`     | Contacto             | Libre                  | Marcador de posición                                                               |
+| `/checkout`    | Pago                 | `RequireAuth('auth')`  | Revisión, método de pago y resultado por línea (reserva + pago), con QR y entradas |
+| `/my-bookings` | Mis reservas         | `RequireAuth('auth')`  | Marcador de posición                                                               |
+| `/profile`     | Mi perfil            | `RequireAuth('auth')`  | Edición del perfil (solo campos cambiados) y cambio de contraseña                  |
+| `/admin`       | Administración       | `RequireAuth('admin')` | Marcador de posición                                                               |
+| `*`            | Página no encontrada | Libre                  | `NotFoundPage` con enlace a `/`                                                    |
 
 **Carga bajo demanda.** Cada página es una ruta `lazy` de React Router: su código se descarga la primera vez que
 se visita. Mientras carga la primera ruta se muestra `RouteSkeleton` dentro del layout (`HydrateFallback`). Los
@@ -235,6 +235,22 @@ Cada página fija su `<title>` y `meta description` con `PageMeta` (React 19 los
 de posición (`PlaceholderPage`) muestran un `EmptyState` «Próximamente»; el siguiente cambio los sustituye por
 las pantallas reales. Mientras una página sale con su animación sigue montada; `RequireAuth` no redirige desde una
 página que está saliendo para no entrar en un bucle de redirecciones.
+
+## Carrito y checkout
+
+- **Carrito** (`src/features/cart/hooks/cart-store.ts`, Zustand sin `persist`: se pierde al recargar, como en la
+  app anterior). Una línea por evento con una copia del evento; la cantidad siempre está en
+  `1..min(availableTickets, 10)` (`maxQuantity`, el mismo límite que el selector del detalle). Los importes van en
+  céntimos (`src/lib/money.ts`): el total mostrado y el `totalPrice` enviado salen de la misma función, así que
+  coinciden por construcción. No hay comisión de servicio. Cerrar sesión vacía el carrito.
+- **Checkout** (`runCheckout`, función pura con dependencias inyectadas): para cada línea, en orden,
+  `POST /api/v1/bookings` y, si va bien, `POST /api/v1/payments` con el id de la reserva, el total de la línea y
+  la tarjeta sin espacios (`null` con PayPal). Una línea que falla no detiene las demás. Solo `status: APPROVED`
+  cuenta como pagada (el backend responde `201` también con `REJECTED`). Las líneas pagadas salen del carrito; las
+  rechazadas o con error se quedan y los errores se anuncian con un toast.
+- **Confirmación**: resultado por línea con código de reserva, QR y descarga de entradas. El check animado con
+  confeti (`SuccessBurst`, solo `transform`/`opacity`, 1,5 s) aparece únicamente si todo se aprobó; con
+  movimiento reducido es un fundido del check estático. No se promete ningún envío por correo.
 
 ## Entradas (PDF y QR)
 

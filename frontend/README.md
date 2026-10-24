@@ -369,9 +369,8 @@ Un único módulo en `src/features/tickets/` genera las entradas para el checkou
 - **Metadatos (D9).** `<title>`/`<meta>` de React 19, sin `react-helmet`; favicon e imagen OG = `BOOQI2.png`.
 - **Herramientas (D10).** Vite + Vitest en un solo `vite.config.ts`, ESLint plano + Prettier 3.9.10, Stryker con
   `timeout 180`, fuentes autoalojadas con `@fontsource-variable`.
-- **CI y Pages (D11).** El job `frontend` solo cubre `frontend`; el workflow de Pages queda solo manual
-  (`workflow_dispatch`) hasta que el cambio de la landing lo restaure. GitHub Pages sigue sirviendo el último
-  despliegue de la demo.
+- **CI y Pages (D11).** El job `frontend` solo cubre `frontend`; `pages.yml` publica la landing estática
+  (`../landing/`, sin build) en cada push a `main`.
 
 ## Mutation testing
 

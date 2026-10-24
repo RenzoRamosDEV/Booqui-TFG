@@ -7,7 +7,8 @@ la arquitectura descrita en [docs/architecture.md](docs/architecture.md) y las d
 
 - **JDK 17** con `JAVA_HOME` apuntando a él (los servicios compilan con `--release 17`; cada uno trae su `./mvnw`, no hace
   falta Maven instalado).
-- **Node 22** para los frontends (`frontend/` y `frontend-demo/`; ejecuta `npm ci` en cada uno la primera vez).
+- **Node 22** para `frontend/` (ejecuta `npm ci` la primera vez). `landing/` es HTML, CSS y JS estáticos y no necesita
+  instalar nada; sus pruebas se lanzan desde `frontend/` con `npm run test:landing`.
 - **Docker o Podman** con Compose v2 o superior para levantar el stack (`make up`).
 
 ## Ramas

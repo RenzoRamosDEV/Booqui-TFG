@@ -6,7 +6,7 @@
 
 Explorar eventos, reservar entradas, pagar y generar el ticket en PDF.
 
-[**Ver la demo →**](https://renzoramosdev.github.io/Booqui-TFG/)
+[**Ver la presentación del proyecto →**](https://renzoramosdev.github.io/Booqui-TFG/)
 
 ![Java](https://img.shields.io/badge/Java-17-ED8B00?logo=openjdk&logoColor=white)
 ![Spring Boot](https://img.shields.io/badge/Spring_Boot-4.0.3-6DB33F?logo=springboot&logoColor=white)
@@ -18,7 +18,7 @@ Explorar eventos, reservar entradas, pagar y generar el ticket en PDF.
 </div>
 
 > [!NOTE]
-> La demo enlazada arriba es una **demo visual del frontend**, sin los microservicios detrás. El sistema completo se levanta con Docker Compose, como se explica en [Puesta en marcha](#puesta-en-marcha).
+> El enlace de arriba es la **landing del proyecto** (una página estática, sin la app ni los microservicios detrás). El sistema completo se levanta con Docker Compose, como se explica en [Puesta en marcha](#puesta-en-marcha).
 >
 > Repositorio original: https://gitlab.com/booqui
 
@@ -74,7 +74,7 @@ las decisiones, en el [registro de ADR](docs/adr/README.md).
 
 ```
 Booqui-TFG/
-├── .github/workflows/          # ci.yml (build, test, lint) y pages.yml (demo)
+├── .github/workflows/          # ci.yml (build, test, lint) y pages.yml (landing)
 ├── services/
 │   ├── pom.xml                 # Agregador Maven de los cuatro servicios
 │   ├── user-service/           # Usuarios y login
@@ -82,7 +82,7 @@ Booqui-TFG/
 │   ├── booking-service/        # Reservas
 │   └── payment-service/        # Pagos simulados
 ├── frontend/                   # Aplicación React (Vite) servida por nginx
-├── frontend-demo/              # Demo visual del frontend (GitHub Pages)
+├── landing/                    # Landing estática (GitHub Pages)
 ├── infra/
 │   ├── docker/
 │   │   ├── docker-compose.yml
@@ -146,7 +146,7 @@ Booqui-TFG/
 |---|---|---|
 | Docker Compose | v2 o superior | Orquestación de los seis contenedores |
 | nginx | `nginx:alpine` | Sirve el frontend y hace de proxy de `/api/v1` |
-| Imágenes de build | `eclipse-temurin` 17, `node:20-alpine` | Construcción de servicios y frontend |
+| Imágenes de build | `eclipse-temurin` 17, `node:22-alpine` | Construcción de servicios y frontend |
 | spotless + google-java-format | 3.10.4 + 1.35.0 (AOSP) | Formato del código Java |
 | maven-checkstyle-plugin + Checkstyle | 3.6.0 + 12.3.1 | Reglas de estilo Java |
 | pitest-maven + junit5 plugin | 1.17.0 + 1.2.2 | Mutation testing |
@@ -231,11 +231,11 @@ Los comandos de compose usan `infra/.env` si existe y, si no, `infra/.env.exampl
 
 - **backend**: los cuatro servicios en paralelo con Java 17 y `./mvnw -B verify` (compilación, pruebas, spotless y
   checkstyle).
-- **frontend**: `frontend` y `frontend-demo` con Node 22: `npm ci`, lint, comprobación de formato, build y, en
-  `frontend`, `npm test`.
+- **frontend**: `frontend` con Node 22: `npm ci`, lint, comprobación de formato, build y `npm test`.
 - **compose**: validación de la configuración de compose.
 
-`.github/workflows/pages.yml` publica `frontend-demo` en GitHub Pages desde `main`.
+`.github/workflows/pages.yml` publica `landing/` tal cual (estática, sin build) en GitHub Pages en cada push a `main`,
+en <https://renzoramosdev.github.io/Booqui-TFG/>. Se puede abrir en local con doble clic en `landing/index.html`.
 
 ## Limitaciones conocidas
 

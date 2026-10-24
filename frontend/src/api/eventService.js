@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-const BASE = import.meta.env.VITE_EVENT_API
+const BASE = `${import.meta.env.VITE_API_BASE_URL ?? ''}/api/v1/events`
 
 export const getAllEvents = () => axios.get(BASE)
 export const getEventById = (id) => axios.get(`${BASE}/${id}`)

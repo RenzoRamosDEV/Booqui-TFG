@@ -198,3 +198,18 @@ Se recomienda **eliminar la carpeta `docs/`** para evitar confusión, ya que no 
 activa de GitHub Pages y contiene una versión obsoleta. Conviene asegurarse en
 *Settings → Pages* de que la fuente (*Source*) sea **GitHub Actions** y no *Deploy from a
 branch /docs*.
+
+---
+
+## Resuelto
+
+- `frontend/src/index.css` y `frontend-demo/src/index.css` contienen ahora la hoja de estilos
+  global mínima del punto **4.1** (reset de `box-sizing`, `scroll-behavior`, `body` con
+  DM Sans y suavizado de fuentes, `#root` a altura completa).
+- El historial de git (`git log --follow` sobre las rutas actuales y las previas
+  `front/src/index.css` y `front-demo/src/index.css`) muestra que el archivo nació ya como
+  módulo JavaScript; no existe ninguna versión con el CSS original que restaurar.
+- El código JavaScript se eliminó como código muerto en lugar de moverse a
+  `src/api/eventsApi.js`: nadie lo importaba y sus endpoints son anteriores a la API `/api/v1`.
+- Verificado: ambos `npm run build` terminan bien y los CSS emitidos no contienen `axios`,
+  `import.meta` ni `getAllEvents`.

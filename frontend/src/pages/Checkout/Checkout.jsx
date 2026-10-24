@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { PDFDocument, rgb, StandardFonts } from 'pdf-lib'
 import { createBooking } from '../../api/bookingService'
 import { processPayment } from '../../api/paymentService'
+import { getErrorMessage } from '../../api/errorMessage'
 import { useCart } from '../../context/CartContext'
 import { useAuth } from '../../context/AuthContext'
 import Navbar from '../../components/Navbar/Navbar'  // Navbar
@@ -385,7 +386,7 @@ export default function Checkout() {
         setError('Respuesta inesperada del servidor.')
       }
     } catch (err) {
-      setError(err.response?.data?.message || err.response?.data?.error || 'Error procesando el pago.')
+      setError(getErrorMessage(err, 'Error procesando el pago.'))
     } finally { setLoading(false) }
   }
 

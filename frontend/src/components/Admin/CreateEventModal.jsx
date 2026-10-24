@@ -3,6 +3,7 @@
 
 import { useState } from 'react'
 import { createEvent } from '../../api/eventService'
+import { getErrorMessage } from '../../api/errorMessage'
 import './CreateEventModal.css'
 
 // Lista de categorías disponibles para los eventos
@@ -111,7 +112,7 @@ export default function CreateEventModal({ isOpen, onClose, onEventCreated }) {
       }
     } catch (err) {
       console.error('Error creando evento:', err)
-      const errorMsg = err.response?.data?.message || 'Error al crear el evento'
+      const errorMsg = getErrorMessage(err, 'Error al crear el evento')
       setErrors({ submit: errorMsg })
     } finally {
       setLoading(false)

@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-const BASE = import.meta.env.VITE_USER_API
+const BASE = `${import.meta.env.VITE_API_BASE_URL ?? ''}/api/v1/users`
 
 export const createUser = (data) => axios.post(BASE, data)
 export const getUserByEmail = (email) =>

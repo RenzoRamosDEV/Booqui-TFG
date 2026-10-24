@@ -1,7 +1,7 @@
 //
 import axios from 'axios'
 
-const BASE = import.meta.env.VITE_BOOKING_API
+const BASE = `${import.meta.env.VITE_API_BASE_URL ?? ''}/api/v1/bookings`
 
 // Exportación nombrada explícita
 export const createBooking = (data) => axios.post(BASE, data)

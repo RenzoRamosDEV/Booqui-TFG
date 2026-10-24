@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import { getUserBookings } from '../../api/bookingService.js'
+import { getErrorMessage } from '../../api/errorMessage.js'
 import { generateTicketPDF, downloadPDF } from '../../utils/ticketGenerator'
 import Navbar from '../../components/Navbar/Navbar'
 import 'bootstrap-icons/font/bootstrap-icons.css'
@@ -73,7 +74,7 @@ export default function MyBookings() {
         
       } catch (err) {
         console.error('Error fetching bookings:', err)
-        setError(err.response?.data?.message || 'No se pudieron cargar tus reservas')
+        setError(getErrorMessage(err, 'No se pudieron cargar tus reservas'))
       } finally {
         setLoading(false)
       }

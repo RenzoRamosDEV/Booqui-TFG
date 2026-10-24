@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { useAuth } from '../../context/AuthContext'
-import { useCart } from '../../context/CartContext'
+import { useAuth } from '../../context/useAuth'
+import { useCart } from '../../context/useCart'
 import logo from '../../assets/logo_booqi_nuevo.png'
 import './Navbar.css'
 import './Navbar.mobile.css'
@@ -20,9 +20,11 @@ export default function Navbar({ hideAnnouncement = false, hideLinks = false }) 
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
-  useEffect(() => {
+  const [prevLocation, setPrevLocation] = useState(location)
+  if (location !== prevLocation) {
+    setPrevLocation(location)
     setMobileOpen(false)
-  }, [location])
+  }
 
   useEffect(() => {
     document.body.style.overflow = mobileOpen ? 'hidden' : ''

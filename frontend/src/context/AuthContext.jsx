@@ -1,6 +1,5 @@
-import { createContext, useContext, useState } from 'react'
-
-const AuthContext = createContext(null)
+import { useState } from 'react'
+import { AuthContext } from './useAuth'
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(() => {
@@ -27,5 +26,3 @@ export function AuthProvider({ children }) {
     </AuthContext.Provider>
   )
 }
-// hook personalizado que da error pero no entiendo, igual arranca la web -----------REVISAR
-export const useAuth = () => useContext(AuthContext) 

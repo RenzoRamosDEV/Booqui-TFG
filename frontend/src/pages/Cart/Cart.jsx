@@ -1,6 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom'
-import { useCart } from '../../context/CartContext'
-import { useAuth } from '../../context/AuthContext'
+import { useCart } from '../../context/useCart'
+import { useAuth } from '../../context/useAuth'
 import Navbar from '../../components/Navbar/Navbar'
 import './CartStyle.css'
 

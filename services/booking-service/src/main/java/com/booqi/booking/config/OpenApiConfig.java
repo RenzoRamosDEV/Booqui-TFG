@@ -10,15 +10,19 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class OpenApiConfig {
 
+    private static final String DESCRIPTION =
+            "Creation, lookup, filtering, confirmation and cancellation of Booqi bookings.";
+    private static final String AUTHORS = "Renzo Iván Ramos de los Ríos & Melanie Gabriela Cárdenas Hidalgo";
+
     @Bean
     public OpenAPI openApi() {
         return new OpenAPI()
                 .info(new Info()
                         .title("Booqi Booking Service API")
                         .version("v1")
-                        .description("Creation, lookup, filtering, confirmation and cancellation of Booqi bookings.")
+                        .description(DESCRIPTION)
                         .contact(new Contact()
-                                .name("Renzo Iván Ramos de los Ríos & Melanie Gabriela Cárdenas Hidalgo"))
+                                .name(AUTHORS))
                         .license(new License()
                                 .name("MIT License")
                                 .url("https://opensource.org/licenses/MIT")));

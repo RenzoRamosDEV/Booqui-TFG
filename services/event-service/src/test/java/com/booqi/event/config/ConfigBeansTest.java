@@ -16,5 +16,7 @@ class ConfigBeansTest {
         assertThat(openApi.getInfo().getDescription()).isEqualTo(
                 "Creation, lookup, filtering, update, deletion and ticket-stock management of Booqi events.");
         assertThat(openApi.getServers()).isNullOrEmpty();
+        assertThat(openApi.getInfo().getDescription()).isEqualTo("Creation, lookup, filtering, update, deletion and ticket-stock management of Booqi events.");
+        assertThat(openApi.getInfo().getContact().getName()).isEqualTo("Renzo Iván Ramos de los Ríos & Melanie Gabriela Cárdenas Hidalgo");
     }
 }

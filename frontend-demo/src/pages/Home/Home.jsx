@@ -1,4 +1,3 @@
-import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { MOCK_EVENTS } from '../../data/mockData'
 import Navbar from '../../components/Navbar/Navbar'
@@ -25,16 +24,10 @@ const HASHTAG_IMAGES = [
   { src: MOCK_EVENTS[17].urlImage, area: '3 / 4 / 4 / 5' },   // normal
 ]
 
-export default function Home() {
-  const [events, setEvents] = useState([])
-  const [loading, setLoading] = useState(true)
-  const navigate = useNavigate()
+const FEATURED_EVENTS = MOCK_EVENTS.slice(0, 6)
 
-  useEffect(() => {
-    // Simular carga desde datos mock
-    setEvents(MOCK_EVENTS.slice(0, 6))
-    setLoading(false)
-  }, [])
+export default function Home() {
+  const navigate = useNavigate()
 
   const handleEventClick = (eventId) => {
     navigate(`/events/${eventId}`)
@@ -61,11 +54,7 @@ export default function Home() {
           <Link to="/events" className="home-featured-link">Explorar más</Link>
         </div>
         <div className="home-featured-slider">
-          {loading
-            ? Array.from({ length: 6 }, (_, i) => i + 1).map(i => (
-                <div key={i} style={{ flex: '0 0 260px', height: 220, borderRadius: 6 }} className="home-skeleton" />
-              ))
-            : events.map((ev, i) => (
+          {FEATURED_EVENTS.map((ev, i) => (
                 <div 
                   key={ev.idEvent || i} 
                   className="home-featured-card" 

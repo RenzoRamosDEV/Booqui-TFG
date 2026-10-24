@@ -2,8 +2,8 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { PDFDocument, rgb, StandardFonts } from 'pdf-lib'
 import { addMockBooking, addMockPayment } from '../../data/mockData'
-import { useCart } from '../../context/CartContext'
-import { useAuth } from '../../context/AuthContext'
+import { useCart } from '../../context/useCart'
+import { useAuth } from '../../context/useAuth'
 import Navbar from '../../components/Navbar/Navbar'
 import './Checkout.css'
 
@@ -345,7 +345,7 @@ export default function Checkout() {
       const fp = payments[0]
       setConfirmedData({ cartSnapshot: [...cart], bookings, paymentId: fp.paymentId })
       setPaymentResult({ ...fp, success: true }); clearCart(); setStep(3)
-    } catch (err) {
+    } catch {
       setError('Error procesando el pago.')
     } finally { setLoading(false) }
   }

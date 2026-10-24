@@ -33,14 +33,14 @@ const features = [
 
 // confeti animado para el modal de éxito
 function Confetti() {
-  const pieces = Array.from({ length: 28 }, (_, i) => ({
+  const [pieces] = useState(() => Array.from({ length: 28 }, (_, i) => ({
     id: i,
     color: CONFETTI_COLORS[i % CONFETTI_COLORS.length],
     left: `${Math.random() * 100}%`,
     delay: `${Math.random() * 0.6}s`,
     duration: `${0.9 + Math.random() * 0.8}s`,
     size: `${6 + Math.random() * 8}px`,
-  }))
+  })))
 
   return (
     <>

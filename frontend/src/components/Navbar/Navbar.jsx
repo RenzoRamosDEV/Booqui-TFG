@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { useAuth } from '../../context/AuthContext'
-import { useCart } from '../../context/CartContext'
+import { useAuth } from '../../context/useAuth'
+import { useCart } from '../../context/useCart'
 import logo from '../../assets/logo_booqi_nuevo.png'
 import './NavbarStyle.css'
 

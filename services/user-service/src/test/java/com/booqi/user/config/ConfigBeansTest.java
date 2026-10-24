@@ -15,6 +15,8 @@ class ConfigBeansTest {
         assertThat(openApi.getInfo().getTitle()).isEqualTo("Booqi User Service API");
         assertThat(openApi.getInfo().getVersion()).isEqualTo("v1");
         assertThat(openApi.getServers()).isNullOrEmpty();
+        assertThat(openApi.getInfo().getDescription()).isEqualTo("Registration, lookup, update, deletion and login of Booqi users.");
+        assertThat(openApi.getInfo().getContact().getName()).isEqualTo("Renzo Iván Ramos de los Ríos & Melanie Gabriela Cárdenas Hidalgo");
     }
 
     @Test

@@ -50,7 +50,8 @@ class EventClientTest {
         server.expect(requestTo(EVENT_3)).andExpect(method(GET))
                 .andRespond(withSuccess("""
                         {"id":3,"title":"Obra de Teatro: La Espera","description":"Drama","availableTickets":4,
-                         "location":"Teatro Gran Via, Madrid","startDate":"2026-03-20T20:30:00","endDate":"2026-03-20T22:30:00",
+                         "location":"Teatro Gran Via, Madrid",
+                         "startDate":"2026-03-20T20:30:00","endDate":"2026-03-20T22:30:00",
                          "organizer":"Producciones Escenicas S.L.","price":40.0,"category":"Cultura",
                          "contactEmail":"tickets@teatro.com","contactPhone":"910000003","imageUrl":null,
                          "createdAt":"2026-01-01T00:00:00","updatedAt":"2026-01-01T00:00:00"}

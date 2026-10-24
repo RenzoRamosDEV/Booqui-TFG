@@ -22,6 +22,10 @@
         <mapstruct.version>1.6.3</mapstruct.version>
         <lombok-mapstruct-binding.version>0.2.0</lombok-mapstruct-binding.version>
         <springdoc.version>3.0.3</springdoc.version>
+        <spotless-maven-plugin.version>3.10.4</spotless-maven-plugin.version>
+        <google-java-format.version>1.35.0</google-java-format.version>
+        <maven-checkstyle-plugin.version>3.6.0</maven-checkstyle-plugin.version>
+        <checkstyle.version>12.3.1</checkstyle.version>
     </properties>
 
     <dependencies>
@@ -151,6 +155,83 @@
                         <value>--add-opens=java.base/java.util=ALL-UNNAMED</value>
                     </jvmArgs>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>com.diffplug.spotless</groupId>
+                <artifactId>spotless-maven-plugin</artifactId>
+                <version>${spotless-maven-plugin.version}</version>
+                <configuration>
+                    <java>
+                        <googleJavaFormat>
+                            <version>${google-java-format.version}</version>
+                            <style>AOSP</style>
+                            <reflowLongStrings>false</reflowLongStrings>
+                            <reorderImports>true</reorderImports>
+                        </googleJavaFormat>
+                    </java>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>spotless-check</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>${maven-checkstyle-plugin.version}</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>com.puppycrawl.tools</groupId>
+                        <artifactId>checkstyle</artifactId>
+                        <version>${checkstyle.version}</version>
+                    </dependency>
+                </dependencies>
+                <configuration>
+                    <consoleOutput>true</consoleOutput>
+                    <failOnViolation>true</failOnViolation>
+                    <violationSeverity>warning</violationSeverity>
+                    <includeTestSourceDirectory>true</includeTestSourceDirectory>
+                    <excludeGeneratedSources>true</excludeGeneratedSources>
+                    <checkstyleRules>
+                        <module name="Checker">
+                            <property name="charset" value="UTF-8"/>
+                            <module name="LineLength">
+                                <property name="max" value="120"/>
+                            </module>
+                            <module name="TreeWalker">
+                                <module name="AvoidStarImport"/>
+                                <module name="UnusedImports"/>
+                                <module name="RegexpSinglelineJava">
+                                    <property name="id" value="noConsoleOutput"/>
+                                    <property name="format" value="System\s*\.\s*(out|err)\s*\.|\.printStackTrace\s*\("/>
+                                    <property name="ignoreComments" value="true"/>
+                                    <property name="message" value="Use a logger instead of System.out/System.err/printStackTrace"/>
+                                </module>
+                                <module name="Regexp">
+                                    <property name="id" value="noFieldInjection"/>
+                                    <property name="format" value="@Autowired\s+(?:(?:private|protected|public|static|final|transient|volatile)\s+)*[\w.?\x3C\x3E,\[\]]+(?:\s*\x3C[^;(){}]*\x3E)?\s+\w+\s*(?:=[^;]*)?;"/>
+                                    <property name="illegalPattern" value="true"/>
+                                    <property name="ignoreComments" value="true"/>
+                                    <property name="message" value="Field injection with @Autowired is not allowed; use constructor injection"/>
+                                </module>
+                            </module>
+                        </module>
+                    </checkstyleRules>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>checkstyle-check</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

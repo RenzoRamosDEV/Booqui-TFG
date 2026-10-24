@@ -5,7 +5,7 @@ import {
   MOCK_USERS, MOCK_EVENTS, MOCK_BOOKINGS, MOCK_PAYMENTS,
   deleteMockUser, deleteMockEvent, addMockEvent
 } from '../../data/mockData'
-import { useAuth } from '../../context/AuthContext'
+import { useAuth } from '../../context/useAuth'
 import PDFPreviewModal from '../../components/PDFPreviewModal/PDFPreviewModal'
 import CreateEventModal from '../../components/CreateEventModal/CreateEventModal'
 import { downloadEventReport, getEventReportPDFUrl } from '../../utils/exportEventReport'
@@ -29,8 +29,8 @@ export default function Admin() {
 
   const [users, setUsers] = useState([...MOCK_USERS])
   const [events, setEvents] = useState([...MOCK_EVENTS])
-  const [loadingUsers, setLoadingUsers] = useState(false)
-  const [loadingEvents, setLoadingEvents] = useState(false)
+  const [loadingUsers] = useState(false)
+  const [loadingEvents] = useState(false)
 
   const [bookings] = useState([...MOCK_BOOKINGS])
   const [payments] = useState([...MOCK_PAYMENTS])

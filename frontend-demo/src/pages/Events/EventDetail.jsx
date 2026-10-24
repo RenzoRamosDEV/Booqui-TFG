@@ -2,8 +2,8 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { findEventById } from '../../data/mockData'
-import { useCart } from '../../context/CartContext'
-import { useAuth } from '../../context/AuthContext'
+import { useCart } from '../../context/useCart'
+import { useAuth } from '../../context/useAuth'
 import Navbar from '../../components/Navbar/Navbar'
 import 'bootstrap-icons/font/bootstrap-icons.css'
 import './EventDetail.css'
@@ -17,23 +17,15 @@ export default function EventDetail() {
   const { id } = useParams()
   const navigate = useNavigate()
 
-  const [event, setEvent] = useState(null)
-  const [loading, setLoading] = useState(true)
+  const event = findEventById(id)
   const [quantity, setQuantity] = useState(1)
 
   const { cart, addToCart, removeFromCart } = useCart()
   const { user } = useAuth()
 
   useEffect(() => {
-    setLoading(true)
-    const ev = findEventById(id)
-    if (ev) {
-      setEvent(ev)
-    } else {
-      navigate('/events')
-    }
-    setLoading(false)
-  }, [id, navigate])
+    if (!event) navigate('/events')
+  }, [event, navigate])
 
   const isInCart = cart?.some(i => i.idEvent === event?.idEvent)
   const isSoldOut = event?.availableTickets === 0
@@ -47,18 +39,6 @@ export default function EventDetail() {
     if (event && quantity > 0 && quantity <= event.availableTickets) {
       addToCart({ ...event, qty: quantity })
     }
-  }
-
-  if (loading) {
-    return (
-      <div className="evd-root">
-        <Navbar />
-        <div className="evd-loading">
-          <div className="spinner"></div>
-          <p>Cargando evento...</p>
-        </div>
-      </div>
-    )
   }
 
   if (!event) return null

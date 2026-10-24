@@ -16,5 +16,7 @@ class ConfigBeansTest {
         assertThat(openApi.getInfo().getDescription()).isEqualTo(
                 "Simulated processing and lookup of Booqi payments.");
         assertThat(openApi.getServers()).isNullOrEmpty();
+        assertThat(openApi.getInfo().getDescription()).isEqualTo("Simulated processing and lookup of Booqi payments.");
+        assertThat(openApi.getInfo().getContact().getName()).isEqualTo("Renzo Iván Ramos de los Ríos & Melanie Gabriela Cárdenas Hidalgo");
     }
 }

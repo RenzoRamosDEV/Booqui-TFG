@@ -7,7 +7,7 @@ FRONTENDS = frontend frontend-demo
 RESOLVE_ENV = ef="$(ENV_FILE)"; if [ -z "$$ef" ]; then if [ -f infra/.env ]; then ef=infra/.env; else ef=infra/.env.example; fi; fi
 COMPOSE = docker compose -f $(COMPOSE_FILE) -f $(COMPOSE_OVERRIDE) --env-file "$$ef"
 
-.PHONY: help up down clean logs ps build test lint compose-config
+.PHONY: help up down clean logs ps build test lint format compose-config
 
 help:
 	@echo "Targets:"
@@ -19,7 +19,8 @@ help:
 	@echo "  ps              List the stack containers"
 	@echo "  build           Package every service and build every frontend"
 	@echo "  test            Run the test suite of every service"
-	@echo "  lint            Lint every frontend"
+	@echo "  lint            Check formatting and lint every service and frontend"
+	@echo "  format          Apply spotless and prettier formatting"
 	@echo "  compose-config  Validate the compose files (base + dev override)"
 	@echo "Variables: COMPOSE_FILE=$(COMPOSE_FILE) COMPOSE_OVERRIDE=$(COMPOSE_OVERRIDE) ENV_FILE (default: infra/.env, else infra/.env.example)"
 
@@ -46,7 +47,12 @@ test:
 	for s in $(SERVICES); do (cd services/$$s && ./mvnw test) || exit 1; done
 
 lint:
-	for f in $(FRONTENDS); do (cd $$f && npm run lint) || exit 1; done
+	for s in $(SERVICES); do (cd services/$$s && ./mvnw -q spotless:check checkstyle:check) || exit 1; done
+	for f in $(FRONTENDS); do (cd $$f && npm run lint && npm run format:check) || exit 1; done
+
+format:
+	for s in $(SERVICES); do (cd services/$$s && ./mvnw -q spotless:apply) || exit 1; done
+	for f in $(FRONTENDS); do (cd $$f && npm run format) || exit 1; done
 
 compose-config:
 	$(RESOLVE_ENV); $(COMPOSE) config -q

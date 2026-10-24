@@ -1,4 +1,5 @@
-import { LogOut, Menu, Moon, Sun } from 'lucide-react'
+import { LogOut, Menu, Moon, ShoppingBag, Sun } from 'lucide-react'
+import { AnimatePresence, motion } from 'motion/react'
 import { useState } from 'react'
 import { Link, NavLink, useNavigate } from 'react-router'
 import logo from '../../assets/logo_booqi_nuevo.png'
@@ -6,6 +7,7 @@ import { Avatar } from '../../components/ui/Avatar'
 import { focusRing } from '../../components/ui/button-styles'
 import { Drawer } from '../../components/ui/Drawer'
 import { useSessionStore } from '../../features/auth/hooks/session-store'
+import { ticketCount, useCartStore } from '../../features/cart/hooks/cart-store'
 import { cn } from '../../lib/cn'
 import { useThemeStore } from '../../lib/theme-store'
 import { navLinksFor } from './nav-links'
@@ -54,9 +56,38 @@ function ThemeToggle() {
   )
 }
 
+function CartLink() {
+  const count = useCartStore((state) => ticketCount(state.lines))
+  return (
+    <Link
+      to="/cart"
+      aria-label={`Carrito, ${count} ${count === 1 ? 'entrada' : 'entradas'}`}
+      className={cn(iconButton, 'relative')}
+    >
+      <ShoppingBag aria-hidden="true" className="size-5" />
+      <AnimatePresence initial={false}>
+        {count > 0 && (
+          <motion.span
+            key={count}
+            aria-hidden="true"
+            initial={{ scale: 0.6, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.6, opacity: 0 }}
+            transition={{ type: 'spring', stiffness: 500, damping: 28 }}
+            className="absolute -top-0.5 -right-0.5 grid min-w-5 place-items-center rounded-full bg-gradient-brand px-1 text-[11px] leading-5 font-bold text-white shadow-sm dark:bg-none dark:bg-primary dark:text-primary-fg"
+          >
+            {count}
+          </motion.span>
+        )}
+      </AnimatePresence>
+    </Link>
+  )
+}
+
 export function Navbar() {
   const user = useSessionStore((state) => state.user)
   const signOut = useSessionStore((state) => state.signOut)
+  const clearCart = useCartStore((state) => state.clear)
   const navigate = useNavigate()
   const [menuOpen, setMenuOpen] = useState(false)
   const links = navLinksFor(user)
@@ -64,6 +95,7 @@ export function Navbar() {
   function logout() {
     setMenuOpen(false)
     signOut()
+    clearCart()
     navigate('/')
   }
 
@@ -87,6 +119,7 @@ export function Navbar() {
 
         <div className="ml-auto flex items-center gap-1.5">
           <ThemeToggle />
+          {user && <CartLink />}
           {user ? (
             <div className="hidden items-center gap-2 md:flex">
               <span className="flex items-center gap-2 rounded-full border border-border bg-surface/60 py-1 pr-3 pl-1">

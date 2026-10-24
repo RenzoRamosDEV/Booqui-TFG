@@ -2,6 +2,8 @@ import { act, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { RouterProvider, createMemoryRouter } from 'react-router'
 import { useSessionStore } from '../../features/auth/hooks/session-store'
+import { useCartStore } from '../../features/cart/hooks/cart-store'
+import { eventWith } from '../../test/fixtures/events'
 import { useThemeStore } from '../../lib/theme-store'
 import { userWith } from '../../test/users'
 import { Providers } from '../providers'
@@ -37,6 +39,7 @@ function hrefs(scope: ReturnType<typeof within>) {
 }
 
 beforeEach(() => {
+  useCartStore.setState({ lines: [] })
   useSessionStore.setState({ user: null })
   localStorage.clear()
   document.documentElement.className = ''
@@ -109,6 +112,50 @@ describe('AppLayout', () => {
 
     expect(useSessionStore.getState().user).toBeNull()
     expect(localStorage.getItem('booqi-session')).toBeNull()
+    expect(router.state.location.pathname).toBe('/')
+  })
+
+  it('shows a cart link with the number of tickets to a signed-in user', () => {
+    useSessionStore.setState({ user: userWith('CUSTOMER') })
+    useCartStore.setState({
+      lines: [
+        { event: eventWith({ id: 4 }), quantity: 2 },
+        { event: eventWith({ id: 7 }), quantity: 3 },
+      ],
+    })
+    renderShell()
+
+    const cartLink = within(screen.getByRole('banner')).getByRole('link', { name: /carrito/i })
+    expect(cartLink).toHaveAttribute('href', '/cart')
+    expect(cartLink).toHaveAccessibleName(expect.stringContaining('5'))
+  })
+
+  it('shows the cart link with 0 tickets for an empty cart', () => {
+    useSessionStore.setState({ user: userWith('CUSTOMER') })
+    renderShell()
+
+    expect(
+      within(screen.getByRole('banner')).getByRole('link', { name: /carrito/i }),
+    ).toHaveAccessibleName(expect.stringContaining('0'))
+  })
+
+  it('shows no cart link without a session', () => {
+    renderShell()
+
+    expect(
+      within(screen.getByRole('banner')).queryByRole('link', { name: /carrito/i }),
+    ).not.toBeInTheDocument()
+  })
+
+  it('empties the cart on logout', async () => {
+    useSessionStore.getState().signIn(userWith('CUSTOMER'))
+    useCartStore.setState({ lines: [{ event: eventWith({ id: 4 }), quantity: 1 }] })
+    const router = renderShell('/events')
+
+    await userEvent.click(screen.getByRole('button', { name: 'Cerrar sesión' }))
+
+    expect(useSessionStore.getState().user).toBeNull()
+    expect(useCartStore.getState().lines).toEqual([])
     expect(router.state.location.pathname).toBe('/')
   })
 

@@ -326,7 +326,20 @@ class EventControllerTest {
         mockMvc.perform(get(EVENTS + "/abc"))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentType(PROBLEM))
-                .andExpect(jsonPath("$.instance").value("/api/v1/events/abc"));
+                .andExpect(jsonPath("$.type").value("about:blank"))
+                .andExpect(jsonPath("$.instance").value("/api/v1/events/abc"))
+                .andExpect(content().string(not(containsString("java."))))
+                .andExpect(content().string(not(containsString("NumberFormatException"))));
+        verifyNoInteractions(eventService);
+    }
+
+    @Test
+    void decrementStock_cantidadNoNumerica_retorna400SinTiposJava() throws Exception {
+        mockMvc.perform(patch(EVENTS + "/1/stock").param("quantity", "abc"))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().contentType(PROBLEM))
+                .andExpect(jsonPath("$.type").value("about:blank"))
+                .andExpect(content().string(not(containsString("java."))));
         verifyNoInteractions(eventService);
     }
 

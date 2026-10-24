@@ -39,6 +39,7 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -314,6 +315,26 @@ class UserControllerTest {
                 .andExpect(jsonPath("$.status").value(422))
                 .andExpect(jsonPath("$.detail").value("Rule broken"))
                 .andExpect(jsonPath("$.instance").value("/api/v1/users/3"));
+    }
+
+    @Test
+    void metodoNoSoportado_retorna405AboutBlank() throws Exception {
+        mockMvc.perform(patch(USERS))
+                .andExpect(status().isMethodNotAllowed())
+                .andExpect(content().contentType(PROBLEM))
+                .andExpect(jsonPath("$.type").value("about:blank"))
+                .andExpect(jsonPath("$.status").value(405))
+                .andExpect(jsonPath("$.instance").value(USERS));
+        verifyNoInteractions(userService);
+    }
+
+    @Test
+    void findById_noNumerico_noExponeTiposJava() throws Exception {
+        mockMvc.perform(get(USERS + "/abc"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.type").value("about:blank"))
+                .andExpect(content().string(not(containsString("java."))))
+                .andExpect(content().string(not(containsString("NumberFormatException"))));
     }
 
     @Test

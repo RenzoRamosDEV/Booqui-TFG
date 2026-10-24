@@ -297,7 +297,10 @@ class PaymentControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentType(PROBLEM))
                 .andExpect(jsonPath("$.type").value("about:blank"))
-                .andExpect(jsonPath("$.instance").value(PAYMENTS));
+                .andExpect(jsonPath("$.instance").value(PAYMENTS))
+                .andExpect(jsonPath("$.errors[0].field").value(param))
+                .andExpect(jsonPath("$.errors[0].message").value("Invalid value for parameter '" + param + "'"))
+                .andExpect(content().string(not(containsString("java."))));
         verifyNoInteractions(paymentService);
     }
 
@@ -346,7 +349,8 @@ class PaymentControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentType(PROBLEM))
                 .andExpect(jsonPath("$.type").value("about:blank"))
-                .andExpect(jsonPath("$.instance").value("/api/v1/payments/abc"));
+                .andExpect(jsonPath("$.instance").value("/api/v1/payments/abc"))
+                .andExpect(content().string(not(containsString("java."))));
         verifyNoInteractions(paymentService);
     }
 

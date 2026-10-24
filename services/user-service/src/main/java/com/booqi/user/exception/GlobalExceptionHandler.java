@@ -63,19 +63,21 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         List<Map<String, String>> errors = ex.getBindingResult().getFieldErrors().stream()
                 .map(error -> Map.of(
                         "field", error.getField(),
-                        "message", String.valueOf(error.getDefaultMessage())))
+                        "message", error.isBindingFailure()
+                                ? "Invalid value for parameter '" + error.getField() + "'"
+                                : String.valueOf(error.getDefaultMessage())))
                 .toList();
         body.setProperty("errors", errors);
         return handleExceptionInternal(ex, body, headers, status, request);
     }
 
     @Override
-    protected ResponseEntity<Object> handleExceptionInternal(Exception ex, Object body, HttpHeaders headers,
-                                                             HttpStatusCode statusCode, WebRequest request) {
+    protected ResponseEntity<Object> createResponseEntity(Object body, HttpHeaders headers,
+                                                          HttpStatusCode statusCode, WebRequest request) {
         if (body instanceof ProblemDetail problemDetail) {
             problemDetail.setType(ABOUT_BLANK);
         }
-        return super.handleExceptionInternal(ex, body, headers, statusCode, request);
+        return super.createResponseEntity(body, headers, statusCode, request);
     }
 
     private static ProblemDetail problem(HttpStatus status, String detail) {

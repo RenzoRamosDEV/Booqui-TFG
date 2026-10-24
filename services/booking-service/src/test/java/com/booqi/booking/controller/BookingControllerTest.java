@@ -262,7 +262,10 @@ class BookingControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentType(PROBLEM))
                 .andExpect(jsonPath("$.type").value("about:blank"))
-                .andExpect(jsonPath("$.instance").value(BOOKINGS));
+                .andExpect(jsonPath("$.instance").value(BOOKINGS))
+                .andExpect(jsonPath("$.errors[0].field").value("userId"))
+                .andExpect(jsonPath("$.errors[0].message").value("Invalid value for parameter 'userId'"))
+                .andExpect(content().string(not(containsString("java."))));
         verifyNoInteractions(bookingService);
     }
 
@@ -311,7 +314,8 @@ class BookingControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentType(PROBLEM))
                 .andExpect(jsonPath("$.type").value("about:blank"))
-                .andExpect(jsonPath("$.instance").value("/api/v1/bookings/abc"));
+                .andExpect(jsonPath("$.instance").value("/api/v1/bookings/abc"))
+                .andExpect(content().string(not(containsString("java."))));
         verifyNoInteractions(bookingService);
     }
 

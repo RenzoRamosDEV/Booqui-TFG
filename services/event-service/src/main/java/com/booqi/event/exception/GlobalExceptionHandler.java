@@ -58,7 +58,9 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         List<Map<String, String>> errors = ex.getBindingResult().getFieldErrors().stream()
                 .map(error -> Map.of(
                         "field", error.getField(),
-                        "message", String.valueOf(error.getDefaultMessage())))
+                        "message", error.isBindingFailure()
+                                ? "Invalid value for parameter '" + error.getField() + "'"
+                                : String.valueOf(error.getDefaultMessage())))
                 .toList();
         body.setProperty("errors", errors);
         return handleExceptionInternal(ex, body, headers, status, request);

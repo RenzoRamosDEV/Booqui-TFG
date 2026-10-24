@@ -1,6 +1,7 @@
 name: Deploy to GitHub Pages
 
-# Publishes the static landing as-is: no Node, no install, no build.
+# Publishes the static landing as-is at the site root and, under demo/, the backend-less demo of the
+# React app (frontend/, built with `npm run build:demo`).
 on:
   push:
     branches: [main]
@@ -22,10 +23,31 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Build the demo
+        working-directory: frontend
+        run: npm run build:demo
+
+      - name: Assemble the site (landing + demo/)
+        run: |
+          mkdir -p _site
+          cp -R landing/. _site/
+          cp -R frontend/dist-demo _site/demo
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: landing
+          path: _site
 
   deploy:
     runs-on: ubuntu-latest

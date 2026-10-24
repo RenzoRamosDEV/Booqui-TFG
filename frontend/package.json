@@ -17,6 +17,7 @@
     "test": "vitest run",
     "test:e2e": "playwright test",
     "test:landing": "node --test scripts/landing-server.test.mjs && playwright test -c playwright.landing.config.ts",
+    "landing:screenshots": "playwright test -c playwright.capture.config.ts",
     "test:mutation": "timeout 180 stryker run",
     "test:mutation:landing-server": "timeout 180 stryker run scripts/stryker.landing-server.json"
   },

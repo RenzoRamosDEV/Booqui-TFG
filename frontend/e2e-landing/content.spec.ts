@@ -144,3 +144,42 @@ test.describe('landing content', () => {
     expect(overflow).toBeLessThanOrEqual(0)
   })
 })
+
+const CURRENT_SCREENSHOT = /^[a-z-]+-(light|dark)-(640|1280)\.webp$/
+
+test.describe('screenshots section', () => {
+  test('shows light and dark screenshots with complete, lazy, responsive images', async ({
+    page,
+  }) => {
+    await page.goto('./')
+    const images = await page.locator('#capturas img').evaluateAll((nodes) =>
+      nodes.map((node) => ({
+        src: node.getAttribute('src') ?? '',
+        alt: node.getAttribute('alt') ?? '',
+        width: node.getAttribute('width') ?? '',
+        height: node.getAttribute('height') ?? '',
+        loading: node.getAttribute('loading'),
+        decoding: node.getAttribute('decoding'),
+        srcset: node.getAttribute('srcset') ?? '',
+        caption: node.closest('figure')?.querySelector('figcaption')?.textContent ?? '',
+      })),
+    )
+
+    expect(images.some((image) => image.src.includes('-light-'))).toBe(true)
+    expect(images.some((image) => image.src.includes('-dark-'))).toBe(true)
+    for (const image of images) {
+      expect(image.alt.trim().length).toBeGreaterThan(10)
+      expect(image.alt).not.toContain('.webp')
+      expect(image.width).toMatch(/^\d+$/)
+      expect(image.height).toMatch(/^\d+$/)
+      expect(image.loading).toBe('lazy')
+      expect(image.decoding).toBe('async')
+      expect(image.srcset).toMatch(/\S+-640\.webp 640w/)
+      expect(image.srcset).toMatch(/\S+-1280\.webp 1280w/)
+      const fileName = image.src.split('/').at(-1) ?? ''
+      if (!CURRENT_SCREENSHOT.test(fileName)) {
+        expect(image.caption).toContain('captura de la versión anterior')
+      }
+    }
+  })
+})

@@ -755,6 +755,61 @@ main:focus {
     center / 0.65rem no-repeat;
 }
 
+/* ---------- Screenshots ---------- */
+
+.gallery {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.shot {
+  display: grid;
+  gap: 0.75rem;
+  margin: 0;
+}
+
+.shot__frame {
+  position: relative;
+  overflow: hidden;
+  padding-top: 1.75rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  box-shadow: var(--shadow-lg);
+}
+
+.shot__frame--dark {
+  border-color: #2f2a3a;
+  background: #1c1922;
+}
+
+.shot__frame::before {
+  content: '';
+  position: absolute;
+  top: 0.625rem;
+  left: 0.875rem;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: #f87171;
+  box-shadow:
+    0.875rem 0 0 #fbbf24,
+    1.75rem 0 0 #4ade80;
+}
+
+.shot img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.shot figcaption {
+  color: var(--fg-muted);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  text-align: center;
+}
+
 /* ---------- Architecture diagram ---------- */
 
 .diagram {
@@ -1005,6 +1060,15 @@ pre code {
   .features,
   .stack-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .gallery {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 2rem;
+  }
+
+  .shot--wide {
+    grid-column: 1 / -1;
   }
 
   .split {

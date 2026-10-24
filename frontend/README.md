@@ -21,19 +21,20 @@ local (`make up` desde la raíz del repositorio).
 
 ## Scripts
 
-| Script                  | Qué hace                                                        |
-| ----------------------- | --------------------------------------------------------------- |
-| `npm run dev`           | Servidor de desarrollo con HMR                                  |
-| `npm run build`         | Comprueba tipos (`tsc -b`, modo estricto) y genera `dist/`      |
-| `npm run preview`       | Sirve `dist/` en local                                          |
-| `npm run lint`          | ESLint                                                          |
-| `npm run format`        | Aplica Prettier                                                 |
-| `npm run format:check`  | Comprueba el formato con Prettier                               |
-| `npm test`              | Ejecuta una vez todas las pruebas unitarias (Vitest, sin watch) |
-| `npm run test:mutation` | Mutation testing de la lógica con Stryker (máx. 3 min)          |
-| `npm run test:e2e`      | Pruebas end-to-end con Playwright (Chromium)                    |
-| `npm run serve:landing` | Sirve `../landing` en `http://localhost:4190/Booqui-TFG/`       |
-| `npm run test:landing`  | Pruebas del servidor y de la landing (ver [Landing](#landing))  |
+| Script                        | Qué hace                                                        |
+| ----------------------------- | --------------------------------------------------------------- |
+| `npm run dev`                 | Servidor de desarrollo con HMR                                  |
+| `npm run build`               | Comprueba tipos (`tsc -b`, modo estricto) y genera `dist/`      |
+| `npm run preview`             | Sirve `dist/` en local                                          |
+| `npm run lint`                | ESLint                                                          |
+| `npm run format`              | Aplica Prettier                                                 |
+| `npm run format:check`        | Comprueba el formato con Prettier                               |
+| `npm test`                    | Ejecuta una vez todas las pruebas unitarias (Vitest, sin watch) |
+| `npm run test:mutation`       | Mutation testing de la lógica con Stryker (máx. 3 min)          |
+| `npm run test:e2e`            | Pruebas end-to-end con Playwright (Chromium)                    |
+| `npm run serve:landing`       | Sirve `../landing` en `http://localhost:4190/Booqui-TFG/`       |
+| `npm run test:landing`        | Pruebas del servidor y de la landing (ver [Landing](#landing))  |
+| `npm run landing:screenshots` | Regenera las capturas WebP y los iconos de la landing           |
 
 Antes de la primera ejecución de las pruebas end-to-end hay que instalar el navegador:
 
@@ -145,6 +146,20 @@ sirve su `index.html`, y cualquier otra ruta, un fichero inexistente o un intent
 devuelven 404. Las pruebas de Playwright cargan la landing por `file://` y bajo el subpath y comprueban que no hay
 peticiones fallidas ni errores de consola, que las fuentes salen de `assets/fonts/`, el tema, las animaciones y el
 contenido.
+
+Las capturas de `landing/assets/screenshots/` salen de la app nueva, sin backend:
+
+```bash
+npm run landing:screenshots
+```
+
+`playwright.capture.config.ts` reutiliza la configuración de Playwright (build y `vite preview` en el puerto 4180)
+pero solo ejecuta `e2e/capture/*.capture.ts`, así que `npm run test:e2e` nunca lo lanza. La captura usa la API
+simulada de `e2e/support/mock-api.ts` (y `signInAs(page, admin)` para el panel), una ventana de 1280×800 con
+movimiento reducido y bloquea cualquier petición externa. Hace portada (claro y oscuro), catálogo (claro), detalle
+de evento (oscuro) y administración (claro), y las convierte a WebP de 640 y 1280 px (calidad 0,8) dibujándolas en
+un `<canvas>` de Chromium, sin dependencias de imagen. Por el mismo camino regenera `assets/icon-32.png` y
+`assets/icon-192.png` a partir de `public/BOOQI2.png`.
 
 El tema usa la misma clave que la app, `localStorage['booqi-theme']` (`light` o `dark`), y el mismo script en
 línea antes del primer pintado, así que la elección se comparte con la app cuando ambas están en el mismo origen.

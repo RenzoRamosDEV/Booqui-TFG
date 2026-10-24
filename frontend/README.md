@@ -136,6 +136,43 @@ Las animaciones salen de `src/lib/motion.ts` (`overlayTransition`, `toastTransit
 movimiento reducido devuelven solo fundidos de opacidad de 150 ms. `Dialog`/`Drawer` no usan `<dialog>` nativo:
 jsdom no implementa `showModal` y la animación de salida necesita el elemento montado.
 
+## HTTP y errores
+
+Todas las llamadas pasan por la instancia única `http` de `src/lib/http.ts` (Axios): `baseURL` =
+`VITE_API_BASE_URL` (vacío por defecto), cabeceras JSON y nada más. No hay interceptor de petición: el backend no
+emite token ni cookie, así que no se envía `Authorization` ni se reintenta/refresca nada ante un `401`.
+
+El interceptor de respuesta convierte cualquier fallo en un `ApiError` (`src/lib/api-error.ts`), una clase que
+extiende `Error` (funciona con `instanceof` también dentro de TanStack Query):
+
+| Campo         | Origen                                                                                                       |
+| ------------- | ------------------------------------------------------------------------------------------------------------ |
+| `status`      | Estado HTTP de la respuesta; `0` sin respuesta (red caída, timeout); `-1` si el fallo no es HTTP (bug local) |
+| `title`       | `title` del ProblemDetail si es texto; si no, vacío                                                          |
+| `detail`      | Primer valor no vacío entre `detail`, `message` y `error` del cuerpo; si no hay (o el cuerpo es HTML), vacío |
+| `fieldErrors` | `errors[{ field, message }]` → `{ [field]: message }`, ignorando elementos mal formados; ausente si no hay   |
+
+`userMessage(error, overrides?)` (`src/lib/error-messages.ts`) da el texto que ve el usuario: el `detail` si no
+está en blanco; si no, la sobrescritura de la pantalla para ese estado, y si no, el mensaje por defecto:
+
+| Estado | Mensaje                                              |
+| ------ | ---------------------------------------------------- |
+| 400    | Datos inválidos. Revisa los campos.                  |
+| 401    | No tienes autorización para esta acción.             |
+| 404    | No se ha encontrado lo que buscas.                   |
+| 409    | Ya existe un registro con esos datos.                |
+| 422    | La operación no se puede completar.                  |
+| 503    | El servicio no está disponible. Inténtalo más tarde. |
+| 0      | No se pudo conectar con el servidor.                 |
+| otro   | Ha ocurrido un error inesperado.                     |
+
+Los `detail` de negocio del backend llegan en inglés y se muestran tal cual; las pantallas que necesiten texto en
+español lo sustituyen por estado con `overrides`.
+
+Política de TanStack Query (`createQueryClient()` en `src/lib/query-client.ts`): las lecturas fallidas con estado
+`0` o `≥ 500` se reintentan una sola vez (absorbe un `503` puntual de booking/payment); los `4xx` y los errores que
+no son `ApiError` no se reintentan; las escrituras nunca se reintentan; sin recarga al volver el foco a la ventana.
+
 ## Mutation testing
 
 `npm run test:mutation` ejecuta Stryker sobre `src/lib/**`, `src/features/**/api/**` y `src/features/**/hooks/**`

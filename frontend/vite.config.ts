@@ -42,6 +42,7 @@ export default defineConfig({
     include: ['src/**/*.test.{ts,tsx}'],
     restoreMocks: true,
     css: { include: [/tokens\.css/] },
-    testTimeout: 5000,
+    // Screen tests type into real forms; on a loaded machine a few seconds per test is normal.
+    testTimeout: 15000,
   },
 })

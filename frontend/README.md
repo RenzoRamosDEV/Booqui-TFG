@@ -200,20 +200,20 @@ no son `ApiError` no se reintentan; las escrituras nunca se reintentan; sin reca
 Definidas en `src/app/router.tsx` (`createBrowserRouter`), todas dentro de `AppLayout` (enlace «Saltar al
 contenido», navbar con efecto cristal, `main`, pie y transición de página con `AnimatePresence mode="wait"`).
 
-| Ruta           | Título (`· Booqi`)   | Acceso                 | Estado                                                     |
-| -------------- | -------------------- | ---------------------- | ---------------------------------------------------------- |
-| `/`            | Inicio               | Libre                  | Portada: hero, búsqueda, categorías, destacados y próximos |
-| `/events`      | Eventos              | Libre                  | Listado con filtros y paginación en la URL                 |
-| `/events/:id`  | (título del evento)  | Libre                  | Detalle, mapa, selector de cantidad y carrito              |
-| `/cart`        | Carrito              | Libre                  | Marcador de posición                                       |
-| `/login`       | Iniciar sesión       | Libre                  | Marcador de posición                                       |
-| `/register`    | Crear cuenta         | Libre                  | Marcador de posición                                       |
-| `/contact`     | Contacto             | Libre                  | Marcador de posición                                       |
-| `/checkout`    | Pago                 | `RequireAuth('auth')`  | Marcador de posición                                       |
-| `/my-bookings` | Mis reservas         | `RequireAuth('auth')`  | Marcador de posición                                       |
-| `/profile`     | Mi perfil            | `RequireAuth('auth')`  | Marcador de posición                                       |
-| `/admin`       | Administración       | `RequireAuth('admin')` | Marcador de posición                                       |
-| `*`            | Página no encontrada | Libre                  | `NotFoundPage` con enlace a `/`                            |
+| Ruta           | Título (`· Booqi`)   | Acceso                 | Estado                                                                        |
+| -------------- | -------------------- | ---------------------- | ----------------------------------------------------------------------------- |
+| `/`            | Inicio               | Libre                  | Portada: hero, búsqueda, categorías, destacados y próximos                    |
+| `/events`      | Eventos              | Libre                  | Listado con filtros y paginación en la URL                                    |
+| `/events/:id`  | (título del evento)  | Libre                  | Detalle, mapa, selector de cantidad y carrito                                 |
+| `/cart`        | Carrito              | Libre                  | Marcador de posición                                                          |
+| `/login`       | Iniciar sesión       | Libre                  | Formulario con validación, mensaje en español para 401 y redirección          |
+| `/register`    | Crear cuenta         | Libre                  | Registro de cliente con validación de `CreateUserRequest` y errores por campo |
+| `/contact`     | Contacto             | Libre                  | Marcador de posición                                                          |
+| `/checkout`    | Pago                 | `RequireAuth('auth')`  | Marcador de posición                                                          |
+| `/my-bookings` | Mis reservas         | `RequireAuth('auth')`  | Marcador de posición                                                          |
+| `/profile`     | Mi perfil            | `RequireAuth('auth')`  | Edición del perfil (solo campos cambiados) y cambio de contraseña             |
+| `/admin`       | Administración       | `RequireAuth('admin')` | Marcador de posición                                                          |
+| `*`            | Página no encontrada | Libre                  | `NotFoundPage` con enlace a `/`                                               |
 
 **Carga bajo demanda.** Cada página es una ruta `lazy` de React Router: su código se descarga la primera vez que
 se visita. Mientras carga la primera ruta se muestra `RouteSkeleton` dentro del layout (`HydrateFallback`). Los

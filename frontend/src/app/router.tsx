@@ -54,14 +54,18 @@ export const routes: RouteObject[] = [
             title: 'Carrito',
             description: 'Revisa las entradas que has añadido antes de pagar.',
           }),
-          placeholder('/login', {
-            title: 'Iniciar sesión',
-            description: 'Accede a tu cuenta de Booqi para reservar y consultar tus entradas.',
-          }),
-          placeholder('/register', {
-            title: 'Crear cuenta',
-            description: 'Regístrate en Booqi para reservar entradas en tus eventos favoritos.',
-          }),
+          {
+            path: '/login',
+            lazy: () =>
+              import('../features/auth/pages/LoginPage').then((m) => ({ Component: m.LoginPage })),
+          },
+          {
+            path: '/register',
+            lazy: () =>
+              import('../features/auth/pages/RegisterPage').then((m) => ({
+                Component: m.RegisterPage,
+              })),
+          },
           placeholder('/contact', {
             title: 'Contacto',
             description: '¿Tienes dudas? Escríbenos y te responderemos lo antes posible.',
@@ -77,10 +81,13 @@ export const routes: RouteObject[] = [
                 title: 'Mis reservas',
                 description: 'Consulta tus reservas y descarga tus entradas.',
               }),
-              placeholder('/profile', {
-                title: 'Mi perfil',
-                description: 'Consulta y actualiza los datos de tu cuenta.',
-              }),
+              {
+                path: '/profile',
+                lazy: () =>
+                  import('../features/auth/pages/ProfilePage').then((m) => ({
+                    Component: m.ProfilePage,
+                  })),
+              },
             ],
           },
           {

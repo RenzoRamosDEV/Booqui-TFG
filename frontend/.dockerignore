@@ -1,2 +1,10 @@
 node_modules
 dist
+coverage
+reports
+playwright-report
+test-results
+.stryker-tmp
+.env
+.env.*
+!.env.example

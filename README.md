@@ -125,13 +125,19 @@ Booqui-TFG/
 
 | Tecnología | Versión | Para qué |
 |---|---|---|
-| React | 19.2.4 | Interfaz de usuario |
-| Vite | 7.3.1 | Build y servidor de desarrollo |
-| React Router DOM | 7.13.1 | Enrutado |
-| Axios | 1.13.5 | Cliente HTTP |
-| Bootstrap | 5.3.8 | Diseño responsivo |
-| Bootstrap Icons | 1.13.1 | Iconografía |
-| pdf-lib | 1.17.1 | Generación de los tickets en PDF |
+| React | 19.3.1 | Interfaz de usuario |
+| TypeScript | 6.0.3 | Tipado estricto (`strict: true`) |
+| Vite | 8.3.5 | Build y servidor de desarrollo |
+| Tailwind CSS | 4.3.3 | Estilos y sistema de diseño (tokens en CSS) |
+| motion | 14.6.0 | Animaciones (respetando `prefers-reduced-motion`) |
+| React Router | 7.18.4 | Enrutado |
+| TanStack Query | 5.104.5 | Estado de servidor y caché |
+| Axios | 1.20.0 | Cliente HTTP único |
+| React Hook Form + Zod | 7.91.0 + 4.6.7 | Formularios y validación |
+| Zustand | 5.0.16 | Sesión y tema |
+| Lucide React | 1.61.0 | Iconografía |
+| Vitest + Testing Library | 5.0.5 + 16.3.3 | Pruebas unitarias y de componentes |
+| Playwright | 1.64.1 | Pruebas end-to-end |
 
 ### Infraestructura y calidad
 

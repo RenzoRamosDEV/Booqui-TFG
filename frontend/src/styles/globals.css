@@ -87,3 +87,36 @@
   background-clip: text;
   color: transparent;
 }
+
+@layer components {
+  .brand-pattern {
+    background-image: radial-gradient(var(--pattern-dot) 1px, transparent 1px);
+    background-size: 22px 22px;
+    mask-image: radial-gradient(ellipse 70% 60% at 50% 30%, #000 30%, transparent 75%);
+  }
+
+  .brand-blob {
+    animation: brand-float 14s ease-in-out infinite alternate;
+    will-change: transform;
+  }
+
+  .brand-blob--slow {
+    animation-duration: 18s;
+    animation-delay: -6s;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .brand-blob {
+      animation: none;
+    }
+  }
+}
+
+@keyframes brand-float {
+  from {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  to {
+    transform: translate3d(24px, 18px, 0) scale(1.06);
+  }
+}

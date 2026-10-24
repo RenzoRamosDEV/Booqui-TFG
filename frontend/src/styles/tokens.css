@@ -64,6 +64,12 @@
   --shadow-md: 0 0 0 1px rgb(255 255 255 / 0.05), 0 8px 24px -12px rgb(0 0 0 / 0.6);
   --shadow-lg: 0 0 0 1px rgb(255 255 255 / 0.06), 0 24px 48px -16px rgb(0 0 0 / 0.7);
 
+  --gradient-brand: linear-gradient(
+    135deg,
+    var(--brand-300) 0%,
+    var(--brand-400) 50%,
+    #e879f9 100%
+  );
   --glass: rgb(28 25 34 / 0.68);
   --glass-border: rgb(255 255 255 / 0.08);
   --gradient-soft:

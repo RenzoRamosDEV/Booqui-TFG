@@ -194,6 +194,54 @@ no son `ApiError` no se reintentan; las escrituras nunca se reintentan; sin reca
 - **Solo en el cliente.** Los roles se comprueban únicamente en el navegador; el backend no tiene autorización y
   cualquiera puede llamar a la API directamente. Los guards son experiencia de usuario, no seguridad.
 
+## Rutas
+
+Definidas en `src/app/router.tsx` (`createBrowserRouter`), todas dentro de `AppLayout` (enlace «Saltar al
+contenido», navbar con efecto cristal, `main`, pie y transición de página con `AnimatePresence mode="wait"`).
+
+| Ruta           | Título (`· Booqi`)   | Acceso                 | Estado                                   |
+| -------------- | -------------------- | ---------------------- | ---------------------------------------- |
+| `/`            | Inicio               | Libre                  | Marcador de posición con `BrandBackdrop` |
+| `/events`      | Eventos              | Libre                  | Marcador de posición                     |
+| `/events/:id`  | Detalle del evento   | Libre                  | Marcador de posición                     |
+| `/cart`        | Carrito              | Libre                  | Marcador de posición                     |
+| `/login`       | Iniciar sesión       | Libre                  | Marcador de posición                     |
+| `/register`    | Crear cuenta         | Libre                  | Marcador de posición                     |
+| `/contact`     | Contacto             | Libre                  | Marcador de posición                     |
+| `/checkout`    | Pago                 | `RequireAuth('auth')`  | Marcador de posición                     |
+| `/my-bookings` | Mis reservas         | `RequireAuth('auth')`  | Marcador de posición                     |
+| `/profile`     | Mi perfil            | `RequireAuth('auth')`  | Marcador de posición                     |
+| `/admin`       | Administración       | `RequireAuth('admin')` | Marcador de posición                     |
+| `*`            | Página no encontrada | Libre                  | `NotFoundPage` con enlace a `/`          |
+
+Cada página fija su `<title>` y `meta description` con `PageMeta` (React 19 los sube a `<head>`). Los marcadores
+de posición (`PlaceholderPage`) muestran un `EmptyState` «Próximamente»; el siguiente cambio los sustituye por
+las pantallas reales. Mientras una página sale con su animación sigue montada; `RequireAuth` no redirige desde una
+página que está saliendo para no entrar en un bucle de redirecciones.
+
+## Decisiones
+
+- **HTTP (D2).** Una única instancia Axios sin interceptor de petición; los errores se normalizan a `ApiError`
+  y `userMessage` produce el texto en español.
+- **TanStack Query (D3).** Un reintento solo para estado `0` o `≥ 500`; escrituras sin reintento; sin recarga al
+  recuperar el foco.
+- **Sesión (D4).** Zustand + `persist` en `booqi-session`, validada con Zod al rehidratar; sin migrar la clave
+  antigua `booqi_user`.
+- **Guards (D5).** Funciones puras (`resolveAccess`, `loginRedirectPath`, `resolvePostLoginPath`) y un elemento
+  de ruta `RequireAuth`; el contenido protegido nunca se monta si no hay permiso.
+- **Tema (D6).** Tokens CSS en `:root`/`.dark`, script en línea sin parpadeo y la misma regla en
+  `src/lib/theme.ts`, unidas por un test golden.
+- **Movimiento (D7).** `MotionConfig reducedMotion="user"` y presets puros en `src/lib/motion.ts` que, con
+  movimiento reducido, devuelven solo fundidos ≤ 150 ms; solo se animan `transform` y `opacity`.
+- **Componentes (D8).** Hechos a mano sobre Tailwind, sin `clsx`/`tailwind-merge`; overlays con portal y
+  `useFocusTrap` en vez de `<dialog>`; toasts con contexto de React (Zustand queda solo para sesión y tema).
+- **Metadatos (D9).** `<title>`/`<meta>` de React 19, sin `react-helmet`; favicon e imagen OG = `BOOQI2.png`.
+- **Herramientas (D10).** Vite + Vitest en un solo `vite.config.ts`, ESLint plano + Prettier 3.9.10, Stryker con
+  `timeout 180`, fuentes autoalojadas con `@fontsource-variable`.
+- **CI y Pages (D11).** El job `frontend` solo cubre `frontend`; el workflow de Pages queda solo manual
+  (`workflow_dispatch`) hasta que el cambio de la landing lo restaure. GitHub Pages sigue sirviendo el último
+  despliegue de la demo.
+
 ## Mutation testing
 
 `npm run test:mutation` ejecuta Stryker sobre `src/lib/**`, `src/features/**/api/**` y `src/features/**/hooks/**`

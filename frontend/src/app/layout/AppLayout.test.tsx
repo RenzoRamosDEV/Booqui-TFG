@@ -1,0 +1,153 @@
+import { render, screen, waitFor, within } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
+import { RouterProvider, createMemoryRouter } from 'react-router'
+import { useSessionStore } from '../../features/auth/hooks/session-store'
+import { useThemeStore } from '../../lib/theme-store'
+import { userWith } from '../../test/users'
+import { Providers } from '../providers'
+import { AppLayout } from './AppLayout'
+
+function renderShell(path = '/') {
+  const router = createMemoryRouter(
+    [
+      {
+        element: <AppLayout />,
+        children: [
+          { path: '/', element: <p>Inicio de prueba</p> },
+          { path: '/events', element: <p>Eventos de prueba</p> },
+        ],
+      },
+    ],
+    { initialEntries: [path] },
+  )
+  render(
+    <Providers>
+      <RouterProvider router={router} />
+    </Providers>,
+  )
+  return router
+}
+
+function primaryNav() {
+  return within(screen.getByRole('navigation', { name: 'Principal' }))
+}
+
+function hrefs(scope: ReturnType<typeof within>) {
+  return scope.getAllByRole('link').map((link: HTMLElement) => link.getAttribute('href'))
+}
+
+beforeEach(() => {
+  useSessionStore.setState({ user: null })
+  localStorage.clear()
+  document.documentElement.className = ''
+  useThemeStore.setState({ theme: 'light' })
+})
+
+describe('AppLayout', () => {
+  it('renders the header, navigation, main and footer landmarks', () => {
+    renderShell()
+
+    expect(screen.getByRole('banner')).toBeInTheDocument()
+    expect(screen.getByRole('navigation', { name: 'Principal' })).toBeInTheDocument()
+    expect(screen.getByRole('main')).toHaveTextContent('Inicio de prueba')
+    expect(screen.getByRole('contentinfo')).toBeInTheDocument()
+  })
+
+  it('makes the skip link the first focusable element and moves focus to main', async () => {
+    const user = userEvent.setup()
+    renderShell()
+
+    await user.tab()
+    const skip = screen.getByRole('link', { name: 'Saltar al contenido' })
+    expect(skip).toHaveFocus()
+    expect(skip).toHaveAttribute('href', '#main')
+
+    await user.keyboard('{Enter}')
+    expect(screen.getByRole('main')).toHaveFocus()
+  })
+
+  it('always links to home, events and contact', () => {
+    renderShell()
+
+    expect(hrefs(primaryNav())).toEqual(expect.arrayContaining(['/', '/events', '/contact']))
+  })
+
+  it('shows login and register without a session and no logout', () => {
+    renderShell()
+
+    const header = within(screen.getByRole('banner'))
+    expect(header.getByRole('link', { name: 'Iniciar sesión' })).toHaveAttribute('href', '/login')
+    expect(header.getByRole('link', { name: 'Crear cuenta' })).toHaveAttribute('href', '/register')
+    expect(header.queryByRole('button', { name: 'Cerrar sesión' })).not.toBeInTheDocument()
+    expect(hrefs(primaryNav())).not.toContain('/my-bookings')
+  })
+
+  it('shows the customer links, name and logout, without admin', () => {
+    useSessionStore.setState({ user: userWith('CUSTOMER', 'Mel') })
+    renderShell()
+
+    const header = within(screen.getByRole('banner'))
+    expect(hrefs(primaryNav())).toEqual(expect.arrayContaining(['/my-bookings', '/profile']))
+    expect(hrefs(primaryNav())).not.toContain('/admin')
+    expect(header.getByText('Mel')).toBeInTheDocument()
+    expect(header.getByRole('button', { name: 'Cerrar sesión' })).toBeInTheDocument()
+    expect(header.queryByRole('link', { name: 'Iniciar sesión' })).not.toBeInTheDocument()
+  })
+
+  it('shows the admin link to an admin', () => {
+    useSessionStore.setState({ user: userWith('ADMIN') })
+    renderShell()
+
+    expect(hrefs(primaryNav())).toContain('/admin')
+  })
+
+  it('logs out, clearing the session and going home', async () => {
+    useSessionStore.getState().signIn(userWith('CUSTOMER'))
+    const router = renderShell('/events')
+
+    await userEvent.click(screen.getByRole('button', { name: 'Cerrar sesión' }))
+
+    expect(useSessionStore.getState().user).toBeNull()
+    expect(localStorage.getItem('booqi-session')).toBeNull()
+    expect(router.state.location.pathname).toBe('/')
+  })
+
+  it('switches the theme with the toggle', async () => {
+    renderShell()
+
+    await userEvent.click(screen.getByRole('button', { name: 'Activar tema oscuro' }))
+
+    expect(document.documentElement).toHaveClass('dark')
+    expect(screen.getByRole('button', { name: 'Activar tema claro' })).toBeInTheDocument()
+  })
+
+  it('opens a drawer with the same links from the mobile menu button', async () => {
+    useSessionStore.setState({ user: userWith('ADMIN') })
+    renderShell()
+
+    await userEvent.click(screen.getByRole('button', { name: 'Abrir menú' }))
+
+    const drawer = within(screen.getByRole('dialog', { name: 'Menú' }))
+    expect(hrefs(drawer)).toEqual(expect.arrayContaining(hrefs(primaryNav())))
+    expect(drawer.getByRole('button', { name: 'Cerrar sesión' })).toBeInTheDocument()
+  })
+
+  it('closes the drawer after following a link', async () => {
+    renderShell()
+    await userEvent.click(screen.getByRole('button', { name: 'Abrir menú' }))
+
+    await userEvent.click(
+      within(screen.getByRole('dialog', { name: 'Menú' })).getByRole('link', { name: 'Eventos' }),
+    )
+
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
+    expect(screen.getByRole('main')).toHaveTextContent('Eventos de prueba')
+  })
+
+  it('offers keyboard-reachable footer links', () => {
+    renderShell()
+
+    const footer = within(screen.getByRole('contentinfo'))
+    expect(hrefs(footer)).toEqual(expect.arrayContaining(['/events', '/contact']))
+  })
+})

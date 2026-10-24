@@ -239,6 +239,13 @@ main:focus {
   color: var(--fg);
 }
 
+.site-nav .site-nav__demo {
+  margin-left: 0.25rem;
+  border: 1px solid var(--border);
+  color: var(--brand-ink);
+  font-weight: 600;
+}
+
 .icon-button {
   display: grid;
   place-items: center;

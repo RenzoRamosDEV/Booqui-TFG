@@ -22,10 +22,11 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: 'node scripts/serve-landing.mjs',
+    // Builds the demo first so the assembled site (landing + demo/) is what gets tested, as on Pages.
+    command: 'npm run build:demo && node scripts/serve-landing.mjs',
     port,
     env: { LANDING_PORT: String(port) },
     reuseExistingServer: false,
-    timeout: 30_000,
+    timeout: 180_000,
   },
 })

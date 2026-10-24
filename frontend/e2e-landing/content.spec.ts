@@ -67,17 +67,30 @@ test.describe('landing content', () => {
     await expect(page.locator(`footer a[href="${REPO_URL}"]`).first()).toBeVisible()
   })
 
-  test('has no demo link or button and no link to a deployed app', async ({ page }) => {
-    const controls = await page.locator('a, button').evaluateAll((nodes) =>
-      nodes.map((node) => ({
-        text: `${node.textContent ?? ''} ${node.getAttribute('aria-label') ?? ''}`,
-        href: node.getAttribute('href') ?? '',
-      })),
-    )
-    expect(controls.filter((c) => /demo/i.test(c.text) || /demo/i.test(c.href))).toEqual([])
-    const deployed = controls
-      .filter((c) => /^https?:/.test(c.href))
-      .filter((c) => DEPLOYED_APP_HOSTS.test(new URL(c.href).hostname))
+  test('links to the demo from the section nav and the hero', async ({ page }) => {
+    // The section nav is hidden below 60rem, so query it by markup; the hero link covers phones.
+    const navLinks = page.locator('nav.site-nav a')
+    await expect(navLinks).toHaveText([
+      'Qué es',
+      'Capturas',
+      'Arquitectura',
+      'Stack',
+      'Ejecutar',
+      'Ver demo',
+    ])
+    await expect(navLinks.last()).toHaveAttribute('href', 'demo/')
+    const hero = page.locator('#inicio').getByRole('link', { name: 'Ver demo' })
+    await expect(hero).toBeVisible()
+    await expect(hero).toHaveAttribute('href', 'demo/')
+  })
+
+  test('has no link to a deployed app outside the site', async ({ page }) => {
+    const hrefs = await page
+      .locator('a')
+      .evaluateAll((nodes) => nodes.map((node) => node.getAttribute('href') ?? ''))
+    const deployed = hrefs
+      .filter((href) => /^https?:/.test(href))
+      .filter((href) => DEPLOYED_APP_HOSTS.test(new URL(href).hostname))
     expect(deployed).toEqual([])
   })
 

@@ -23,7 +23,7 @@
         <lombok-mapstruct-binding.version>0.2.0</lombok-mapstruct-binding.version>
         <springdoc.version>3.0.3</springdoc.version>
         <spotless-maven-plugin.version>3.10.4</spotless-maven-plugin.version>
-        <google-java-format.version>1.35.0</google-java-format.version>
+        <google-java-format.version>1.28.0</google-java-format.version>
         <maven-checkstyle-plugin.version>3.6.0</maven-checkstyle-plugin.version>
         <checkstyle.version>12.3.1</checkstyle.version>
     </properties>

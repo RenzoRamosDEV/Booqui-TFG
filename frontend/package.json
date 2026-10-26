@@ -18,7 +18,6 @@
     "test:e2e": "playwright test",
     "test:e2e:real": "playwright test -c playwright.real.config.ts",
     "test:pages": "node --test scripts/pages-server.test.mjs && playwright test -c playwright.pages.config.ts",
-    "landing:screenshots": "playwright test -c playwright.capture.config.ts",
     "test:mutation": "timeout 180 stryker run",
     "test:mutation:pages-server": "timeout 180 stryker run scripts/stryker.pages-server.json",
     "test:mutation:demo": "timeout 180 stryker run stryker.demo.json",

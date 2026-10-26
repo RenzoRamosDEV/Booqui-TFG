@@ -20,7 +20,7 @@ backend no ofrece, en [`BACKEND_GAPS.md`](BACKEND_GAPS.md). El detalle técnico 
   administración (usuarios, eventos y ventas con informe PDF), página no encontrada, error de ruta y sin conexión.
 - **Entradas**: un único módulo genera en el navegador las entradas PDF y los QR, usado desde la confirmación de
   compra y desde «Mis reservas».
-- **Landing**: página estática en `landing/` con capturas de la app en claro y oscuro, publicada en GitHub Pages.
+- **Demo**: la app sin backend, con datos simulados, publicada en la raíz de GitHub Pages.
 - **Calidad**: 1086 pruebas unitarias y de componentes (Vitest), 30 E2E con la API simulada (la puerta de CI),
   mutation testing con Stryker y, en esta entrega, una suite E2E contra el stack real de compose: los flujos de
   login, compra y «Mis reservas», más un recorrido con una comprobación por cada fila de `FEATURE_PARITY.md`. Las

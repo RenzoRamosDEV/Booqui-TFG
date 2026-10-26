@@ -4,13 +4,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { after, before } from 'node:test'
 import { test } from 'node:test'
-import {
-  contentType,
-  createLandingServer,
-  demoMounts,
-  resolveFile,
-  routeRequest,
-} from './landing-server.mjs'
+import { contentType, createPagesServer, resolveFile, routeRequest } from './pages-server.mjs'
 
 test('base path without trailing slash redirects to the slash form', () => {
   assert.deepEqual(routeRequest('/Booqui-TFG'), { redirect: '/Booqui-TFG/' })
@@ -25,7 +19,7 @@ test('nested directory serves its index.html', () => {
 })
 
 test('file under the base path maps to the same relative file', () => {
-  assert.deepEqual(routeRequest('/Booqui-TFG/css/landing.css'), { file: 'css/landing.css' })
+  assert.deepEqual(routeRequest('/Booqui-TFG/css/site.css'), { file: 'css/site.css' })
 })
 
 test('percent-encoded names are decoded', () => {
@@ -72,8 +66,8 @@ test('backslash is not found', () => {
 
 for (const [file, type] of [
   ['index.html', 'text/html; charset=utf-8'],
-  ['css/landing.css', 'text/css; charset=utf-8'],
-  ['js/landing.js', 'text/javascript; charset=utf-8'],
+  ['css/site.css', 'text/css; charset=utf-8'],
+  ['js/site.js', 'text/javascript; charset=utf-8'],
   ['assets/fonts/inter.woff2', 'font/woff2'],
   ['assets/inter-latin.woff', 'font/woff'],
   ['manifest.json', 'application/json; charset=utf-8'],
@@ -94,35 +88,21 @@ for (const [file, type] of [
 const mounts = { 'demo/': '/srv/demo' }
 
 for (const [file, expected] of [
-  ['index.html', '/srv/landing/index.html'],
-  ['css/landing.css', '/srv/landing/css/landing.css'],
+  ['index.html', '/srv/site/index.html'],
+  ['css/site.css', '/srv/site/css/site.css'],
   ['demo/index.html', '/srv/demo/index.html'],
   ['demo/assets/index-abc.js', '/srv/demo/assets/index-abc.js'],
-  ['demox/index.html', '/srv/landing/demox/index.html'],
-  ['demo', '/srv/landing/demo'],
-  ['assets/demo/x.png', '/srv/landing/assets/demo/x.png'],
+  ['demox/index.html', '/srv/site/demox/index.html'],
+  ['demo', '/srv/site/demo'],
+  ['assets/demo/x.png', '/srv/site/assets/demo/x.png'],
 ]) {
   test(`${file} resolves to ${expected}`, () => {
-    assert.equal(resolveFile(file, '/srv/landing', mounts), expected)
+    assert.equal(resolveFile(file, '/srv/site', mounts), expected)
   })
 }
 
-test('mounts a built demo under demo/', () => {
-  const dir = mkdtempSync(join(tmpdir(), 'dist-demo-'))
-  writeFileSync(join(dir, 'index.html'), '')
-  assert.deepEqual(demoMounts(dir), { 'demo/': dir })
-  rmSync(dir, { recursive: true, force: true })
-})
-
-test('mounts nothing when the demo folder has no index.html', () => {
-  const dir = mkdtempSync(join(tmpdir(), 'dist-demo-'))
-  assert.deepEqual(demoMounts(dir), {})
-  assert.deepEqual(demoMounts(join(dir, 'missing')), {})
-  rmSync(dir, { recursive: true, force: true })
-})
-
 test('without mounts every file resolves inside the root', () => {
-  assert.equal(resolveFile('demo/index.html', '/srv/landing'), '/srv/landing/demo/index.html')
+  assert.equal(resolveFile('demo/index.html', '/srv/site'), '/srv/site/demo/index.html')
 })
 
 test.describe('HTTP server with the demo mounted from another folder', () => {
@@ -132,13 +112,13 @@ test.describe('HTTP server with the demo mounted from another folder', () => {
   let origin
 
   before(async () => {
-    root = mkdtempSync(join(tmpdir(), 'landing-'))
+    root = mkdtempSync(join(tmpdir(), 'site-'))
     demo = mkdtempSync(join(tmpdir(), 'demo-'))
-    writeFileSync(join(root, 'index.html'), '<h1>Landing</h1>')
+    writeFileSync(join(root, 'index.html'), '<h1>Site</h1>')
     writeFileSync(join(demo, 'index.html'), '<h1>Demo</h1>')
     mkdirSync(join(demo, 'assets'))
     writeFileSync(join(demo, 'assets/app.js'), 'export {}')
-    server = createLandingServer(root, { 'demo/': demo })
+    server = createPagesServer(root, { 'demo/': demo })
     await new Promise((listening) => server.listen(0, listening))
     origin = `http://localhost:${server.address().port}`
   })
@@ -158,8 +138,8 @@ test.describe('HTTP server with the demo mounted from another folder', () => {
     assert.equal(await script.text(), 'export {}')
   })
 
-  test('still serves the landing from the root', async () => {
-    assert.equal(await (await fetch(`${origin}/Booqui-TFG/`)).text(), '<h1>Landing</h1>')
+  test('still serves the site from the root', async () => {
+    assert.equal(await (await fetch(`${origin}/Booqui-TFG/`)).text(), '<h1>Site</h1>')
   })
 
   test('answers 404 for a missing demo file', async () => {
@@ -167,18 +147,18 @@ test.describe('HTTP server with the demo mounted from another folder', () => {
   })
 })
 
-test.describe('HTTP server over a temporary landing folder', () => {
+test.describe('HTTP server over a temporary site folder', () => {
   let root
   let server
   let origin
 
   before(async () => {
-    root = mkdtempSync(join(tmpdir(), 'landing-'))
+    root = mkdtempSync(join(tmpdir(), 'site-'))
     writeFileSync(join(root, 'index.html'), '<h1>Booqi</h1>')
     mkdirSync(join(root, 'css'))
-    writeFileSync(join(root, 'css/landing.css'), 'body{}')
+    writeFileSync(join(root, 'css/site.css'), 'body{}')
     mkdirSync(join(root, 'empty'))
-    server = createLandingServer(root)
+    server = createPagesServer(root)
     await new Promise((listening) => server.listen(0, listening))
     origin = `http://localhost:${server.address().port}`
   })
@@ -199,7 +179,7 @@ test.describe('HTTP server over a temporary landing folder', () => {
   })
 
   test('serves a nested file and ignores the query string', async () => {
-    const response = await get('/Booqui-TFG/css/landing.css?v=1')
+    const response = await get('/Booqui-TFG/css/site.css?v=1')
     assert.equal(response.status, 200)
     assert.equal(response.headers.get('content-type'), 'text/css; charset=utf-8')
     assert.equal(await response.text(), 'body{}')

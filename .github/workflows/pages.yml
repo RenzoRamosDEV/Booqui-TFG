@@ -1,7 +1,7 @@
 name: Deploy to GitHub Pages
 
-# Publishes the static landing as-is at the site root and, under demo/, the backend-less demo of the
-# React app (frontend/, built with `npm run build:demo`).
+# Publishes the backend-less demo of the React app (frontend/, built with `npm run build:demo`) at the
+# site root, plus frontend/pages-site/ (demo/ redirects old /demo/ links to the root, keeping the hash).
 on:
   push:
     branches: [main]
@@ -38,11 +38,11 @@ jobs:
         working-directory: frontend
         run: npm run build:demo
 
-      - name: Assemble the site (landing + demo/)
+      - name: Assemble the site (demo + redirect from demo/)
         run: |
           mkdir -p _site
-          cp -R landing/. _site/
-          cp -R frontend/dist-demo _site/demo
+          cp -R frontend/dist-demo/. _site/
+          cp -R frontend/pages-site/. _site/
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3

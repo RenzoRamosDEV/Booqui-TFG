@@ -1,11 +1,11 @@
 import { fileURLToPath } from 'node:url'
-import { BASE, createLandingServer, demoMounts } from './landing-server.mjs'
+import { BASE, createPagesServer, demoMounts } from './pages-server.mjs'
 
 const root = fileURLToPath(new URL('../../landing/', import.meta.url))
 const mounts = demoMounts(fileURLToPath(new URL('../dist-demo/', import.meta.url)))
-const port = Number(process.env.LANDING_PORT ?? 4190)
+const port = Number(process.env.PAGES_PORT ?? 4190)
 
-createLandingServer(root, mounts).listen(port, () => {
+createPagesServer(root, mounts).listen(port, () => {
   console.log(`Landing at http://localhost:${port}${BASE}/`)
   console.log(
     mounts['demo/']

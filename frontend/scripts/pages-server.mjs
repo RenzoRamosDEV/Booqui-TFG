@@ -62,7 +62,7 @@ async function isFile(path) {
   }
 }
 
-export function createLandingServer(root, mounts = {}) {
+export function createPagesServer(root, mounts = {}) {
   return createServer(async (request, response) => {
     const route = routeRequest(new URL(request.url, 'http://localhost').pathname)
     if (route.redirect) {

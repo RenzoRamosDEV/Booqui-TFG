@@ -20,11 +20,11 @@
     "vite.config.ts",
     "vitest.mutation.config.ts",
     "playwright.config.ts",
-    "playwright.landing.config.ts",
+    "playwright.pages.config.ts",
     "playwright.capture.config.ts",
     "playwright.real.config.ts",
     "e2e",
-    "e2e-landing",
+    "e2e-pages",
     "e2e-real"
   ]
 }

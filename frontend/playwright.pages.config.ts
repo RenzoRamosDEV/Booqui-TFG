@@ -1,9 +1,9 @@
 import { defineConfig, devices } from '@playwright/test'
 
-const port = Number(process.env.LANDING_PORT ?? 4190)
+const port = Number(process.env.PAGES_PORT ?? 4190)
 
 export default defineConfig({
-  testDir: './e2e-landing',
+  testDir: './e2e-pages',
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   reporter: 'list',
@@ -23,9 +23,9 @@ export default defineConfig({
   ],
   webServer: {
     // Builds the demo first so the assembled site (landing + demo/) is what gets tested, as on Pages.
-    command: 'npm run build:demo && node scripts/serve-landing.mjs',
+    command: 'npm run build:demo && node scripts/serve-pages.mjs',
     port,
-    env: { LANDING_PORT: String(port) },
+    env: { PAGES_PORT: String(port) },
     reuseExistingServer: false,
     timeout: 180_000,
   },

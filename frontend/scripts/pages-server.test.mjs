@@ -6,11 +6,11 @@ import { after, before } from 'node:test'
 import { test } from 'node:test'
 import {
   contentType,
-  createLandingServer,
+  createPagesServer,
   demoMounts,
   resolveFile,
   routeRequest,
-} from './landing-server.mjs'
+} from './pages-server.mjs'
 
 test('base path without trailing slash redirects to the slash form', () => {
   assert.deepEqual(routeRequest('/Booqui-TFG'), { redirect: '/Booqui-TFG/' })
@@ -138,7 +138,7 @@ test.describe('HTTP server with the demo mounted from another folder', () => {
     writeFileSync(join(demo, 'index.html'), '<h1>Demo</h1>')
     mkdirSync(join(demo, 'assets'))
     writeFileSync(join(demo, 'assets/app.js'), 'export {}')
-    server = createLandingServer(root, { 'demo/': demo })
+    server = createPagesServer(root, { 'demo/': demo })
     await new Promise((listening) => server.listen(0, listening))
     origin = `http://localhost:${server.address().port}`
   })
@@ -178,7 +178,7 @@ test.describe('HTTP server over a temporary landing folder', () => {
     mkdirSync(join(root, 'css'))
     writeFileSync(join(root, 'css/landing.css'), 'body{}')
     mkdirSync(join(root, 'empty'))
-    server = createLandingServer(root)
+    server = createPagesServer(root)
     await new Promise((listening) => server.listen(0, listening))
     origin = `http://localhost:${server.address().port}`
   })

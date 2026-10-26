@@ -6,7 +6,7 @@
 
 Explorar eventos, reservar entradas, pagar y generar el ticket en PDF.
 
-[**Ver la presentación del proyecto →**](https://renzoramosdev.github.io/Booqui-TFG/) · [**Probar la demo →**](https://renzoramosdev.github.io/Booqui-TFG/demo/)
+[**Probar la demo →**](https://renzoramosdev.github.io/Booqui-TFG/) · [**Leer la documentación →**](https://renzoramosdev.github.io/Documentacion-Proyectos-Renzo-Ramos/booqi/)
 
 ![Java](https://img.shields.io/badge/Java-17-ED8B00?logo=openjdk&logoColor=white)
 ![Spring Boot](https://img.shields.io/badge/Spring_Boot-4.0.3-6DB33F?logo=springboot&logoColor=white)
@@ -18,7 +18,7 @@ Explorar eventos, reservar entradas, pagar y generar el ticket en PDF.
 </div>
 
 > [!NOTE]
-> El primer enlace es la **landing del proyecto** (una página estática). El segundo es una **demo solo visual** de la app React: corre entera en el navegador con datos simulados (cuentas de cliente y de admin a un clic), sin microservicios detrás, así que nada de lo que se haga en ella llega a ningún servidor. El sistema completo se levanta con Docker Compose, como se explica en [Puesta en marcha](#puesta-en-marcha).
+> El primer enlace es una **demo solo visual** de la app React: corre entera en el navegador con datos simulados (cuentas de cliente y de admin a un clic), sin microservicios detrás, así que nada de lo que se haga en ella llega a ningún servidor. El sistema completo se levanta con Docker Compose, como se explica en [Puesta en marcha](#puesta-en-marcha). El segundo lleva a la **documentación del proyecto**, que vive en otro sitio.
 >
 > Repositorio original: https://gitlab.com/booqui
 
@@ -84,7 +84,7 @@ las decisiones, en el [registro de ADR](docs/adr/README.md).
 
 ```
 Booqui-TFG/
-├── .github/workflows/          # ci.yml (build, test, lint) y pages.yml (landing + demo)
+├── .github/workflows/          # ci.yml (build, test, lint) y pages.yml (demo)
 ├── services/
 │   ├── pom.xml                 # Agregador Maven de los cuatro servicios
 │   ├── user-service/           # Usuarios y login
@@ -92,7 +92,6 @@ Booqui-TFG/
 │   ├── booking-service/        # Reservas
 │   └── payment-service/        # Pagos simulados
 ├── frontend/                   # Aplicación React (Vite) servida por nginx
-├── landing/                    # Landing estática (GitHub Pages)
 ├── infra/
 │   ├── docker/
 │   │   ├── docker-compose.yml
@@ -245,10 +244,11 @@ Los comandos de compose usan `infra/.env` si existe y, si no, `infra/.env.exampl
   `npm test`.
 - **compose**: validación de la configuración de compose.
 
-`.github/workflows/pages.yml` publica en GitHub Pages, en cada push a `main` (o a mano), `landing/` tal cual en
-<https://renzoramosdev.github.io/Booqui-TFG/> y la demo sin backend de la app (`npm run build:demo` en `frontend/`)
-en <https://renzoramosdev.github.io/Booqui-TFG/demo/>. La landing se puede abrir en local con doble clic en
-`landing/index.html`; para verla junto con la demo, ver [Demo en GitHub Pages](frontend/README.md#demo-en-github-pages).
+`.github/workflows/pages.yml` publica en GitHub Pages, en cada push a `main` (o a mano), solo la demo sin backend de
+la app (`npm run build:demo` en `frontend/`) en <https://renzoramosdev.github.io/Booqui-TFG/>. Los enlaces antiguos a
+`/Booqui-TFG/demo/` redirigen a la raíz conservando la ruta (`demo/#/events` → `#/events`). Para servir el sitio en
+local tal como queda en Pages, ver [Demo en GitHub Pages](frontend/README.md#demo-en-github-pages). La documentación
+del proyecto está en <https://renzoramosdev.github.io/Documentacion-Proyectos-Renzo-Ramos/booqi/>.
 
 ## Limitaciones conocidas
 

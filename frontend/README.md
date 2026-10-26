@@ -21,23 +21,23 @@ local (`make up` desde la raíz del repositorio).
 
 ## Scripts
 
-| Script                        | Qué hace                                                                                       |
-| ----------------------------- | ---------------------------------------------------------------------------------------------- |
-| `npm run dev`                 | Servidor de desarrollo con HMR                                                                 |
-| `npm run build`               | Comprueba tipos (`tsc -b`, modo estricto) y genera `dist/`                                     |
-| `npm run preview`             | Sirve `dist/` en local                                                                         |
-| `npm run lint`                | ESLint                                                                                         |
-| `npm run format`              | Aplica Prettier                                                                                |
-| `npm run format:check`        | Comprueba el formato con Prettier                                                              |
-| `npm test`                    | Ejecuta una vez todas las pruebas unitarias (Vitest, sin watch)                                |
-| `npm run build:demo`          | Genera en `dist-demo/` la demo sin backend de GitHub Pages (ver [Demo](#demo-en-github-pages)) |
-| `npm run test:mutation`       | Mutation testing de la lógica con Stryker (máx. 3 min)                                         |
-| `npm run test:mutation:demo`  | Mutation testing del backend simulado y de la demo (máx. 3 min)                                |
-| `npm run test:e2e`            | Pruebas end-to-end con Playwright (Chromium)                                                   |
-| `npm run test:e2e:real`       | E2E contra el stack de compose (ver [E2E contra el backend real](#e2e-contra-el-backend-real)) |
-| `npm run serve:landing`       | Sirve `../landing` (y `dist-demo/` bajo `demo/`) en `http://localhost:4190/Booqui-TFG/`        |
-| `npm run test:landing`        | Pruebas del servidor y de la landing (ver [Landing](#landing))                                 |
-| `npm run landing:screenshots` | Regenera las capturas WebP y los iconos de la landing                                          |
+| Script                               | Qué hace                                                                                                |
+| ------------------------------------ | ------------------------------------------------------------------------------------------------------- |
+| `npm run dev`                        | Servidor de desarrollo con HMR                                                                          |
+| `npm run build`                      | Comprueba tipos (`tsc -b`, modo estricto) y genera `dist/`                                              |
+| `npm run preview`                    | Sirve `dist/` en local                                                                                  |
+| `npm run lint`                       | ESLint                                                                                                  |
+| `npm run format`                     | Aplica Prettier                                                                                         |
+| `npm run format:check`               | Comprueba el formato con Prettier                                                                       |
+| `npm test`                           | Ejecuta una vez todas las pruebas unitarias (Vitest, sin watch)                                         |
+| `npm run build:demo`                 | Genera en `dist-demo/` la demo sin backend de GitHub Pages (ver [Demo](#demo-en-github-pages))          |
+| `npm run test:mutation`              | Mutation testing de la lógica con Stryker (máx. 3 min)                                                  |
+| `npm run test:mutation:demo`         | Mutation testing del backend simulado y de la demo (máx. 3 min)                                         |
+| `npm run test:e2e`                   | Pruebas end-to-end con Playwright (Chromium)                                                            |
+| `npm run test:e2e:real`              | E2E contra el stack de compose (ver [E2E contra el backend real](#e2e-contra-el-backend-real))          |
+| `npm run serve:pages`                | Sirve la web de Pages (`dist-demo/` y la redirección de `demo/`) en `http://localhost:4190/Booqui-TFG/` |
+| `npm run test:pages`                 | Pruebas del servidor y de la demo servida como en Pages (ver [Demo](#demo-en-github-pages))             |
+| `npm run test:mutation:pages-server` | Mutation testing del servidor local de la web de Pages (máx. 3 min)                                     |
 
 Antes de la primera ejecución de las pruebas end-to-end hay que instalar el navegador:
 
@@ -153,77 +153,25 @@ crudo) expone `theme` y `toggle()`.
 Las fuentes (Space Grotesk para titulares, Inter para el texto) se sirven desde el propio origen con
 `@fontsource-variable`; no se hace ninguna petición a Google Fonts.
 
-## Landing
-
-La página de presentación del proyecto vive fuera de la app, en `../landing/`: HTML, CSS y JavaScript sin
-build ni dependencias, que funciona abriendo `landing/index.html` con doble clic (`file://`) y servida bajo
-`/Booqui-TFG/` en GitHub Pages (todas las rutas son relativas).
-
-```
-landing/
-  index.html          # script de tema sin parpadeo en línea y diagrama SVG en línea
-  css/tokens.css      # copia byte a byte de src/styles/tokens.css (un test detecta cualquier deriva)
-  css/landing.css     # @font-face, maquetación, componentes y animaciones
-  js/landing.js       # conmutador de tema, apariciones y contadores (script clásico con defer)
-  assets/fonts/       # Space Grotesk e Inter (woff2 latin) y sus licencias OFL
-  assets/screenshots/ # capturas de la app en WebP (640 y 1280 px)
-  assets/icon-32.png  assets/icon-192.png
-```
-
-Las herramientas para probarla viven aquí, en `frontend/`, para que `landing/` no tenga `package.json`:
-
-```bash
-npm run serve:landing   # http://localhost:4190/Booqui-TFG/ (puerto configurable con LANDING_PORT)
-npm run test:landing    # node:test del servidor + Playwright (e2e-landing/, móvil 412×823 y escritorio 1280×800)
-```
-
-`scripts/landing-server.mjs` imita a GitHub Pages (y, si existe `dist-demo/index.html`, monta la demo bajo
-`/Booqui-TFG/demo/`, como el workflow de Pages): `/Booqui-TFG` redirige (301) a `/Booqui-TFG/`, un directorio
-sirve su `index.html`, y cualquier otra ruta, un fichero inexistente o un intento de salir de la carpeta (`..`)
-devuelven 404. Las pruebas de Playwright cargan la landing por `file://` y bajo el subpath y comprueban que no hay
-peticiones fallidas ni errores de consola, que las fuentes salen de `assets/fonts/`, el tema, las animaciones y el
-contenido.
-
-Las capturas de `landing/assets/screenshots/` salen de la app nueva, sin backend:
-
-```bash
-npm run landing:screenshots
-```
-
-`playwright.capture.config.ts` reutiliza la configuración de Playwright (build y `vite preview` en el puerto 4180)
-pero solo ejecuta `e2e/capture/*.capture.ts`, así que `npm run test:e2e` nunca lo lanza. La captura usa la API
-simulada de `e2e/support/mock-api.ts` (y `signInAs(page, admin)` para el panel), una ventana de 1280×800 con
-movimiento reducido y bloquea cualquier petición externa. Hace portada (claro y oscuro), catálogo (claro), detalle
-de evento (oscuro) y administración (claro), y las convierte a WebP de 640 y 1280 px (calidad 0,8) dibujándolas en
-un `<canvas>` de Chromium, sin dependencias de imagen. Por el mismo camino regenera `assets/icon-32.png` y
-`assets/icon-192.png` a partir de `public/BOOQI2.png`.
-
-Presupuesto de calidad: Lighthouse en modo móvil (el predeterminado) ≥ 95 en Rendimiento, Accesibilidad, Buenas
-prácticas y SEO, sobre la landing servida en local. Se mide tres veces y se toma la mediana:
-
-```bash
-npm run serve:landing &
-CHROME_PATH=$(node -e "import('@playwright/test').then((m) => console.log(m.chromium.executablePath()))") \
-  npx lighthouse http://localhost:4190/Booqui-TFG/ --chrome-flags="--headless=new" \
-  --output=json --output=html --output-path=reports/landing-lighthouse/landing
-```
-
-Los informes quedan en `reports/` (ignorado por git). No se ejecuta en CI: necesita un navegador y su variación en
-una máquina cargada no permite usarlo como puerta en cada push.
-
-El tema usa la misma clave que la app, `localStorage['booqi-theme']` (`light` o `dark`), y el mismo script en
-línea antes del primer pintado, así que la elección se comparte con la app cuando ambas están en el mismo origen.
-
 ## Demo en GitHub Pages
 
 GitHub Pages solo sirve ficheros estáticos, así que la demo publicada en
-<https://renzoramosdev.github.io/Booqui-TFG/demo/> (enlazada desde «Ver demo» en la landing) es la misma app con
-el backend sustituido por uno en memoria. Es **solo visual**: nada sale del navegador.
+<https://renzoramosdev.github.io/Booqui-TFG/> (la web de Pages es solo la demo) es la misma app con el backend
+sustituido por uno en memoria. Es **solo visual**: nada sale del navegador.
 
 ```bash
 npm run build:demo        # dist-demo/ (ignorado por git)
-npm run serve:landing     # landing en http://localhost:4190/Booqui-TFG/ y demo en http://localhost:4190/Booqui-TFG/demo/
+npm run serve:pages       # el sitio como en Pages: http://localhost:4190/Booqui-TFG/ (puerto con PAGES_PORT)
 ```
+
+- **Publicación**: `.github/workflows/pages.yml` copia `dist-demo/` en la raíz del sitio y encima `pages-site/`,
+  cuyo `demo/index.html` redirige los enlaces antiguos a la raíz conservando el hash
+  (`/Booqui-TFG/demo/#/events` → `/Booqui-TFG/#/events`); sin JavaScript lo hacen un `<meta http-equiv="refresh">`
+  y un enlace.
+- **Servidor local**: `scripts/pages-server.mjs` imita a GitHub Pages: sirve `dist-demo/` bajo `/Booqui-TFG/` y
+  monta `pages-site/demo/` en `demo/`; `/Booqui-TFG` redirige (301) a `/Booqui-TFG/`, un directorio sirve su
+  `index.html`, y cualquier otra ruta, un fichero inexistente o un intento de salir de la carpeta (`..`)
+  devuelven 404.
 
 - **Build aparte**: `vite build --mode demo` (o `VITE_DEMO=true`) usa `base: './'`, escribe en `dist-demo/` y
   cambia la entrada de `index.html` por `src/mocks/demo/main.tsx`. Solo esa entrada importa los módulos de la demo,
@@ -239,15 +187,17 @@ npm run serve:landing     # landing en http://localhost:4190/Booqui-TFG/ y demo 
 - **Datos**: `seed.ts` y `catalogue.ts` crean diez eventos en España con fechas relativas al momento en que se
   abre la demo (siempre futuras), sin imágenes externas (se ve el marcador de Booqi), unas ventas previas y dos
   cuentas: `cliente@booqi.demo` / `demo1234` y `admin@booqi.demo` / `demo1234`.
-- **Rutas**: Pages no tiene _fallback_ de SPA, así que la demo usa `createHashRouter` (`/Booqui-TFG/demo/#/events`);
+- **Rutas**: Pages no tiene _fallback_ de SPA, así que la demo usa `createHashRouter` (`/Booqui-TFG/#/events`);
   la app normal sigue con rutas limpias.
 - **Avisos visibles**: una etiqueta fija «Demo · datos simulados» y, en `#/login`, los botones «Entrar como
   cliente demo» y «Entrar como admin demo» con las credenciales a la vista (la ruta `/login` se sustituye solo en
   la demo por `DemoLoginPage`). El formulario de contacto mantiene su aviso de demostración de siempre.
-- **Pruebas**: `npm run test:landing` construye la demo y sirve landing + demo como en Pages;
-  `e2e-landing/demo.spec.ts` comprueba que `/Booqui-TFG/demo/` carga sin 404, sin errores de consola y sin
-  ninguna petición fuera de `/Booqui-TFG/demo/` ni a `/api/`, que la portada muestra eventos, que un enlace
-  profundo con hash sobrevive a una recarga y los dos accesos de un clic (con una compra completa).
+- **Pruebas**: `npm run test:pages` ejecuta las pruebas `node:test` del servidor y, con Playwright (móvil
+  412×823 y escritorio 1280×800), construye la demo y sirve el sitio como en Pages; `e2e-pages/demo.spec.ts`
+  comprueba que `/Booqui-TFG/` carga sin 404, sin errores de consola y sin ninguna petición fuera de
+  `/Booqui-TFG/` ni a `/api/`, que la portada muestra eventos, que un enlace profundo con hash sobrevive a una
+  recarga, los dos accesos de un clic (con una compra completa) y que `demo/` redirige a la raíz con y sin hash
+  (y sin JavaScript).
 
 ## Componentes UI
 
@@ -441,8 +391,8 @@ Un único módulo en `src/features/tickets/` genera las entradas para el checkou
 - **Metadatos (D9).** `<title>`/`<meta>` de React 19, sin `react-helmet`; favicon e imagen OG = `BOOQI2.png`.
 - **Herramientas (D10).** Vite + Vitest en un solo `vite.config.ts`, ESLint plano + Prettier 3.9.10, Stryker con
   `timeout 180`, fuentes autoalojadas con `@fontsource-variable`.
-- **CI y Pages (D11).** El job `frontend` solo cubre `frontend`; `pages.yml` publica la landing estática
-  (`../landing/`, sin build) en cada push a `main`.
+- **CI y Pages (D11).** El job `frontend` solo cubre `frontend`; `pages.yml` publica la demo sin backend
+  (`dist-demo/`) en la raíz de Pages en cada push a `main`.
 
 ## Mutation testing
 
@@ -464,15 +414,11 @@ unitarias y de hooks. En una máquina muy cargada conviene limitar `--mutate` a 
 El informe HTML queda en `reports/mutation/index.html`. Con el modo incremental el informe muestra también los
 resultados guardados de ficheros fuera del `--mutate`; la puntuación de un cambio se lee en sus filas.
 
-### Landing
+### Servidor de la web de Pages
 
-- `scripts/landing-server.mjs` (servidor de la landing) se muta con su propia configuración, que usa el
-  _command runner_ de Stryker sobre las pruebas `node:test`: `npm run test:mutation:landing-server` (máx. 3 min).
-- `../landing/js/landing.js` queda fuera de Stryker de forma justificada: es un script clásico de navegador, no un
-  módulo de `src/`, y conectar Stryker a Playwright superaría los 3 minutos. Su comportamiento lo cubren las
-  pruebas de `e2e-landing/` por clases de equivalencia (tema guardado `light`, `dark`, ausente, inválido y
-  almacenamiento que lanza; tema del sistema claro/oscuro) y valores límite de los contadores (0, 1, valor final y
-  reentrada en pantalla).
+`scripts/pages-server.mjs` se muta con su propia configuración, que usa el _command runner_ de Stryker sobre las
+pruebas `node:test`: `npm run test:mutation:pages-server` (máx. 3 min). La redirección de
+`pages-site/demo/index.html` no tiene lógica que mutar; la cubren las pruebas de `e2e-pages/`.
 
 ### Demo y backend simulado
 
@@ -491,5 +437,5 @@ no tienen lógica.
 | `src/lib/use-focus-trap.ts:51`                  | `previouslyFocused?.focus()` → `previouslyFocused.focus()` | Equivalente en la práctica: `document.activeElement` solo es `null` sin documento cargado; con la app montada siempre hay un elemento activo (como mínimo `body`). El `?.` se mantiene porque el tipo DOM admite `null`. |
 | `src/features/auth/hooks/session-store.ts:24`   | `catch { return undefined }` → `catch {}`                  | Equivalente: un bloque vacío también devuelve `undefined`, que Zod rechaza igual que antes.                                                                                                                              |
 | `src/mocks/mock-backend.ts` (`route`)           | `rawId !== undefined && …` → `true && …`                   | Equivalente: `/^\d+$/.test(undefined)` convierte el valor en el texto `'undefined'`, que no es numérico, así que `numeric` sigue siendo `false`; la guarda solo existe para que TypeScript acepte el argumento.          |
-| `scripts/landing-server.mjs` (`isFile`)         | `catch { return false }` → `catch {}`                      | Equivalente: el bloque vacío devuelve `undefined`, que el servidor trata igual que `false` (404).                                                                                                                        |
+| `scripts/pages-server.mjs` (`isFile`)           | `catch { return false }` → `catch {}`                      | Equivalente: el bloque vacío devuelve `undefined`, que el servidor trata igual que `false` (404).                                                                                                                        |
 | `src/features/events/hooks/event-filters.ts:51` | `params.get(key) ?? ''` → `?? "Stryker was here!"`         | Equivalente: cualquiera de los dos textos produce una fecha inválida y `isoDay` devuelve `undefined`; el `''` solo existe para no pasar `null` a una función que espera texto.                                           |

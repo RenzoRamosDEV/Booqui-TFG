@@ -76,6 +76,7 @@ test.describe('landing content', () => {
       'Arquitectura',
       'Stack',
       'Ejecutar',
+      'Documentación',
       'Ver demo',
     ])
     await expect(navLinks.last()).toHaveAttribute('href', 'demo/')
@@ -107,6 +108,14 @@ test.describe('landing content', () => {
 
   test('credits the author in the footer', async ({ page }) => {
     await expect(page.locator('footer')).toContainText('RenzoRamosDEV')
+  })
+
+  test('links to the documentation from the section nav and the footer', async ({ page }) => {
+    await expect(page.locator('nav.site-nav a', { hasText: 'Documentación' })).toHaveAttribute(
+      'href',
+      'docs.html',
+    )
+    await expect(page.locator('footer a[href="docs.html"]')).toBeVisible()
   })
 
   test('the architecture diagram is an inline, accessible SVG with every node', async ({
@@ -162,6 +171,56 @@ test.describe('landing content', () => {
   })
 
   test('has no horizontal scroll', async ({ page }) => {
+    const overflow = await page.evaluate(
+      () => document.documentElement.scrollWidth - window.innerWidth,
+    )
+    expect(overflow).toBeLessThanOrEqual(0)
+  })
+})
+
+test.describe('documentation page', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto('./docs.html')
+  })
+
+  test('has exactly one h1 and marks itself as the current page in the nav', async ({ page }) => {
+    await expect(page.locator('h1')).toHaveCount(1)
+    await expect(page.locator('h1')).toContainText('Booqi')
+    await expect(page.locator('nav.site-nav a[aria-current="page"]')).toHaveText('Documentación')
+  })
+
+  test('every table of contents entry points to an existing section', async ({ page }) => {
+    const targets = await page
+      .locator('[data-toc] a')
+      .evaluateAll((nodes) => nodes.map((node) => node.getAttribute('href') ?? ''))
+    expect(targets.length).toBeGreaterThan(15)
+    for (const target of targets) {
+      expect(target).toMatch(/^#[a-z-]+$/)
+      await expect(page.locator(`section${target}`)).toHaveCount(1)
+    }
+  })
+
+  test('covers the app, the services and the project', async ({ page }) => {
+    const headings = await page.locator('.doc-section h2').allTextContents()
+    for (const heading of [
+      'Probar la demo',
+      'Carrito y pago',
+      'Panel de administración',
+      'Microservicios y API',
+      'Flujo de una compra',
+      'Infraestructura',
+      'Pruebas y calidad',
+      'Limitaciones conocidas',
+    ]) {
+      expect(headings).toContain(heading)
+    }
+    for (const service of ['user-service', 'event-service', 'booking-service', 'payment-service']) {
+      await expect(page.locator('#servicios')).toContainText(service)
+    }
+  })
+
+  test('has no horizontal scroll on a phone', async ({ page }) => {
+    await page.setViewportSize({ width: 360, height: 800 })
     const overflow = await page.evaluate(
       () => document.documentElement.scrollWidth - window.innerWidth,
     )

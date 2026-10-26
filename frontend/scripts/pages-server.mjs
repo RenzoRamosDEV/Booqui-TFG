@@ -1,6 +1,6 @@
-// Static server for ../landing under /Booqui-TFG/, matching the GitHub Pages layout, with no dependencies.
-// `mounts` serves other folders under a prefix, like the built demo under demo/ on Pages.
-import { createReadStream, existsSync } from 'node:fs'
+// Static server for the GitHub Pages site under /Booqui-TFG/, matching its layout, with no dependencies.
+// `mounts` serves other folders under a prefix, like the demo/ redirect that Pages copies over the demo build.
+import { createReadStream } from 'node:fs'
 import { stat } from 'node:fs/promises'
 import { createServer } from 'node:http'
 import { extname, join } from 'node:path'
@@ -48,10 +48,6 @@ export function routeRequest(pathname) {
 export function resolveFile(file, root, mounts = {}) {
   const mount = Object.entries(mounts).find(([prefix]) => file.startsWith(prefix))
   return mount ? join(mount[1], file.slice(mount[0].length)) : join(root, file)
-}
-
-export function demoMounts(demoDir) {
-  return existsSync(join(demoDir, 'index.html')) ? { 'demo/': demoDir } : {}
 }
 
 async function isFile(path) {

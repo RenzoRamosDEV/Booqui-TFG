@@ -6,7 +6,7 @@
 
 Explorar eventos, reservar entradas, pagar y generar el ticket en PDF.
 
-[**Probar la demo →**](https://renzoramosdev.github.io/Booqui-TFG/) · [**Leer la documentación →**](https://biblioteca-renzo-ramos.vercel.app/booqi/)
+[**Probar la demo →**](https://renzoramosdev.github.io/Booqui-TFG/) · [**Leer la documentación →**](https://docs.portafolio-renzoramos.com/booqi/)
 
 ![Java](https://img.shields.io/badge/Java-17-ED8B00?logo=openjdk&logoColor=white)
 ![Spring Boot](https://img.shields.io/badge/Spring_Boot-4.0.3-6DB33F?logo=springboot&logoColor=white)
@@ -248,7 +248,7 @@ Los comandos de compose usan `infra/.env` si existe y, si no, `infra/.env.exampl
 la app (`npm run build:demo` en `frontend/`) en <https://renzoramosdev.github.io/Booqui-TFG/>. Los enlaces antiguos a
 `/Booqui-TFG/demo/` redirigen a la raíz conservando la ruta (`demo/#/events` → `#/events`). Para servir el sitio en
 local tal como queda en Pages, ver [Demo en GitHub Pages](frontend/README.md#demo-en-github-pages). La documentación
-del proyecto está en <https://biblioteca-renzo-ramos.vercel.app/booqi/>.
+del proyecto está en <https://docs.portafolio-renzoramos.com/booqi/>.
 
 ## Limitaciones conocidas
 
